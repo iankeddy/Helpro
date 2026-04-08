@@ -169,6 +169,15 @@
       <p>Hire helpers or start earning today</p>
     </div>
 
+    <!-- REFERRAL BANNER (shown when arriving via referral link) -->
+    <div id="referral-banner" style="display:none;background:#e8f7e8;border-bottom:1px solid #c8edca;padding:10px 18px;display:none;align-items:center;gap:10px">
+      <span style="font-size:18px">🎁</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1a4a1a">You were invited!</div>
+        <div style="font-size:11px;color:#4a5a4a">Sign up and get <strong>KES 50 off</strong> your first job.</div>
+      </div>
+    </div>
+
     <!-- TABS -->
     <div class="auth-tabs">
       <button class="auth-tab active" id="login-tab" onclick="switchTab('login')">Sign In</button>
@@ -221,6 +230,18 @@
           </div>
         </div>
         <input type="hidden" id="signup-role-val" value="client">
+        <input type="hidden" id="signup-ref-code" value="">
+
+        <!-- Referral code field (pre-filled if ?ref= in URL, also editable) -->
+        <div id="ref-input-wrap" style="margin-bottom:10px">
+          <div class="input-wrap" style="margin-bottom:0">
+            <i class="fas fa-gift"></i>
+            <input type="text" id="signup-referral-input" placeholder="Referral code (optional)"
+              style="text-transform:uppercase" maxlength="8"
+              oninput="this.value=this.value.toUpperCase();document.getElementById('signup-ref-code').value=this.value">
+          </div>
+        </div>
+
         <button class="btn-primary full" onclick="handleSignup()">
           <i class="fas fa-user-plus"></i> Create Account
         </button>
@@ -296,6 +317,98 @@
     const loginVisible = document.getElementById('login-form').style.display !== 'none';
     if (loginVisible) handleLogin(); else handleSignup();
   });
+
+  // ── REFERRAL CODE FROM URL ──
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      const code = ref.toUpperCase().slice(0, 8);
+      // Pre-fill hidden input and visible input
+      document.getElementById('signup-ref-code').value = code;
+      const inp = document.getElementById('signup-referral-input');
+      if (inp) inp.value = code;
+      // Show banner
+      const banner = document.getElementById('referral-banner');
+      if (banner) banner.style.display = 'flex';
+      // Auto-switch to signup tab
+      switchTab('signup');
+    }
+  })();
+
+  // ── OVERRIDE handleSignup TO CAPTURE REFERRAL ──
+  const _origHandleSignup = handleSignup;
+  async function handleSignup() {
+    const name  = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass  = document.getElementById('signup-password').value;
+    const role  = document.getElementById('signup-role-val').value;
+    const ref   = (document.getElementById('signup-ref-code').value || '').toUpperCase().trim();
+
+    if (!name || !email || !pass) { showModal('Missing Fields', 'Please fill in all fields.'); return; }
+    if (pass.length < 6) { showModal('Weak Password', 'Password must be at least 6 characters.'); return; }
+
+    // Pass referral code into signUp
+    signUpWithRef(email, pass, role, name, ref);
+  }
+
+  // signUpWithRef — wraps app.js signUp and adds referral tracking
+  async function signUpWithRef(email, password, role, fullName, refCode) {
+    if (typeof toggleLoader === 'function') toggleLoader(true);
+    try {
+      // 1. Create auth user
+      const { data, error } = await client.auth.signUp({ email, password });
+      if (error) {
+        if (typeof toggleLoader === 'function') toggleLoader(false);
+        return showModal('Signup Failed', error.message);
+      }
+
+      if (!data.user) {
+        if (typeof toggleLoader === 'function') toggleLoader(false);
+        return showModal('Success!', 'Confirm your email, then log in.');
+      }
+
+      const userId = data.user.id;
+
+      // 2. Look up referrer by code
+      let referrerId = null;
+      if (refCode) {
+        const { data: referrer } = await client.from('profiles')
+          .select('id').eq('referral_code', refCode).maybeSingle();
+        if (referrer) referrerId = referrer.id;
+      }
+
+      // 3. Create profile (include referred_by)
+      const { error: profileError } = await client.from('profiles').insert([{
+        id: userId, email, role, full_name: fullName,
+        is_vetted: false,
+        referred_by: refCode || null,
+      }]);
+
+      // 4. Create referral record if we found the referrer
+      if (referrerId && !profileError) {
+        await client.from('referrals').insert([{
+          referrer_id: referrerId,
+          referred_id: userId,
+          referral_code: refCode,
+          status: 'pending',
+          reward_amount: 100,
+        }]);
+      }
+
+      if (typeof toggleLoader === 'function') toggleLoader(false);
+      if (profileError) {
+        showModal('Error', 'Profile save failed. Please try again.');
+      } else {
+        showModal('Account Created!', referrerId
+          ? '🎉 You signed up with a referral! Confirm your email then log in to claim your KES 50 bonus.'
+          : 'Please confirm your email, then sign in.');
+      }
+    } catch(e) {
+      if (typeof toggleLoader === 'function') toggleLoader(false);
+      showModal('Error', e.message || 'Something went wrong.');
+    }
+  }
 </script>
 </body>
 </html>

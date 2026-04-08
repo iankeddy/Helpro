@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3db83a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Helpro">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <title>Invite &amp; Earn — Helpro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="nav-drawer.js"></script>
+
+<style>
+:root {
+  --green: #3db83a; --green-dark: #2a8a28; --green-mid: #4ecb4b;
+  --green-light: #e8f7e8; --green-glow: rgba(61,184,58,0.15);
+  --orange: #f07623; --orange-light: #fff3ec;
+  --black: #0c0f0a; --white: #ffffff; --surface: #f6f8f6;
+  --surface-2: #eef2ee; --border: #e0e8e0;
+  --text: #1a1f1a; --text-mid: #4a5a4a; --text-muted: #8a9a8a;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06); --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+  --radius: 20px; --radius-sm: 12px; --t: 0.2s cubic-bezier(0.4,0,0.2,1);
+  --nav-h: 64px; --bottom-nav-h: 68px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: 'DM Sans', sans-serif; background: var(--surface);
+  color: var(--text); min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-h) + 12px);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.app-header {
+  position: sticky; top:0; z-index:100; height: var(--nav-h);
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 16px; gap:10px;
+}
+.app-logo { display:flex; align-items:center; justify-content:center; flex:1; }
+.app-logo img { height:26px; cursor:pointer; }
+.app-logo-text { font-family:'Outfit',sans-serif; font-weight:900; font-size:20px; color:var(--green); }
+.icon-btn {
+  width:40px; height:40px; border-radius:50%; background:none; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:18px; color:var(--text); transition:background var(--t);
+}
+.icon-btn:hover { background:var(--surface); }
+
+/* ── HERO BANNER ── */
+.referral-hero {
+  background: linear-gradient(135deg, #1a4a1a, var(--green-dark), #3db83a);
+  padding: 32px 20px 28px; text-align: center; position: relative; overflow: hidden;
+}
+.referral-hero::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:160px; height:160px; border-radius:50%;
+  background: rgba(255,255,255,0.06);
+}
+.referral-hero::after {
+  content:''; position:absolute; bottom:-30px; left:-20px;
+  width:120px; height:120px; border-radius:50%;
+  background: rgba(255,255,255,0.04);
+}
+.hero-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 14px; position: relative; z-index:1;
+}
+.referral-hero h1 {
+  font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 24px;
+  color: white; margin-bottom: 6px; position: relative; z-index:1;
+}
+.referral-hero p {
+  font-size: 14px; color: rgba(255,255,255,0.8); max-width: 280px;
+  margin: 0 auto; line-height: 1.5; position: relative; z-index:1;
+}
+
+/* ── HOW IT WORKS ── */
+.page-content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+.section-card {
+  background: white; border-radius: var(--radius);
+  border: 1.5px solid var(--border); padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.section-title {
+  font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px;
+  color: var(--text); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title i { color: var(--green); font-size: 15px; }
+
+/* Steps */
+.steps { display: flex; flex-direction: column; gap: 12px; }
+.step {
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.step-num {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: var(--green); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 14px;
+}
+.step-body {}
+.step-title { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
+.step-desc  { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+
+/* ── REWARD PILLS ── */
+.rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.reward-pill {
+  background: var(--green-light); border: 1.5px solid #c8edca;
+  border-radius: var(--radius-sm); padding: 14px 12px; text-align: center;
+}
+.reward-amount {
+  font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px;
+  color: var(--green-dark); margin-bottom: 2px;
+}
+.reward-label { font-size: 11px; font-weight: 600; color: var(--text-mid); }
+
+/* ── YOUR CODE CARD ── */
+.code-card {
+  background: linear-gradient(135deg, #1a4a1a, var(--green-dark));
+  border-radius: var(--radius); padding: 22px 20px;
+  color: white; text-align: center;
+}
+.code-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing:0.6px; margin-bottom:8px; }
+.code-display {
+  font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 32px;
+  letter-spacing: 4px; margin-bottom: 14px;
+  background: rgba(255,255,255,0.12); border-radius: 12px;
+  padding: 10px 20px; display: inline-block;
+  border: 1.5px dashed rgba(255,255,255,0.3);
+  cursor: pointer; transition: background 0.2s;
+}
+.code-display:hover { background: rgba(255,255,255,0.2); }
+.code-hint { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+.share-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.share-btn {
+  padding: 10px 18px; border-radius: 30px; border: none;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 7px; transition: all 0.18s;
+}
+.share-btn.copy   { background: white; color: var(--green-dark); }
+.share-btn.wa     { background: #25d366; color: white; }
+.share-btn.sms    { background: #3b82f6; color: white; }
+.share-btn.more   { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+.share-btn:hover  { transform: translateY(-1px); opacity: 0.92; }
+
+/* ── NOT LOGGED IN STATE ── */
+.login-prompt {
+  text-align: center; padding: 32px 20px;
+}
+.login-prompt i { font-size: 40px; color: var(--green); margin-bottom: 12px; }
+.login-prompt h3 { font-family:'Outfit',sans-serif; font-weight:800; font-size:18px; margin-bottom:6px; }
+.login-prompt p  { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+.btn-login {
+  background: var(--green); color: white; border: none; border-radius: 30px;
+  padding: 12px 28px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+}
+.btn-login:hover { background: var(--green-dark); }
+
+/* ── REFERRAL LIST ── */
+.referral-list { display: flex; flex-direction: column; gap: 10px; }
+.referral-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--surface-2);
+}
+.referral-row:last-child { border-bottom: none; }
+.ref-avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Outfit',sans-serif; font-weight:800; font-size:13px; color:white;
+}
+.ref-info { flex:1; min-width:0; }
+.ref-name   { font-weight:700; font-size:14px; color:var(--text); }
+.ref-date   { font-size:11px; color:var(--text-muted); }
+.ref-status {
+  font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px;
+}
+.ref-status.completed { background:var(--green-light); color:var(--green-dark); }
+.ref-status.pending   { background:var(--orange-light); color:var(--orange); }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat-box {
+  background: var(--surface-2); border-radius: var(--radius-sm); padding: 14px 10px; text-align: center;
+}
+.stat-val { font-family:'Outfit',sans-serif; font-weight:900; font-size:22px; color:var(--text); }
+.stat-lbl { font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; margin-top:2px; }
+
+/* ── EMPTY STATE ── */
+.empty-ref {
+  text-align:center; padding:28px 16px;
+  color:var(--text-muted); font-size:13px;
+}
+.empty-ref i { font-size:32px; color:var(--border); margin-bottom:8px; display:block; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0; height:var(--bottom-nav-h);
+  background:rgba(255,255,255,0.96); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-around;
+  z-index:100; padding:0 8px;
+}
+.nav-item {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:none; border:none; cursor:pointer; padding:8px 12px;
+  color:var(--text-muted); transition:color var(--t);
+  font-size:10px; font-weight:600; font-family:'DM Sans',sans-serif;
+}
+.nav-item i { font-size:20px; transition:transform var(--t); }
+.nav-item.active { color:var(--green); }
+.nav-item.active i { transform:translateY(-1px); }
+.nav-item:hover { color:var(--green); }
+
+/* ── TOAST ── */
+.toast-wrap { position:fixed; bottom:calc(var(--bottom-nav-h) + 12px); left:50%; transform:translateX(-50%); z-index:4000; pointer-events:none; display:none; }
+.toast { background:var(--black); color:white; padding:11px 20px; border-radius:30px; font-size:13px; font-weight:600; box-shadow:var(--shadow-lg); white-space:nowrap; animation:toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.toast.green { background:var(--green); }
+.toast.orange { background:var(--orange); }
+</style>
+</head>
+<body>
+
+<div id="app-menu" class="app-menu hidden"></div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="toggleAppMenu()" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <div class="app-logo" onclick="goToPage('index.html')" role="img" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <div style="width:40px"></div>
+</header>
+
+<!-- HERO -->
+<div class="referral-hero">
+  <div class="hero-icon">🎁</div>
+  <h1>Invite &amp; Earn</h1>
+  <p>Share Helpro with friends and earn KES 100 for every person who joins and completes their first job.</p>
+</div>
+
+<div class="page-content">
+
+  <!-- HOW IT WORKS -->
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-list-ol"></i> How It Works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Share your unique code</div>
+          <div class="step-desc">Send your referral link or code to friends via WhatsApp, SMS, or any app.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Friend signs up &amp; joins</div>
+          <div class="step-desc">They create a Helpro account using your code — as a client or helper.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Both of you earn</div>
+          <div class="step-desc">Once they complete their first transaction, you get <strong>KES 100</strong> and they get <strong>KES 50</strong> off.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REWARDS -->
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-coins"></i> Your Rewards</div>
+    <div class="rewards-grid">
+      <div class="reward-pill">
+        <div class="reward-amount">KES 100</div>
+        <div class="reward-label">Per referral you make</div>
+      </div>
+      <div class="reward-pill">
+        <div class="reward-amount">KES 50</div>
+        <div class="reward-label">Bonus for your friend</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOUR CODE — shown when logged in -->
+  <div id="code-section" style="display:none">
+    <div class="code-card">
+      <div class="code-label">Your Referral Code</div>
+      <div class="code-display" id="code-display" onclick="copyCode()" title="Tap to copy">––––</div>
+      <div class="code-hint"><i class="fas fa-hand-pointer"></i> Tap to copy</div>
+      <div class="share-btns">
+        <button class="share-btn copy" onclick="copyCode()"><i class="fas fa-copy"></i> Copy</button>
+        <button class="share-btn wa"   onclick="shareWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        <button class="share-btn sms"  onclick="shareSMS()"><i class="fas fa-comment-sms"></i> SMS</button>
+        <button class="share-btn more" onclick="shareNative()"><i class="fas fa-share-alt"></i> More</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOT LOGGED IN -->
+  <div id="login-section" style="display:none">
+    <div class="section-card">
+      <div class="login-prompt">
+        <i class="fas fa-lock"></i>
+        <h3>Sign in to get your code</h3>
+        <p>Create an account or sign in to access your personal referral link and track your earnings.</p>
+        <button class="btn-login" onclick="goToPage('auth.html')">Sign In / Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="stats-section" style="display:none">
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-chart-bar"></i> Your Stats</div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-val" id="stat-total">0</div>
+          <div class="stat-lbl">Invited</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-completed">0</div>
+          <div class="stat-lbl">Completed</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-earned">KES 0</div>
+          <div class="stat-lbl">Earned</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFERRAL LIST -->
+  <div id="referrals-section" style="display:none">
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-users"></i> People You Referred</div>
+      <div class="referral-list" id="referral-list"></div>
+    </div>
+  </div>
+
+  <!-- T&C note -->
+  <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:0 8px 8px;line-height:1.6">
+    Rewards credited to your Helpro wallet within 48 hours of your friend's first completed transaction.
+    Helpro reserves the right to modify or discontinue this programme at any time.
+    <a href="terms.html" style="color:var(--green-dark);font-weight:600">Terms apply.</a>
+  </div>
+
+</div><!-- /page-content -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="goToPage('index.html')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="nav-item" onclick="goToPage('market.html')"><i class="fas fa-store"></i><span>Market</span></button>
+  <button class="nav-item" onclick="goToPage('dashboard.html')"><i class="fas fa-th-large"></i><span>Dashboard</span></button>
+  <button class="nav-item active"><i class="fas fa-gift"></i><span>Refer</span></button>
+</nav>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const SUPABASE_URL = 'https://cjpylodggpqqkuvojogb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcHlsb2RnZ3BxcWt1dm9qb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ3ODgsImV4cCI6MjA4MjY2MDc4OH0.DpfpuCMQr8A3QV11KRVLE2JakuRWAmoGi1Ol_QUFWRE';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true } });
+window.db = db;
+
+const REWARD_PER_REFERRAL = 100;
+const avatarColors = ['#3db83a','#3b82f6','#f07623','#8b5cf6','#ec4899','#f59e0b','#0891b2','#16a34a'];
+
+function colorFor(str) {
+  let h = 0; for (let c of (str||'?')) h = (h<<5)-h+c.charCodeAt(0);
+  return avatarColors[Math.abs(h) % avatarColors.length];
+}
+function initials(name) { return (name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(); }
+function timeAgo(d) {
+  if (!d) return '';
+  const s = Math.floor((Date.now()-new Date(d))/1000);
+  if (s<86400) return 'Today'; if (s<604800) return Math.floor(s/86400)+'d ago';
+  return new Date(d).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
+}
+
+let myCode = '';
+let myUserId = '';
+
+window.addEventListener('load', async () => {
+  const { data: { session } } = await db.auth.getSession();
+
+  if (!session) {
+    document.getElementById('login-section').style.display = 'block';
+    return;
+  }
+
+  myUserId = session.user.id;
+
+  // Load profile for code
+  const { data: profile } = await db.from('profiles')
+    .select('referral_code, full_name')
+    .eq('id', myUserId)
+    .maybeSingle();
+
+  if (profile?.referral_code) {
+    myCode = profile.referral_code;
+    document.getElementById('code-display').textContent = myCode;
+    document.getElementById('code-section').style.display = 'block';
+  }
+
+  // Load referrals
+  document.getElementById('stats-section').style.display = 'block';
+  document.getElementById('referrals-section').style.display = 'block';
+  loadReferrals();
+});
+
+async function loadReferrals() {
+  const { data: refs } = await db
+    .from('referrals')
+    .select('id, status, reward_paid, reward_amount, created_at, referred_id, profiles:referred_id(full_name)')
+    .eq('referrer_id', myUserId)
+    .order('created_at', { ascending: false });
+
+  const list = refs || [];
+  const completed = list.filter(r => r.status === 'completed');
+  const totalEarned = completed.reduce((sum, r) => sum + (parseFloat(r.reward_amount) || REWARD_PER_REFERRAL), 0);
+
+  document.getElementById('stat-total').textContent = list.length;
+  document.getElementById('stat-completed').textContent = completed.length;
+  document.getElementById('stat-earned').textContent = 'KES ' + totalEarned.toLocaleString();
+
+  const container = document.getElementById('referral-list');
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-ref"><i class="fas fa-user-plus"></i>No referrals yet. Share your code to start earning!</div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(r => {
+    const name  = r.profiles?.full_name || 'New User';
+    const color = colorFor(name);
+    const isCompleted = r.status === 'completed';
+    return `<div class="referral-row">
+      <div class="ref-avatar" style="background:${color}">${initials(name)}</div>
+      <div class="ref-info">
+        <div class="ref-name">${name}</div>
+        <div class="ref-date">${timeAgo(r.created_at)}</div>
+      </div>
+      <div class="ref-status ${isCompleted ? 'completed' : 'pending'}">
+        ${isCompleted ? '✓ Earned KES '+(r.reward_amount||REWARD_PER_REFERRAL) : '⏳ Pending'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── SHARE FUNCTIONS ── */
+function getReferralLink() {
+  return `https://helpro.co.ke/auth.html?ref=${myCode}`;
+}
+function getShareText() {
+  return `Hey! I use Helpro to find trusted helpers for errands & home services in Kenya. Use my code ${myCode} when you sign up and get KES 50 off your first job! 🎉\n${getReferralLink()}`;
+}
+
+function copyCode() {
+  const text = myCode || getReferralLink();
+  navigator.clipboard?.writeText(text).then(() => {
+    showToast('✅ Code copied!', 'green');
+    document.getElementById('code-display').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('code-display').textContent = myCode; }, 1500);
+  }).catch(() => {
+    // Fallback
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('✅ Code copied!', 'green');
+  });
+}
+
+function shareWhatsApp() {
+  const msg = encodeURIComponent(getShareText());
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+function shareSMS() {
+  const msg = encodeURIComponent(getShareText());
+  window.location.href = `sms:?body=${msg}`;
+}
+
+async function shareNative() {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Join Helpro — Trusted Local Services',
+        text: getShareText(),
+        url: getReferralLink(),
+      });
+    } catch(e) { /* user cancelled */ }
+  } else {
+    copyCode();
+  }
+}
+
+/* ── UTILS ── */
+function goToPage(p) { window.location.href = p; }
+function toggleAppMenu() { document.getElementById('app-menu')?.classList.toggle('hidden'); }
+
+let _toastTimer;
+function showToast(msg, type='') {
+  const wrap = document.getElementById('toast-wrap');
+  wrap.style.display = 'block';
+  wrap.innerHTML = `<div class="toast ${type}">${msg}</div>`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { wrap.style.display='none'; }, 3000);
+}
+</script>
+<script>document.addEventListener('DOMContentLoaded', () => initNav('referral'));</script>
+</body>
+</html>

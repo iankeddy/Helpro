@@ -13,6 +13,7 @@
     { key: 'home',      href: 'index.html',     icon: 'fa-home',       label: 'Home'        },
     { key: 'market',    href: 'market.html',     icon: 'fa-store',      label: 'Marketplace' },
     { key: 'dashboard', href: 'dashboard.html',  icon: 'fa-th-large',   label: 'Dashboard'   },
+    { key: 'referral',  href: 'referral.html',   icon: 'fa-gift',       label: 'Invite & Earn', badge: 'KES 100' },
   ];
 
   const LEGAL_ITEMS = [
@@ -26,6 +27,7 @@
     const navItems = NAV_ITEMS.map(n => `
       <button class="menu-item ${n.key === activeKey ? 'active' : ''}" onclick="goToPage('${n.href}')">
         <i class="fas ${n.icon}"></i> ${n.label}
+        ${n.badge ? `<span class="nav-badge">${n.badge}</span>` : ''}
       </button>`).join('');
 
     const legalItems = LEGAL_ITEMS.map(l => `
@@ -111,6 +113,23 @@
         flex: 1;
         height: 1px;
         background: var(--border);
+      }
+
+      /* ── NAV BADGE ── */
+      .nav-badge {
+        margin-left: auto;
+        background: var(--green);
+        color: white;
+        font-size: 9px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 10px;
+        letter-spacing: 0.2px;
+        flex-shrink: 0;
+      }
+      .menu-item.active .nav-badge {
+        background: white;
+        color: var(--green-dark);
       }
 
       /* Legal links styled same as menu-items but slightly muted */

@@ -240,6 +240,29 @@
       <div id="jobs-container">Searching...</div>
     </div>
 
+    <!-- Referral Card -->
+    <div class="card" id="referral-dash-card" style="background:linear-gradient(135deg,#1a4a1a,#2a8a28);color:white;border:none;display:none">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎁</div>
+        <div style="flex:1">
+          <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:15px;margin-bottom:2px">Invite &amp; Earn KES 100</div>
+          <div style="font-size:12px;opacity:0.8;margin-bottom:10px">Share your code — earn per friend who joins &amp; completes a job.</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div style="background:rgba(255,255,255,0.12);border:1.5px dashed rgba(255,255,255,0.4);border-radius:10px;padding:7px 16px;font-family:'Outfit',sans-serif;font-weight:900;font-size:18px;letter-spacing:3px;cursor:pointer" id="dash-ref-code" onclick="copyDashCode()">––––</div>
+            <button onclick="copyDashCode()" style="background:white;color:#1a4a1a;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px"><i class="fas fa-copy"></i> Copy</button>
+            <button onclick="window.location.href='referral.html'" style="background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.3);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px"><i class="fas fa-share-alt"></i> Share</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15);display:flex;gap:20px">
+        <div><div style="font-family:'Outfit',sans-serif;font-weight:900;font-size:20px" id="dash-ref-count">0</div><div style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:0.3px">Invited</div></div>
+        <div><div style="font-family:'Outfit',sans-serif;font-weight:900;font-size:20px" id="dash-ref-earned">KES 0</div><div style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:0.3px">Earned</div></div>
+        <div style="margin-left:auto;display:flex;align-items:center">
+          <a href="referral.html" style="color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;text-decoration:none">View all <i class="fas fa-arrow-right" style="font-size:10px"></i></a>
+        </div>
+      </div>
+    </div>
+
   </section>
 </main>
 
@@ -437,6 +460,63 @@
 </script>
 
 
+
+<script>
+// ── REFERRAL DASHBOARD WIDGET ──
+(async function initReferralWidget() {
+  // Wait for Supabase client to be ready (app.js sets window.client)
+  let attempts = 0;
+  while (!window.client && attempts++ < 30) {
+    await new Promise(r => setTimeout(r, 200));
+  }
+  const db = window.client;
+  if (!db) return;
+
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+
+  // Show card
+  const card = document.getElementById('referral-dash-card');
+  if (card) card.style.display = 'block';
+
+  // Load referral code
+  const { data: profile } = await db.from('profiles')
+    .select('referral_code')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (profile?.referral_code) {
+    const codeEl = document.getElementById('dash-ref-code');
+    if (codeEl) codeEl.textContent = profile.referral_code;
+    window._dashRefCode = profile.referral_code;
+  }
+
+  // Load referral stats
+  const { data: refs } = await db.from('referrals')
+    .select('status, reward_amount')
+    .eq('referrer_id', user.id);
+
+  const list      = refs || [];
+  const completed = list.filter(r => r.status === 'completed');
+  const earned    = completed.reduce((s, r) => s + (parseFloat(r.reward_amount) || 100), 0);
+
+  const countEl  = document.getElementById('dash-ref-count');
+  const earnedEl = document.getElementById('dash-ref-earned');
+  if (countEl)  countEl.textContent  = list.length;
+  if (earnedEl) earnedEl.textContent = 'KES ' + earned.toLocaleString();
+})();
+
+window.copyDashCode = function() {
+  const code = window._dashRefCode || '';
+  if (!code) return;
+  const link = 'https://helpro.co.ke/auth.html?ref=' + code;
+  const text = 'Join Helpro — trusted local services in Kenya! Use my code ' + code + ' to get KES 50 off your first job. ' + link;
+  navigator.clipboard?.writeText(text).catch(() => {});
+  // Flash feedback on code display
+  const el = document.getElementById('dash-ref-code');
+  if (el) { const orig = el.textContent; el.textContent = 'Copied!'; setTimeout(() => el.textContent = orig, 1500); }
+};
+</script>
 
 <script>document.addEventListener("DOMContentLoaded", () => initNav("dashboard"));</script>
 
