@@ -157,7 +157,7 @@ body {
 .cat-pill:hover:not(.active) { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
 
 /* ── MAIN CONTENT ── */
-.main-content { padding: 16px; }
+.main-content { padding: 12px; }
 
 /* ── SECTION HEADER ── */
 .sec-header {
@@ -170,8 +170,8 @@ body {
 
 /* ── HELPER/GIG CARDS ── */
 .helpers-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-  gap: 14px;
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 /* ── SKELETON LOADERS ── */
@@ -197,7 +197,7 @@ body {
   border: 1.5px solid var(--border);
   overflow: hidden;
 }
-.skel-gig-cover { height: 130px; }
+.skel-gig-cover { height: 110px; }
 .skel-gig-body { padding: 11px 12px 10px; display: flex; flex-direction: column; gap: 8px; }
 .skel-gig-title { height: 13px; width: 90%; }
 .skel-gig-title-2 { height: 13px; width: 65%; }
@@ -256,7 +256,7 @@ body {
 }
 .gig-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.11); border-color: var(--green-mid); }
 .gig-cover {
-  position: relative; height: 130px; overflow: hidden;
+  position: relative; height: 110px; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
 .gig-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
@@ -277,10 +277,10 @@ body {
   display: flex; align-items: center; gap: 4px;
   box-shadow: 0 2px 8px rgba(61,184,58,0.4);
 }
-.gig-body { padding: 11px 12px 10px; flex: 1; display: flex; flex-direction: column; }
+.gig-body { padding: 9px 10px 8px; flex: 1; display: flex; flex-direction: column; }
 .gig-title {
-  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; color: var(--text);
-  margin-bottom: 6px; line-height: 1.35;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 12px; color: var(--text);
+  margin-bottom: 5px; line-height: 1.35;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .gig-helper-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
@@ -289,21 +289,21 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 8px; font-weight: 800; color: white; flex-shrink: 0;
 }
-.gig-helper-name { font-size: 12px; font-weight: 600; color: var(--text-mid); }
+.gig-helper-name { font-size: 11px; font-weight: 600; color: var(--text-mid); }
 .gig-rating-row { display: flex; align-items: center; gap: 4px; }
 .gig-stars { color: #f59e0b; font-size: 10px; }
 .gig-rating-num { font-size: 11px; font-weight: 700; color: var(--text); }
 .gig-reviews-cnt { font-size: 10px; color: var(--text-muted); }
 .gig-footer {
-  padding: 9px 12px; border-top: 1px solid #eef3ee;
+  padding: 7px 10px; border-top: 1px solid #eef3ee;
   display: flex; align-items: center; justify-content: space-between;
 }
 .gig-price-label { font-size: 10px; color: var(--text-muted); }
 .gig-price { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); }
 .btn-view-gig {
   background: var(--green); color: white; border: none;
-  padding: 6px 14px; border-radius: 20px;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  padding: 5px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   transition: background 0.2s, transform 0.15s;
 }
@@ -512,15 +512,15 @@ body {
 
 /* ── RESPONSIVE ── */
 @media (min-width: 640px) {
-  .helpers-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .helpers-grid { grid-template-columns: repeat(3, 1fr); }
   .main-content { padding: 20px; }
 }
 @media (min-width: 960px) {
-  .helpers-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .helpers-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (min-width: 1024px) {
   .main-content { max-width: 860px; margin: 0 auto; padding: 20px 32px; }
-  .helpers-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .helpers-grid { grid-template-columns: repeat(4, 1fr); }
 }
 </style>
 </head>
