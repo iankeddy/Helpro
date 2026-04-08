@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3db83a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Helpro">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <title>Helpro Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="nav-drawer.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="mobile-dashboard">
+
+<!-- Loader -->
+<div id="loader-overlay" class="loader-overlay" style="display:none;">
+  <div class="spinner-container">
+    <div class="custom-spinner"></div>
+    <p>Processing...</p>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div id="app-menu" class="app-menu hidden"></div>
+
+<!-- APP HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="toggleAppMenu()" aria-label="Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="app-logo" onclick="goToPage('index.html')" role="img" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <button class="icon-btn" onclick="handleProfileClick()" aria-label="Profile">
+    <i class="fas fa-user-circle"></i>
+  </button>
+</header>
+
+
+<!-- WELCOME CARD -->
+<section class="welcome-card">
+  <h2 id="user-greeting">Welcome</h2>
+  <span id="user-role-badge" class="role-pill">ROLE</span>
+</section>
+
+<div id="helper-lock-banner" style="display:none;" class="approval-warning">
+  <i class="fas fa-lock"></i>
+  <p>
+    Your account is under review. You’ll be notified once approved.
+  </p>
+</div>
+
+<main class="dashboard-content">
+
+  <!-- CLIENT SECTION -->
+  <section id="client-section" style="display:none;">
+    
+    <!-- Post Job -->
+    <div class="card">
+      <h3><i class="fas fa-plus-circle"></i> Post a Job</h3>
+
+      <input type="text" id="job-title" placeholder="Job title" />
+      <textarea id="job-desc" placeholder="Job details"></textarea>
+      <input type="text" id="job-budget" placeholder="Budget (KES)" />
+      
+      <select id="job-category">
+  <option value="">Select Category</option>
+  <option value="cleaning">🧹 Cleaning</option>
+  <option value="delivery">🚚 Delivery</option>
+  <option value="repairs">🔧 Repairs</option>
+  <option value="shopping">🛒 Shopping</option>
+  <option value="transport">🚗 Transport</option>
+  <option value="petcare">🐾 Pet Care</option>
+  <option value="gardening">🌿 Gardening</option>
+  <option value="laundry">👕 Laundry</option>
+  <option value="moving">📦 Moving</option>
+  <option value="tutoring">📚 Tutoring</option>
+  <option value="events">🎉 Events</option>
+  <option value="security">🔒 Security</option>
+</select>
+
+      <!-- Location ── city + specific area -->
+      <div style="display:flex; gap:8px; margin-bottom:10px;">
+        <select id="job-city" style="flex:0 0 140px; margin-bottom:0;">
+          <option value="">📍 City</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Mombasa">Mombasa</option>
+          <option value="Kisumu">Kisumu</option>
+          <option value="Nakuru">Nakuru</option>
+          <option value="Eldoret">Eldoret</option>
+          <option value="Thika">Thika</option>
+          <option value="Kiambu">Kiambu</option>
+          <option value="Machakos">Machakos</option>
+        </select>
+        <input type="text" id="job-area"
+          placeholder="Area / Estate e.g. Westlands"
+          style="flex:1; margin-bottom:0;"
+          list="area-suggestions" autocomplete="off" />
+        <datalist id="area-suggestions">
+          <option value="CBD">
+          <option value="Westlands">
+          <option value="Kilimani">
+          <option value="Lavington">
+          <option value="Karen">
+          <option value="Langata">
+          <option value="Eastlands">
+          <option value="Kasarani">
+          <option value="Embakasi">
+          <option value="Ngong Road">
+          <option value="South B">
+          <option value="South C">
+          <option value="Parklands">
+          <option value="Gigiri">
+          <option value="Runda">
+          <option value="Muthaiga">
+          <option value="Kileleshwa">
+          <option value="Hurlingham">
+          <option value="Upper Hill">
+          <option value="Industrial Area">
+          <option value="Rongai">
+          <option value="Ruaka">
+          <option value="Ruiru">
+          <option value="Juja">
+          <option value="Tudor">
+          <option value="Nyali">
+          <option value="Bamburi">
+          <option value="Milimani">
+        </datalist>
+      </div>
+
+      <button onclick="handlePostJob()" class="btn-primary full">
+        Post Job
+      </button>
+    </div>
+
+    <!-- Who Applied — applicants waiting for client to chat & hire -->
+    <div class="card" style="border-top:3px solid #3db83a">
+      <h3><i class="fas fa-bell"></i> Job Applications</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin:-4px 0 12px">Helpers who applied for your jobs — chat with them before hiring.</p>
+      <div id="client-applicants-list">Loading...</div>
+    </div>
+
+    <!-- My Helpers -->
+    <div class="card">
+      <h3><i class="fas fa-calendar-check"></i> My Hired Helpers</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin:-4px 0 12px;line-height:1.5">
+        <i class="fas fa-shield-halved" style="color:#3db83a"></i>
+        Pay securely via M-Pesa. Funds are held in escrow until you confirm the job is done.
+      </p>
+      <div id="my-bookings-list">Loading...</div>
+    </div>
+
+  </section>
+
+  <!-- HELPER SECTION -->
+  <section id="helper-section" style="display:none;">
+
+    <!-- My Gigs -->
+    <div class="card" id="my-gigs-card" style="display:none">
+      <h3><i class="fas fa-store" style="color:#3db83a"></i> My Gigs
+        <span style="margin-left:auto;font-size:11px;font-weight:600;color:#8a9a8a;cursor:pointer" onclick="openGigSheet()">
+          + New Gig
+        </span>
+      </h3>
+      <p style="font-size:12px;color:#8a9a8a;margin:-4px 0 12px;line-height:1.5">
+        Your gigs appear on the Marketplace. Create one gig per service you offer.
+      </p>
+      <div id="my-gigs-grid"></div>
+    </div>
+
+    <!-- Badges -->
+    <div class="card" id="helper-badges-card" style="display:none">
+      <h3><i class="fas fa-award"></i> My Achievements</h3>
+      <div id="my-badges-container"></div>
+    </div>
+
+    <!-- Wallet -->
+    <div class="card" id="helper-wallet-card" style="display:none;background:linear-gradient(135deg,#1a4a1a,#2a8a28);color:white;border:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:12px;opacity:0.75;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">My Wallet</div>
+          <div style="font-family:var(--font-display);font-weight:900;font-size:32px;margin-top:2px" id="wallet-balance">KES 0</div>
+        </div>
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px">
+          💰
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:11px;opacity:0.7">Total Earned</div>
+          <div style="font-weight:800;font-size:14px;margin-top:2px" id="wallet-earned">KES 0</div>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:11px;opacity:0.7">Withdrawn</div>
+          <div style="font-weight:800;font-size:14px;margin-top:2px" id="wallet-withdrawn">KES 0</div>
+        </div>
+      </div>
+      <button onclick="openWithdrawSheet()"
+        style="width:100%;background:white;color:#2a8a28;border:none;border-radius:30px;
+        padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">
+        <i class="fas fa-money-bill-wave"></i> Withdraw to M-Pesa
+      </button>
+    </div>
+
+    <!-- Wallet Transactions -->
+    <div class="card" id="wallet-txn-card" style="display:none">
+      <h3><i class="fas fa-list-ul" style="color:#3db83a"></i> Recent Earnings</h3>
+      <div id="wallet-transactions-list"></div>
+    </div>
+
+    <!-- Requests -->
+    <div class="card highlight">
+      <h3><i class="fas fa-bell"></i> New Job Requests</h3>
+      <div id="requests-list">Checking...</div>
+    </div>
+
+    <!-- VERIFICATION ONBOARDING WIZARD -->
+    <div id="vetting-form" class="card" style="padding:0;overflow:hidden">
+      <!-- Wizard injected by initOnboardingWizard() in app.js -->
+    </div>
+
+    <!-- Active Jobs -->
+    <div class="card">
+      <h3><i class="fas fa-tasks"></i> My Active Jobs</h3>
+      <div id="active-jobs-list">Loading...</div>
+    </div>
+
+    <!-- Nearby Jobs -->
+    <div class="card">
+      <h3><i class="fas fa-briefcase"></i> Jobs Near You</h3>
+      <div id="jobs-container">Searching...</div>
+    </div>
+
+  </section>
+</main>
+
+<!-- CHAT FLOAT -->
+<!-- FULL SCREEN CHAT -->
+<div id="chat-page" class="chat-page hidden">
+
+  <!-- CHAT HEADER -->
+  <div class="chat-header">
+    <button onclick="showInbox()" class="chat-back" id="chat-back-btn">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <span id="chat-with-name">Inbox</span>
+
+    <div id="hire-actions" class="hire-actions" style="display:none;">
+      <button onclick="confirmHire()" class="btn-primary btn-sm">
+        ✅ Confirm Hire
+      </button>
+    </div>
+
+    <button onclick="exitChat()" class="chat-back" style="margin-left:auto">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- INBOX -->
+  <div id="inbox-view" class="chat-body">
+    <div id="contact-list"></div>
+  </div>
+
+  <!-- CHAT THREAD -->
+  <div id="chat-thread-view" class="chat-thread hidden">
+    <div id="chat-messages" class="messages"></div>
+
+    <div class="chat-input">
+      <input id="msg-input" placeholder="Type a message…" autocomplete="off" />
+      <button onclick="sendMessage()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="goToPage('index.html')" id="nav-home">
+    <i class="fas fa-home"></i><span>Home</span>
+  </button>
+  <button class="nav-item" onclick="goToPage('market.html')" id="nav-market">
+    <i class="fas fa-store"></i><span>Market</span>
+  </button>
+  <button class="nav-item" onclick="openChatFromNav()" id="nav-chat">
+    <i class="fas fa-comments"></i><span>Chat</span>
+  </button>
+  <button class="nav-item active" onclick="goToPage('dashboard.html')" id="nav-dashboard">
+    <i class="fas fa-th-large"></i><span>Dashboard</span>
+  </button>
+</nav>
+
+<style>
+.hire-actions { display: flex; align-items: center; }
+.hire-actions .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 20px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script src="badges.js"></script>
+<script src="notifications.js"></script>
+<script src="reviews-addon.js"></script>
+<script src="mpesa-payments.js"></script>
+<script src="gig-manager.js"></script>
+
+<!-- KEEP YOUR EXISTING AUTH + ROLE SCRIPT EXACTLY AS IS -->
+<script>
+  window.onload = async function () {
+    try {
+      if (!client) return;
+
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) {
+        window.location.href = "auth.html";
+        return;
+      }
+
+      const { data: profile, error } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error || !profile) {
+        /* Profile load failed — user stays on page, sections stay hidden */
+        return;
+      }
+
+      // ── ADMIN GUARD ──
+      // Admins should never see the regular dashboard.
+      // Silently redirect them to admin.html — no link is ever shown publicly.
+      if (profile.role === "admin") {
+        window.location.href = "admin.html";
+        return;
+      }
+
+      document.getElementById("user-greeting").innerText =
+        `Welcome, ${profile.full_name || "User"}`;
+      document.getElementById("user-role-badge").innerText =
+        profile.role.toUpperCase();
+
+      if (profile.role === "client") {
+        document.getElementById("client-section").style.display = "block";
+      }
+
+      if (profile.role === "helper") {
+        document.getElementById("helper-section").style.display = "block";
+
+        if (profile.is_vetted === true) {
+          // Approved helper — hide vetting form
+          document.getElementById("vetting-form").style.display = "none";
+        } else {
+          // Unvetted helper — lock down the dashboard
+          document.getElementById("helper-lock-banner").style.display = "block";
+
+          // Disable helper section buttons
+          document.querySelectorAll("#helper-section button").forEach(btn => {
+            if (!btn.closest("#vetting-form")) {
+              btn.disabled = true;
+            }
+          });
+
+          // Hide job-related sections
+          const requests = document.getElementById("requests-list");
+          const jobs = document.getElementById("jobs-container");
+          if (requests) requests.innerHTML = '<p class="muted">Verification pending. You cannot receive job requests yet.</p>';
+          if (jobs) jobs.innerHTML = '<p class="muted">Your account is under review.</p>';
+
+          // Hide chat nav for unvetted helpers
+          const chatBtn = document.getElementById("nav-chat");
+          if (chatBtn) chatBtn.style.display = "none";
+
+          // Check if documents were already submitted
+          if (profile.selfie_url && profile.id_url && profile.cert_good_conduct_url) {
+            // Documents already submitted — show pending state
+            const vettingForm = document.getElementById("vetting-form");
+            if (vettingForm) {
+              vettingForm.style.padding = '0';
+              vettingForm.innerHTML = `
+                <div style="text-align:center;padding:32px 20px">
+                  <div style="width:60px;height:60px;border-radius:50%;background:#fff8ec;color:#f07623;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+                    <i class="fas fa-clock"></i>
+                  </div>
+                  <div style="font-family:var(--font-display);font-weight:800;font-size:18px;margin-bottom:6px">Under Review</div>
+                  <div style="font-size:13px;color:var(--text-muted);line-height:1.6">Your documents have been submitted and are being reviewed by our team. You'll be notified within 24 hours.</div>
+                </div>`;
+            }
+          } else {
+            // Documents not yet submitted — launch wizard
+            initOnboardingWizard?.(profile);
+          }
+        }
+      }
+
+      // Load role-specific dashboard data
+      if (profile.role === 'client') {
+        loadClientApplicants?.();
+        loadClientBookings?.();
+      }
+      if (profile.role === 'helper' && profile.is_vetted === true) {
+        // Show and load gigs section
+        const gigsCard = document.getElementById('my-gigs-card');
+        if (gigsCard) gigsCard.style.display = 'block';
+        loadMyGigs?.();
+        loadHelperRequests?.();
+        loadHelperActiveJobs?.();
+        // Show badges card and load
+        const badgesCard = document.getElementById('helper-badges-card');
+        if (badgesCard) badgesCard.style.display = 'block';
+        loadMyBadges?.(user.id);
+        // Show and load wallet
+        const walletCard = document.getElementById('helper-wallet-card');
+        const walletTxnCard = document.getElementById('wallet-txn-card');
+        if (walletCard) walletCard.style.display = 'block';
+        if (walletTxnCard) walletTxnCard.style.display = 'block';
+        loadHelperWallet?.();
+      }
+      loadMarketplaceJobs?.();
+      loadChatList?.();
+
+      // Auto-open chat handled by app.js DOMContentLoaded (reads chatRecipientId too)
+
+    } catch (err) {
+      /* Dashboard init skipped — handled gracefully above */
+    }
+  };
+</script>
+
+
+
+<script>document.addEventListener("DOMContentLoaded", () => initNav("dashboard"));</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAY & CONFIRM MODAL  (client pays into escrow)
+══════════════════════════════════════════════════════════ -->
+<div id="pay-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  z-index:8000;align-items:flex-end;justify-content:center;padding:0"
+  onclick="if(event.target===this)closePayModal()">
+  <div style="background:white;width:100%;max-width:480px;border-radius:20px 20px 0 0;
+    padding:0 0 32px;overflow:hidden">
+    <!-- Handle -->
+    <div style="width:40px;height:4px;background:#e0e8e0;border-radius:2px;margin:12px auto 0"></div>
+    <!-- Header -->
+    <div style="padding:16px 20px 12px;border-bottom:1px solid #edf3ed">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#111811">
+        <i class="fas fa-lock" style="color:#3db83a"></i> Pay via M-Pesa
+      </div>
+      <div style="font-size:12px;color:#8a9a8a;margin-top:3px">
+        Funds are held securely in escrow until you confirm job completion
+      </div>
+    </div>
+    <!-- Body -->
+    <div style="padding:20px">
+      <!-- Job summary -->
+      <div style="background:#f5f7f5;border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:12px;color:#8a9a8a;margin-bottom:4px">JOB</div>
+        <div style="font-weight:700;font-size:15px;color:#111811" id="pay-job-title">—</div>
+        <div style="font-size:13px;color:#445044;margin-top:4px" id="pay-helper-name"></div>
+      </div>
+      <!-- Amount -->
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:700;color:#8a9a8a;text-transform:uppercase;
+          letter-spacing:0.5px;display:block;margin-bottom:6px">Amount (KES)</label>
+        <input type="number" id="pay-amount" placeholder="e.g. 500" min="1"
+          style="width:100%;padding:12px 14px;border:1.5px solid #dfe6df;border-radius:12px;
+          font-size:16px;font-weight:700;color:#111811;background:#f5f7f5;outline:none;font-family:inherit"
+          oninput="updatePaySummary()">
+      </div>
+      <!-- Phone -->
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:700;color:#8a9a8a;text-transform:uppercase;
+          letter-spacing:0.5px;display:block;margin-bottom:6px">M-Pesa Phone Number</label>
+        <input type="tel" id="pay-phone" placeholder="e.g. 0712345678"
+          style="width:100%;padding:12px 14px;border:1.5px solid #dfe6df;border-radius:12px;
+          font-size:15px;color:#111811;background:#f5f7f5;outline:none;font-family:inherit">
+      </div>
+      <!-- Summary -->
+      <div id="pay-summary" style="display:none;background:#e8f7e8;border-radius:12px;
+        padding:12px 14px;margin-bottom:16px;font-size:13px;color:#1a4a1a">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span>Job payment</span><span id="pay-summary-amount" style="font-weight:700"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:#3db83a;font-size:11px">
+          <span>🔒 Held in escrow until job confirmed</span>
+        </div>
+      </div>
+      <!-- CTA -->
+      <button id="pay-btn" onclick="submitPayment()"
+        style="width:100%;background:#3db83a;color:white;border:none;border-radius:30px;
+        padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;
+        display:flex;align-items:center;justify-content:center;gap:8px">
+        <i class="fas fa-lock"></i> Pay & Confirm Booking
+      </button>
+      <div style="text-align:center;font-size:11px;color:#8a9a8a;margin-top:10px">
+        You will receive an M-Pesa prompt on your phone to confirm
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     WITHDRAW SHEET  (helper withdraws to M-Pesa)
+══════════════════════════════════════════════════════════ -->
+<div id="withdraw-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  z-index:8000;align-items:flex-end;justify-content:center;padding:0"
+  onclick="if(event.target===this)closeWithdrawSheet()">
+  <div style="background:white;width:100%;max-width:480px;border-radius:20px 20px 0 0;
+    padding:0 0 32px;overflow:hidden">
+    <div style="width:40px;height:4px;background:#e0e8e0;border-radius:2px;margin:12px auto 0"></div>
+    <div style="padding:16px 20px 12px;border-bottom:1px solid #edf3ed">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#111811">
+        <i class="fas fa-money-bill-wave" style="color:#3db83a"></i> Withdraw to M-Pesa
+      </div>
+      <div style="font-size:12px;color:#8a9a8a;margin-top:3px">
+        Available: <span id="withdraw-available" style="font-weight:700;color:#3db83a">KES 0</span>
+      </div>
+    </div>
+    <div style="padding:20px">
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:700;color:#8a9a8a;text-transform:uppercase;
+          letter-spacing:0.5px;display:block;margin-bottom:6px">Amount to Withdraw (KES)</label>
+        <input type="number" id="withdraw-amount" placeholder="Min KES 100" min="100"
+          style="width:100%;padding:12px 14px;border:1.5px solid #dfe6df;border-radius:12px;
+          font-size:16px;font-weight:700;color:#111811;background:#f5f7f5;outline:none;font-family:inherit">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="font-size:12px;font-weight:700;color:#8a9a8a;text-transform:uppercase;
+          letter-spacing:0.5px;display:block;margin-bottom:6px">M-Pesa Phone Number</label>
+        <input type="tel" id="withdraw-phone" placeholder="e.g. 0712345678"
+          style="width:100%;padding:12px 14px;border:1.5px solid #dfe6df;border-radius:12px;
+          font-size:15px;color:#111811;background:#f5f7f5;outline:none;font-family:inherit">
+        <div style="font-size:11px;color:#8a9a8a;margin-top:5px">
+          Make sure this is the M-Pesa number registered to your account
+        </div>
+      </div>
+      <button id="withdraw-btn" onclick="submitWithdrawal()"
+        style="width:100%;background:#3db83a;color:white;border:none;border-radius:30px;
+        padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;
+        display:flex;align-items:center;justify-content:center;gap:8px">
+        <i class="fas fa-paper-plane"></i> Withdraw Now
+      </button>
+      <div style="text-align:center;font-size:11px;color:#8a9a8a;margin-top:10px">
+        Funds arrive on M-Pesa within 1 minute
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

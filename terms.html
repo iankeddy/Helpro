@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms & Conditions — Helpro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── LEGAL PAGE TOKENS ── */
+    :root {
+      --legal-sidebar-w: 240px;
+      --legal-max: 720px;
+    }
+
+    body {
+      background: #f5f8f5;
+      padding-bottom: calc(var(--bottom-nav-h, 68px) + 16px);
+    }
+
+    /* ── HERO ── */
+    .legal-hero {
+      background: linear-gradient(135deg, #0d2b0d 0%, #1a4a1a 50%, #245c24 100%);
+      padding: 36px 24px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .legal-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 28px;
+      background: #f5f8f5;
+      border-radius: 28px 28px 0 0;
+    }
+    .legal-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 80% 20%, rgba(61,184,58,0.15) 0%, transparent 60%);
+    }
+    .legal-hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .legal-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(61,184,58,0.18);
+      border: 1px solid rgba(61,184,58,0.35);
+      color: #8ee88b; font-size: 11px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 20px; margin-bottom: 16px;
+    }
+    .legal-hero h1 {
+      font-family: 'Lora', Georgia, serif;
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 700; color: #fff; line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .legal-hero p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+    .legal-meta {
+      display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;
+    }
+    .legal-meta-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: rgba(255,255,255,0.55);
+    }
+    .legal-meta-item i { color: #6dd96a; font-size: 11px; }
+    .legal-meta-item strong { color: rgba(255,255,255,0.8); }
+
+    /* ── LAYOUT ── */
+    .legal-layout {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 16px 0;
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    /* ── SIDEBAR ── */
+    .legal-sidebar {
+      width: var(--legal-sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: calc(var(--header-h, 60px) + 12px);
+      display: none;
+    }
+    @media (min-width: 800px) {
+      .legal-sidebar { display: block; }
+    }
+    .sidebar-card {
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #dce8dc;
+      overflow: hidden;
+    }
+    .sidebar-head {
+      padding: 14px 16px;
+      background: #f0f7f0;
+      border-bottom: 1px solid #dce8dc;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: #3a5a3a;
+    }
+    .sidebar-nav { padding: 8px 0; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 16px; font-size: 13px;
+      color: #5a7a5a; text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer; border: none; background: none;
+      text-align: left; width: 100%;
+    }
+    .sidebar-link i { font-size: 11px; color: #3db83a; width: 14px; text-align: center; flex-shrink: 0; }
+    .sidebar-link:hover { background: #f0f7f0; color: #1a4a1a; }
+    .sidebar-link.active { background: #e6f7e6; color: #1a4a1a; font-weight: 600; }
+    .sidebar-link.active i { color: #1a4a1a; }
+
+    .sidebar-sister {
+      margin-top: 12px;
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #dce8dc;
+      padding: 16px;
+    }
+    .sister-title { font-size: 12px; font-weight: 700; color: #3a5a3a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sister-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: 10px;
+      background: #f0f7f0; border: 1px solid #c8e0c8;
+      color: #1a4a1a; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .sister-link:hover { background: #e6f7e6; }
+    .sister-link i { color: #3db83a; }
+
+    /* ── ARTICLE ── */
+    .legal-article {
+      flex: 1;
+      min-width: 0;
+      max-width: var(--legal-max);
+    }
+
+    .legal-section {
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #dce8dc;
+      margin-bottom: 14px;
+      overflow: hidden;
+      scroll-margin-top: calc(var(--header-h, 60px) + 20px);
+    }
+
+    .section-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid #edf3ed;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #e6f7e6; display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: #1a4a1a; flex-shrink: 0;
+    }
+    .section-num {
+      font-size: 11px; font-weight: 700; color: #3db83a;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .section-title-text {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 17px; font-weight: 700; color: #0d1a0d;
+      line-height: 1.3;
+    }
+
+    .section-body {
+      padding: 18px 22px 22px;
+    }
+    .section-body p {
+      font-size: 14px; color: #3a4d3a; line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .legal-list {
+      margin: 10px 0 14px 0;
+      padding-left: 0;
+      list-style: none;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .legal-list li {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 14px; color: #3a4d3a; line-height: 1.65;
+    }
+    .legal-list li::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #3db83a; margin-top: 8px; flex-shrink: 0;
+    }
+
+    .legal-highlight {
+      background: #f0f7f0;
+      border-left: 3px solid #3db83a;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 13px; color: #1a4a1a; line-height: 1.6;
+    }
+    .legal-highlight strong { font-weight: 700; }
+
+    .legal-warn {
+      background: #fff8ec;
+      border-left: 3px solid #f07623;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 13px; color: #7a4a10; line-height: 1.6;
+    }
+
+    .contact-box {
+      background: linear-gradient(135deg, #0d2b0d, #1a4a1a);
+      border-radius: 14px; padding: 20px 22px; margin-top: 4px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .contact-box p {
+      color: rgba(255,255,255,0.7) !important;
+      font-size: 13px !important;
+      margin-bottom: 0 !important;
+    }
+    .contact-row {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 13px; color: rgba(255,255,255,0.85);
+    }
+    .contact-row i { color: #6dd96a; font-size: 12px; width: 14px; text-align: center; }
+    .contact-row a { color: #8ee88b; text-decoration: none; }
+    .contact-row a:hover { text-decoration: underline; }
+
+    /* ── ACCEPT BANNER ── */
+    .accept-banner {
+      background: white; border-radius: 16px; border: 1.5px solid #dce8dc;
+      padding: 18px 22px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .accept-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: #e6f7e6; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #1a4a1a; flex-shrink: 0;
+    }
+    .accept-text { flex: 1; }
+    .accept-text strong { display: block; font-size: 14px; color: #0d1a0d; font-weight: 700; margin-bottom: 2px; }
+    .accept-text span { font-size: 12px; color: #7a8f7a; }
+
+    /* ── BACK LINK ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; color: #1a4a1a;
+      text-decoration: none; padding: 10px 16px;
+      background: white; border: 1.5px solid #dce8dc;
+      border-radius: 20px; margin: 0 16px 20px;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: #f0f7f0; }
+    .back-btn i { font-size: 11px; }
+
+    /* ── TOC MOBILE ── */
+    .toc-mobile {
+      background: white; border-radius: 14px; border: 1.5px solid #dce8dc;
+      margin-bottom: 14px; overflow: hidden;
+    }
+    .toc-toggle {
+      width: 100%; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: none; border: none; cursor: pointer;
+      font-size: 14px; font-weight: 700; color: #0d1a0d;
+    }
+    .toc-toggle i { color: #3db83a; transition: transform 0.2s; }
+    .toc-toggle.open i { transform: rotate(180deg); }
+    .toc-list { display: none; padding: 0 0 8px; border-top: 1px solid #edf3ed; }
+    .toc-list.open { display: block; }
+    .toc-list a {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 18px; font-size: 13px; color: #3a5a3a;
+      text-decoration: none;
+    }
+    .toc-list a i { font-size: 10px; color: #3db83a; }
+    .toc-list a:hover { background: #f0f7f0; }
+
+    @media (min-width: 800px) {
+      .toc-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="history.back()" aria-label="Back">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+  <div class="app-logo" onclick="window.location.href='index.html'" role="img" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <div style="width:38px"></div>
+</header>
+
+<!-- HERO -->
+<div class="legal-hero">
+  <div class="legal-hero-inner">
+    <div class="legal-badge"><i class="fas fa-file-contract"></i> Legal Document</div>
+    <h1>Terms &amp; Conditions</h1>
+    <p>Please read these terms carefully before using the Helpro platform.</p>
+    <div class="legal-meta">
+      <div class="legal-meta-item"><i class="fas fa-calendar-alt"></i><strong>Effective Date:</strong> January 1, 2025</div>
+      <div class="legal-meta-item"><i class="fas fa-map-marker-alt"></i><strong>Jurisdiction:</strong> Republic of Kenya</div>
+      <div class="legal-meta-item"><i class="fas fa-sync-alt"></i><strong>Last Updated:</strong> June 2025</div>
+    </div>
+  </div>
+</div>
+
+<a class="back-btn" href="auth.html"><i class="fas fa-arrow-left"></i> Back to Sign Up</a>
+
+<div class="legal-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="legal-sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-head"><i class="fas fa-list"></i> Contents</div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <button class="sidebar-link active" onclick="scrollTo('s1')"><i class="fas fa-handshake"></i> Agreement</button>
+        <button class="sidebar-link" onclick="scrollTo('s2')"><i class="fas fa-users"></i> Eligibility</button>
+        <button class="sidebar-link" onclick="scrollTo('s3')"><i class="fas fa-user-tie"></i> Client Rules</button>
+        <button class="sidebar-link" onclick="scrollTo('s4')"><i class="fas fa-hard-hat"></i> Helper Rules</button>
+        <button class="sidebar-link" onclick="scrollTo('s5')"><i class="fas fa-shield-alt"></i> Vetting Process</button>
+        <button class="sidebar-link" onclick="scrollTo('s6')"><i class="fas fa-money-bill-wave"></i> Payments & Fees</button>
+        <button class="sidebar-link" onclick="scrollTo('s7')"><i class="fas fa-comments"></i> Platform Use</button>
+        <button class="sidebar-link" onclick="scrollTo('s8')"><i class="fas fa-exclamation-triangle"></i> Prohibited Conduct</button>
+        <button class="sidebar-link" onclick="scrollTo('s9')"><i class="fas fa-gavel"></i> Disputes</button>
+        <button class="sidebar-link" onclick="scrollTo('s10')"><i class="fas fa-times-circle"></i> Termination</button>
+        <button class="sidebar-link" onclick="scrollTo('s11')"><i class="fas fa-balance-scale"></i> Liability</button>
+        <button class="sidebar-link" onclick="scrollTo('s12')"><i class="fas fa-envelope"></i> Contact</button>
+      </nav>
+    </div>
+    <div class="sidebar-sister">
+      <div class="sister-title">See also</div>
+      <a class="sister-link" href="privacy.html"><i class="fas fa-lock"></i> Privacy Policy</a>
+    </div>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="legal-article">
+
+    <!-- Mobile TOC -->
+    <div class="toc-mobile">
+      <button class="toc-toggle" id="toc-toggle" onclick="toggleToc()">
+        <span><i class="fas fa-list" style="margin-right:8px;color:#3db83a"></i> Jump to a section</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="toc-list" id="toc-list">
+        <a href="#s1"><i class="fas fa-circle"></i> 1. Agreement to Terms</a>
+        <a href="#s2"><i class="fas fa-circle"></i> 2. Eligibility</a>
+        <a href="#s3"><i class="fas fa-circle"></i> 3. Client Responsibilities</a>
+        <a href="#s4"><i class="fas fa-circle"></i> 4. Helper Responsibilities</a>
+        <a href="#s5"><i class="fas fa-circle"></i> 5. Vetting Process</a>
+        <a href="#s6"><i class="fas fa-circle"></i> 6. Payments & Fees</a>
+        <a href="#s7"><i class="fas fa-circle"></i> 7. Platform Use</a>
+        <a href="#s8"><i class="fas fa-circle"></i> 8. Prohibited Conduct</a>
+        <a href="#s9"><i class="fas fa-circle"></i> 9. Dispute Resolution</a>
+        <a href="#s10"><i class="fas fa-circle"></i> 10. Termination</a>
+        <a href="#s11"><i class="fas fa-circle"></i> 11. Limitation of Liability</a>
+        <a href="#s12"><i class="fas fa-circle"></i> 12. Contact Us</a>
+      </div>
+    </div>
+
+    <!-- ACCEPT NOTICE -->
+    <div class="accept-banner">
+      <div class="accept-icon"><i class="fas fa-info-circle"></i></div>
+      <div class="accept-text">
+        <strong>By creating an Helpro account, you agree to these Terms.</strong>
+        <span>These terms form a binding agreement between you and Helpro Kenya.</span>
+      </div>
+    </div>
+
+    <!-- S1: AGREEMENT -->
+    <div class="legal-section" id="s1">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-handshake"></i></div>
+        <div>
+          <div class="section-num">Section 1</div>
+          <div class="section-title-text">Agreement to Terms</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Welcome to Helpro. By accessing or using the Helpro platform — including our website, mobile web app, and any related services (collectively, the "Platform") — you agree to be bound by these Terms and Conditions ("Terms").</p>
+        <p>These Terms constitute a legally binding agreement between you ("User", "Client", or "Helper") and Helpro Kenya ("Helpro", "we", "our", or "us"), a digital marketplace operating in the Republic of Kenya.</p>
+        <div class="legal-highlight">
+          <strong>Important:</strong> If you do not agree with any part of these Terms, you must not create an account or use the Platform. Your continued use of Helpro constitutes your ongoing acceptance of these Terms.
+        </div>
+        <p>Helpro reserves the right to update these Terms at any time. We will notify registered users of material changes via email or an in-app notice. Your continued use after any changes constitutes acceptance of the updated Terms.</p>
+      </div>
+    </div>
+
+    <!-- S2: ELIGIBILITY -->
+    <div class="legal-section" id="s2">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-users"></i></div>
+        <div>
+          <div class="section-num">Section 2</div>
+          <div class="section-title-text">Eligibility</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>To use the Helpro Platform, you must meet the following requirements:</p>
+        <ul class="legal-list">
+          <li>Be at least 18 years of age</li>
+          <li>Be a resident of, or currently located in, Kenya</li>
+          <li>Have the legal capacity to enter into a binding agreement</li>
+          <li>Not be prohibited from using the Platform under any applicable Kenyan law</li>
+          <li>Provide accurate, truthful, and complete information during registration</li>
+        </ul>
+        <p>By registering, you represent and warrant that all information you submit is accurate and that you meet the above eligibility criteria. Helpro reserves the right to refuse, suspend, or terminate any account at its sole discretion if these requirements are not met.</p>
+      </div>
+    </div>
+
+    <!-- S3: CLIENT RESPONSIBILITIES -->
+    <div class="legal-section" id="s3">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-user-tie"></i></div>
+        <div>
+          <div class="section-num">Section 3</div>
+          <div class="section-title-text">Client Responsibilities</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>As a Client on the Helpro Platform, you agree to the following:</p>
+        <ul class="legal-list">
+          <li><strong>Accurate Job Postings:</strong> You will provide accurate, clear, and complete descriptions of jobs you post. Misleading, vague, or fraudulent job postings are strictly prohibited.</li>
+          <li><strong>Fair Treatment:</strong> You will treat Helpers with respect and dignity at all times. Harassment, discrimination, or abuse of any kind will result in immediate account suspension.</li>
+          <li><strong>Safe Environment:</strong> You are responsible for ensuring a safe working environment for Helpers you hire, including access to necessary materials and equipment.</li>
+          <li><strong>Timely Payment:</strong> You agree to pay the agreed-upon amount for services rendered. Withholding payment for completed work without valid cause is a violation of these Terms.</li>
+          <li><strong>Honest Reviews:</strong> Any reviews or ratings you submit for Helpers must be honest, fair, and based on your genuine experience.</li>
+          <li><strong>No Off-Platform Solicitation:</strong> You must not attempt to solicit Helpers to work off-platform to avoid Helpro's service fee.</li>
+        </ul>
+        <div class="legal-warn">
+          <strong>Note:</strong> Helpro acts as an intermediary marketplace only. We do not employ Helpers and are not responsible for the quality of services provided. Clients hire Helpers directly and are responsible for verifying suitability beyond Helpro's vetting process.
+        </div>
+      </div>
+    </div>
+
+    <!-- S4: HELPER RESPONSIBILITIES -->
+    <div class="legal-section" id="s4">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-hard-hat"></i></div>
+        <div>
+          <div class="section-num">Section 4</div>
+          <div class="section-title-text">Helper Responsibilities</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>As a Helper on the Helpro Platform, you agree to the following:</p>
+        <ul class="legal-list">
+          <li><strong>Truthful Profile:</strong> Your profile information — including skills, experience, location, and rates — must be accurate and kept up to date at all times.</li>
+          <li><strong>Professional Conduct:</strong> You will conduct yourself professionally, arrive on time, complete jobs as agreed, and communicate promptly with Clients.</li>
+          <li><strong>Independent Contractor Status:</strong> You acknowledge that you are an independent contractor, not an employee of Helpro. You are solely responsible for your own taxes, insurance, and compliance with Kenyan labour laws.</li>
+          <li><strong>Compliance with Laws:</strong> You will comply with all applicable Kenyan laws, including those related to health, safety, and employment, when performing services.</li>
+          <li><strong>Confidentiality:</strong> You must respect the privacy of Clients and not disclose, misuse, or share any personal or sensitive information obtained during a job engagement.</li>
+          <li><strong>No No-Show:</strong> If you accept a job, you are committed to completing it. Repeated cancellations or no-shows may result in account suspension or removal.</li>
+        </ul>
+        <div class="legal-highlight">
+          <strong>Independent Contractor:</strong> Helpers are self-employed individuals, not employees or agents of Helpro. Helpro provides a platform for connections, not employment.
+        </div>
+      </div>
+    </div>
+
+    <!-- S5: VETTING -->
+    <div class="legal-section" id="s5">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-shield-alt"></i></div>
+        <div>
+          <div class="section-num">Section 5</div>
+          <div class="section-title-text">Helper Vetting Process</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Helpro requires all Helpers to complete a verification process before they can offer services on the Platform. This process is designed to promote safety and trust within the community.</p>
+        <p>The vetting process requires submission of:</p>
+        <ul class="legal-list">
+          <li>A clear, recent selfie photograph</li>
+          <li>A copy of a valid Kenyan National ID or Passport</li>
+          <li>A Certificate of Good Conduct issued by the Directorate of Criminal Investigations (DCI), Kenya</li>
+        </ul>
+        <p>By submitting these documents, you consent to Helpro reviewing, storing, and using them solely for verification purposes in accordance with our Privacy Policy.</p>
+        <div class="legal-warn">
+          <strong>Disclaimer:</strong> While Helpro conducts identity and background checks, we do not guarantee the character, competence, or reliability of any Helper. Clients should exercise their own judgment when engaging Helpers. The "Vetted" badge indicates only that the above documents were submitted and reviewed — it is not a guarantee of performance.
+        </div>
+        <p>Helpro reserves the right to reject or revoke verification at any time if documents are found to be fraudulent, expired, or if a Helper's conduct warrants removal from the Platform.</p>
+      </div>
+    </div>
+
+    <!-- S6: PAYMENTS -->
+    <div class="legal-section" id="s6">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-money-bill-wave"></i></div>
+        <div>
+          <div class="section-num">Section 6</div>
+          <div class="section-title-text">Payments, Fees &amp; Transactions</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>All prices and payments on the Helpro Platform are denominated in Kenyan Shillings (KES).</p>
+        <ul class="legal-list">
+          <li><strong>Service Fees:</strong> Helpro may charge a platform service fee on transactions processed through the Platform. Applicable fees will be disclosed at the time of booking.</li>
+          <li><strong>Payment Responsibility:</strong> Clients are fully responsible for paying the agreed amount for services rendered by Helpers.</li>
+          <li><strong>Disputes:</strong> In the event of a payment dispute, both parties agree to first attempt resolution through Helpro's dispute process before seeking external remedies.</li>
+          <li><strong>Refunds:</strong> Refunds are assessed on a case-by-case basis. Helpro does not guarantee refunds but will mediate disputes fairly.</li>
+          <li><strong>Tax Compliance:</strong> Helpers are solely responsible for declaring income earned through the Platform to the Kenya Revenue Authority (KRA) as required under Kenyan tax law.</li>
+        </ul>
+        <div class="legal-highlight">
+          <strong>Free Platform:</strong> Creating an account on Helpro is free for both Clients and Helpers. Charges only apply when a transaction is processed through the Platform.
+        </div>
+      </div>
+    </div>
+
+    <!-- S7: PLATFORM USE -->
+    <div class="legal-section" id="s7">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-comments"></i></div>
+        <div>
+          <div class="section-num">Section 7</div>
+          <div class="section-title-text">Acceptable Platform Use</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>You agree to use the Helpro Platform only for its intended purpose: connecting Clients who need services with Helpers who provide them. All interactions — including messages, job postings, and profile content — must be lawful, respectful, and appropriate.</p>
+        <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. Notify Helpro immediately if you suspect unauthorised access to your account.</p>
+        <p>Helpro reserves the right to monitor platform activity to ensure compliance with these Terms and applicable law. We may remove content, suspend accounts, or take other action as necessary.</p>
+      </div>
+    </div>
+
+    <!-- S8: PROHIBITED -->
+    <div class="legal-section" id="s8">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+          <div class="section-num">Section 8</div>
+          <div class="section-title-text">Prohibited Conduct</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>The following conduct is strictly prohibited on the Helpro Platform and may result in immediate account suspension or termination, and potential legal action:</p>
+        <ul class="legal-list">
+          <li>Posting false, misleading, or fraudulent job listings or profiles</li>
+          <li>Harassment, intimidation, threats, or abuse of any platform user</li>
+          <li>Discrimination based on race, tribe, gender, religion, disability, or any other protected characteristic under Kenyan law</li>
+          <li>Submitting forged, altered, or fraudulent identification documents</li>
+          <li>Using the Platform for illegal activities of any kind</li>
+          <li>Circumventing the Platform to arrange off-platform payments and avoid fees after making initial contact through Helpro</li>
+          <li>Creating multiple accounts to game ratings, reviews, or platform systems</li>
+          <li>Scraping, copying, or redistributing Platform content without written permission</li>
+          <li>Attempting to compromise the security, integrity, or functionality of the Platform</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S9: DISPUTES -->
+    <div class="legal-section" id="s9">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-gavel"></i></div>
+        <div>
+          <div class="section-num">Section 9</div>
+          <div class="section-title-text">Dispute Resolution</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>In the event of a dispute between a Client and a Helper, both parties agree to first contact Helpro's support team to attempt mediated resolution. Helpro will endeavour to respond within 3 business days.</p>
+        <p>These Terms and any disputes arising from use of the Helpro Platform shall be governed by and construed in accordance with the laws of the Republic of Kenya. The courts of Kenya shall have exclusive jurisdiction over any disputes that cannot be resolved through mediation.</p>
+        <div class="legal-highlight">
+          <strong>Governing Law:</strong> Republic of Kenya. Venue: Nairobi, Kenya.
+        </div>
+        <p>Helpro is not a party to the service agreements between Clients and Helpers and is not liable for disputes arising from those relationships. However, we will facilitate dispute resolution where possible in the interest of community trust.</p>
+      </div>
+    </div>
+
+    <!-- S10: TERMINATION -->
+    <div class="legal-section" id="s10">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-times-circle"></i></div>
+        <div>
+          <div class="section-num">Section 10</div>
+          <div class="section-title-text">Account Termination</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>You may delete your Helpro account at any time by contacting us at support@helpro.co.ke. Upon deletion, your profile will be removed from public view. Data retention following deletion is governed by our Privacy Policy.</p>
+        <p>Helpro may suspend or terminate your account at any time, with or without notice, for:</p>
+        <ul class="legal-list">
+          <li>Violation of these Terms or any Helpro policy</li>
+          <li>Conduct that may cause harm to other users, Helpro, or third parties</li>
+          <li>Submission of fraudulent or false information</li>
+          <li>At Helpro's sole discretion if we determine your presence on the Platform is not in the community's best interest</li>
+        </ul>
+        <p>Termination of your account does not release you from obligations incurred prior to termination, including any outstanding payments owed to Helpers.</p>
+      </div>
+    </div>
+
+    <!-- S11: LIABILITY -->
+    <div class="legal-section" id="s11">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-balance-scale"></i></div>
+        <div>
+          <div class="section-num">Section 11</div>
+          <div class="section-title-text">Limitation of Liability</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Helpro is a technology platform that facilitates connections between Clients and Helpers. We do not provide services directly, employ Helpers, or supervise job execution.</p>
+        <div class="legal-warn">
+          <strong>To the maximum extent permitted by Kenyan law:</strong> Helpro shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of income, property damage, personal injury, or data loss arising from your use of the Platform or from services rendered through it.
+        </div>
+        <p>Helpro does not warrant that the Platform will be uninterrupted, error-free, or free from viruses or other harmful components. The Platform is provided "as is" and "as available" without warranty of any kind, to the fullest extent permitted by law.</p>
+        <p>Our total cumulative liability to any user for any claims arising out of or related to these Terms shall not exceed the total amount of fees paid by that user to Helpro in the three (3) months preceding the claim.</p>
+      </div>
+    </div>
+
+    <!-- S12: CONTACT -->
+    <div class="legal-section" id="s12">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-envelope"></i></div>
+        <div>
+          <div class="section-num">Section 12</div>
+          <div class="section-title-text">Contact Us</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>If you have any questions, concerns, or complaints about these Terms, please reach out to us through any of the following channels:</p>
+        <div class="contact-box">
+          <p>Helpro Kenya — Legal &amp; Support Team</p>
+          <div class="contact-row"><i class="fas fa-envelope"></i><a href="mailto:legal@helpro.co.ke">legal@helpro.co.ke</a></div>
+          <div class="contact-row"><i class="fas fa-headset"></i><a href="mailto:support@helpro.co.ke">support@helpro.co.ke</a></div>
+          <div class="contact-row"><i class="fas fa-map-marker-alt"></i><span>Nairobi, Kenya</span></div>
+          <div class="contact-row"><i class="fas fa-clock"></i><span>Mon – Fri, 8:00 AM – 5:00 PM EAT</span></div>
+        </div>
+        <p style="margin-top:14px">See also our <a href="privacy.html" style="color:#1a4a1a;font-weight:600">Privacy Policy</a> for information on how we collect, use, and protect your personal data.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="window.location.href='index.html'"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="nav-item" onclick="window.location.href='market.html'"><i class="fas fa-store"></i><span>Market</span></button>
+  <button class="nav-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-comments"></i><span>Chat</span></button>
+  <button class="nav-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-th-large"></i><span>Dashboard</span></button>
+</nav>
+
+<script>
+  // Sidebar active tracking
+  const sections = document.querySelectorAll('.legal-section');
+  const sideLinks = document.querySelectorAll('.sidebar-link');
+
+  function scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function updateActive() {
+    let current = 's1';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 100) current = s.id;
+    });
+    sideLinks.forEach((link, i) => {
+      link.classList.toggle('active', link.getAttribute('onclick')?.includes('s' + (i+1)));
+    });
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+
+  function toggleToc() {
+    const btn = document.getElementById('toc-toggle');
+    const list = document.getElementById('toc-list');
+    btn.classList.toggle('open');
+    list.classList.toggle('open');
+  }
+
+  // Close toc on link click
+  document.querySelectorAll('.toc-list a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.getElementById('toc-toggle').classList.remove('open');
+      document.getElementById('toc-list').classList.remove('open');
+    });
+  });
+</script>
+
+</body>
+</html>

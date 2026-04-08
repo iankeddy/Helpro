@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3db83a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Helpro">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <title>Helpro — Sign In</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Auth-specific overrides — uses the unified token system */
+    body { background: var(--surface); padding-bottom: calc(var(--bottom-nav-h) + 8px); }
+
+    .auth-wrap {
+      min-height: calc(100vh - var(--header-h) - var(--bottom-nav-h));
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 24px 20px;
+    }
+
+    .auth-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      width: 100%; max-width: 380px;
+      overflow: hidden;
+    }
+
+    .auth-hero {
+      background: linear-gradient(135deg, #1a4a1a, var(--green-dark));
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    .auth-hero img {
+      height: 36px; width: auto; margin: 0 auto 12px;
+      filter: brightness(0) invert(1);
+    }
+    .auth-logo-fallback {
+      font-family: var(--font-display);
+      font-weight: 900; font-size: 26px; color: white;
+      margin-bottom: 10px;
+    }
+    .auth-hero h1 {
+      font-family: var(--font-display);
+      font-weight: 800; font-size: 20px; color: white; margin-bottom: 4px;
+    }
+    .auth-hero p { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .auth-tab {
+      flex: 1; padding: 13px 0;
+      background: none; border: none;
+      font-size: 14px; font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      transition: color var(--t), border-color var(--t);
+      font-family: var(--font-body);
+    }
+    .auth-tab.active {
+      color: var(--green-dark);
+      border-bottom-color: var(--green);
+    }
+    .auth-tab:hover:not(.active) { color: var(--text); }
+
+    .auth-body { padding: 22px 22px 24px; }
+
+    .auth-form { display: flex; flex-direction: column; }
+    .auth-form input,
+    .auth-form select { margin-bottom: 10px; }
+
+    .auth-label {
+      font-size: 12px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 5px;
+    }
+
+    .input-wrap { position: relative; margin-bottom: 10px; }
+    .input-wrap input { margin-bottom: 0; padding-left: 40px; }
+    .input-wrap i {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 14px; pointer-events: none;
+    }
+
+    .role-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+    }
+    .role-opt {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 8px; text-align: center;
+      cursor: pointer;
+      transition: background var(--t), border-color var(--t), transform var(--t);
+      background: var(--surface-2);
+    }
+    .role-opt.selected { background: var(--green-light); border-color: var(--green); }
+    .role-opt:hover:not(.selected) { border-color: var(--green-mid); }
+    .role-opt:active { transform: scale(0.97); }
+    .role-opt i { font-size: 20px; color: var(--green); margin-bottom: 5px; display: block; }
+    .role-opt span { font-size: 12px; font-weight: 700; color: var(--text); display: block; }
+    .role-opt small { font-size: 10px; color: var(--text-muted); }
+    input[type="hidden"]#signup-role-val { display: none; }
+
+    .forgot-link {
+      text-align: right; font-size: 12px;
+      color: var(--green-dark); font-weight: 700;
+      cursor: pointer; margin-bottom: 14px; display: block;
+    }
+    .forgot-link:hover { color: var(--green); }
+
+    .auth-footer {
+      text-align: center; font-size: 11px;
+      color: var(--text-muted); padding: 0 4px;
+      margin-top: 12px; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="goToPage('index.html')" aria-label="Back">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+  <div class="app-logo">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <div style="width:38px"></div><!-- spacer to keep logo centered -->
+</header>
+
+<!-- LOADER -->
+<div id="loader-overlay" class="loader-overlay" style="display:none">
+  <div class="spinner-container">
+    <div class="custom-spinner"></div>
+    <p>Please wait…</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="custom-modal" class="modal-overlay" style="display:none">
+  <div class="modal-content">
+    <h3 id="modal-title"></h3>
+    <p id="modal-message"></p>
+    <button onclick="document.getElementById('custom-modal').style.display='none'">OK</button>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-hero">
+      <img src="images/helpro-logo.png" alt="Helpro"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="auth-logo-fallback" style="display:none">Helpro</div>
+      <h1>Welcome back</h1>
+      <p>Hire helpers or start earning today</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="login-tab" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="signup-tab" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <div class="auth-body">
+
+      <!-- LOGIN -->
+      <div id="login-form" class="auth-form">
+        <div class="input-wrap">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="login-email" placeholder="Email address" autocomplete="email">
+        </div>
+        <div class="input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="login-password" placeholder="Password" autocomplete="current-password">
+        </div>
+        <span class="forgot-link" onclick="forgotPassword()">Forgot password?</span>
+        <button class="btn-primary full" onclick="handleLogin()">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="signup-form" class="auth-form" style="display:none">
+        <div class="input-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" id="signup-name" placeholder="Full name" autocomplete="name">
+        </div>
+        <div class="input-wrap">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="signup-email" placeholder="Email address" autocomplete="email">
+        </div>
+        <div class="input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="signup-password" placeholder="Create password (min. 6 chars)" autocomplete="new-password">
+        </div>
+        <div class="auth-label" style="margin-bottom:8px">I am a…</div>
+        <div class="role-grid">
+          <div class="role-opt selected" id="role-client" onclick="selectRole('client')">
+            <i class="fas fa-user-tie"></i>
+            <span>Client</span>
+            <small>I need help</small>
+          </div>
+          <div class="role-opt" id="role-helper" onclick="selectRole('helper')">
+            <i class="fas fa-hands-helping"></i>
+            <span>Helper</span>
+            <small>I want to work</small>
+          </div>
+        </div>
+        <input type="hidden" id="signup-role-val" value="client">
+        <button class="btn-primary full" onclick="handleSignup()">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </div>
+
+      <div class="auth-footer">
+        By continuing you agree to Helpro's Terms of Service &amp; Privacy Policy
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="goToPage('index.html')" id="nav-home">
+    <i class="fas fa-home"></i><span>Home</span>
+  </button>
+  <button class="nav-item" onclick="goToPage('market.html')" id="nav-market">
+    <i class="fas fa-store"></i><span>Market</span>
+  </button>
+  <button class="nav-item" onclick="goToPage('dashboard.html')" id="nav-chat">
+    <i class="fas fa-comments"></i><span>Chat</span>
+  </button>
+  <button class="nav-item active" id="nav-dashboard">
+    <i class="fas fa-th-large"></i><span>Dashboard</span>
+  </button>
+</nav>
+
+<script src="app.js"></script>
+  <script src="notifications.js"></script>
+<script>
+  let selectedRole = 'client';
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById('signup-role-val').value = role;
+    document.getElementById('role-client').classList.toggle('selected', role === 'client');
+    document.getElementById('role-helper').classList.toggle('selected', role === 'helper');
+  }
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('login-form').style.display  = isLogin ? 'flex' : 'none';
+    document.getElementById('signup-form').style.display = isLogin ? 'none' : 'flex';
+    document.getElementById('login-tab').classList.toggle('active',  isLogin);
+    document.getElementById('signup-tab').classList.toggle('active', !isLogin);
+  }
+
+  function forgotPassword() {
+    alert('Password reset coming soon!');
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+    if (!email || !pass) { showModal('Missing Fields', 'Please enter your email and password.'); return; }
+    login(email, pass);
+  }
+
+  function handleSignup() {
+    const name  = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass  = document.getElementById('signup-password').value;
+    const role  = document.getElementById('signup-role-val').value;
+    if (!name || !email || !pass) { showModal('Missing Fields', 'Please fill in all fields.'); return; }
+    if (pass.length < 6) { showModal('Weak Password', 'Password must be at least 6 characters.'); return; }
+    signUp(email, pass, role, name);
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const loginVisible = document.getElementById('login-form').style.display !== 'none';
+    if (loginVisible) handleLogin(); else handleSignup();
+  });
+</script>
+</body>
+</html>

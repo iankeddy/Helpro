@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3db83a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Helpro">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+<title>Helpro Marketplace — Errands, Done Right.</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="nav-drawer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --green: #3db83a;
+  --green-dark: #2a8a28;
+  --green-mid: #4ecb4b;
+  --green-light: #e8f7e8;
+  --green-glow: rgba(61,184,58,0.15);
+  --orange: #f07623;
+  --orange-light: #fff3ec;
+  --black: #0c0f0a;
+  --white: #ffffff;
+  --surface: #f6f8f6;
+  --surface-2: #eef2ee;
+  --border: #e0e8e0;
+  --text: #1a1f1a;
+  --text-mid: #4a5a4a;
+  --text-muted: #8a9a8a;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --t: 0.2s cubic-bezier(0.4,0,0.2,1);
+  --nav-h: 64px;
+  --bottom-nav-h: 68px;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-h) + 12px);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  height: var(--nav-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  gap: 10px;
+}
+.app-logo { display: flex; align-items: center; justify-content: center; flex: 1; }
+.app-logo img { height: 26px; cursor: pointer; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--text); transition: background var(--t);
+}
+.icon-btn:hover { background: var(--surface); }
+
+/* ── MODE TOGGLE ── */
+.mode-bar {
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+  background: white; border-bottom: 1px solid var(--border);
+}
+.mode-toggle {
+  display: flex; background: var(--surface-2);
+  border-radius: 30px; padding: 4px; gap: 2px; flex: 1;
+}
+.mode-btn {
+  flex: 1; padding: 9px 16px; border-radius: 26px;
+  border: none; cursor: pointer; font-size: 13px; font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-muted); background: transparent;
+  transition: all var(--t); display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.mode-btn.active {
+  background: white; color: var(--green-dark);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.mode-btn i { font-size: 13px; }
+.mode-count {
+  background: var(--green); color: white;
+  font-size: 10px; font-weight: 800; padding: 2px 6px;
+  border-radius: 10px; min-width: 18px; text-align: center;
+}
+.mode-btn.active .mode-count { background: var(--green); }
+
+/* ── SEARCH + FILTER ── */
+.search-area {
+  padding: 14px 16px 0;
+  background: white;
+  border-bottom: 1px solid var(--border);
+}
+.search-row {
+  display: flex; gap: 10px; margin-bottom: 14px;
+}
+.search-wrap {
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  background: var(--surface-2); border-radius: 14px;
+  padding: 11px 16px; border: 1.5px solid transparent;
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.search-wrap:focus-within {
+  border-color: var(--green); background: white;
+  box-shadow: 0 0 0 4px var(--green-glow);
+}
+.search-wrap i { color: var(--text-muted); font-size: 14px; flex-shrink: 0; }
+.search-wrap input {
+  border: none; background: none; outline: none;
+  font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); width: 100%;
+}
+.search-wrap input::placeholder { color: var(--text-muted); }
+.filter-btn {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: var(--surface-2); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--text-mid); cursor: pointer;
+  transition: all var(--t); flex-shrink: 0;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+
+/* ── CATEGORY PILLS ── */
+.cat-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 14px;
+  scrollbar-width: none;
+}
+.cat-scroll::-webkit-scrollbar { display: none; }
+.cat-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 30px; white-space: nowrap;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 1.5px solid var(--border); background: white; color: var(--text-mid);
+  transition: all var(--t); flex-shrink: 0;
+}
+.cat-pill i { font-size: 12px; }
+.cat-pill.active { background: var(--green); color: white; border-color: var(--green); }
+.cat-pill:hover:not(.active) { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+
+/* ── MAIN CONTENT ── */
+.main-content { padding: 16px; }
+
+/* ── SECTION HEADER ── */
+.sec-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+}
+.sec-title {
+  font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: var(--text);
+}
+.sec-count { font-size: 13px; color: var(--text-muted); margin-top: 1px; }
+
+/* ── HELPER/GIG CARDS ── */
+.helpers-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 14px;
+}
+
+/* ── SKELETON LOADERS ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skel {
+  background: linear-gradient(90deg,
+    var(--surface-2) 0%,
+    #fff 40%,
+    var(--surface-2) 80%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Gig skeleton card */
+.skel-gig-card {
+  background: white;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+}
+.skel-gig-cover { height: 130px; }
+.skel-gig-body { padding: 11px 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+.skel-gig-title { height: 13px; width: 90%; }
+.skel-gig-title-2 { height: 13px; width: 65%; }
+.skel-gig-row { display: flex; align-items: center; gap: 6px; }
+.skel-gig-avatar { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; }
+.skel-gig-name { height: 11px; width: 60%; }
+.skel-gig-stars { height: 10px; width: 80px; }
+.skel-gig-footer {
+  padding: 9px 12px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.skel-gig-price { height: 14px; width: 80px; }
+.skel-gig-btn { height: 28px; width: 52px; border-radius: 20px; }
+
+/* Job skeleton card */
+.skel-job-card {
+  background: white;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skel-job-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.skel-job-title-wrap { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.skel-job-title { height: 15px; width: 75%; }
+.skel-job-time  { height: 11px; width: 45%; }
+.skel-job-budget { height: 30px; width: 90px; border-radius: 20px; }
+.skel-job-desc-1 { height: 13px; width: 100%; }
+.skel-job-desc-2 { height: 13px; width: 80%; }
+.skel-job-tags { display: flex; gap: 8px; }
+.skel-job-tag { height: 24px; width: 80px; border-radius: 20px; }
+.skel-job-footer { display: flex; align-items: center; justify-content: space-between; }
+.skel-job-client { display: flex; align-items: center; gap: 8px; }
+.skel-job-cav { width: 28px; height: 28px; border-radius: 50%; }
+.skel-job-cname { height: 12px; width: 60px; }
+.skel-job-apply { height: 34px; width: 80px; border-radius: 20px; }
+
+/* ── GIG CARDS ── */
+.gig-card {
+  background: white;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 0.3s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.gig-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.11); border-color: var(--green-mid); }
+.gig-cover {
+  position: relative; height: 130px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.gig-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.gig-card:hover .gig-cover img { transform: scale(1.07); }
+.gig-cover-icon { font-size: 40px; color: rgba(255,255,255,0.92); }
+.gig-cat-badge {
+  position: absolute; bottom: 9px; left: 9px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  color: white; font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.gig-vetted-badge {
+  position: absolute; top: 9px; left: 9px;
+  background: var(--green); color: white;
+  font-size: 10px; font-weight: 800;
+  padding: 3px 9px; border-radius: 20px;
+  display: flex; align-items: center; gap: 4px;
+  box-shadow: 0 2px 8px rgba(61,184,58,0.4);
+}
+.gig-body { padding: 11px 12px 10px; flex: 1; display: flex; flex-direction: column; }
+.gig-title {
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; color: var(--text);
+  margin-bottom: 6px; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.gig-helper-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.gig-helper-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 800; color: white; flex-shrink: 0;
+}
+.gig-helper-name { font-size: 12px; font-weight: 600; color: var(--text-mid); }
+.gig-rating-row { display: flex; align-items: center; gap: 4px; }
+.gig-stars { color: #f59e0b; font-size: 10px; }
+.gig-rating-num { font-size: 11px; font-weight: 700; color: var(--text); }
+.gig-reviews-cnt { font-size: 10px; color: var(--text-muted); }
+.gig-footer {
+  padding: 9px 12px; border-top: 1px solid #eef3ee;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.gig-price-label { font-size: 10px; color: var(--text-muted); }
+.gig-price { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); }
+.btn-view-gig {
+  background: var(--green); color: white; border: none;
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-view-gig:hover { background: var(--green-dark); transform: scale(1.04); }
+
+/* ── JOB CARDS ── */
+.jobs-list { display: flex; flex-direction: column; gap: 12px; }
+.job-card {
+  background: white; border-radius: var(--radius); border: 1.5px solid var(--border);
+  padding: 16px; cursor: pointer;
+  transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+  position: relative; overflow: hidden;
+}
+.job-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--green); border-radius: 4px 0 0 4px;
+  transform: scaleY(0); transform-origin: bottom; transition: transform var(--t);
+}
+.job-card:hover { transform: translateX(4px); box-shadow: var(--shadow); border-color: var(--green-mid); }
+.job-card:hover::before { transform: scaleY(1); }
+.job-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.job-title-wrap { flex: 1; }
+.job-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px; }
+.job-posted { font-size: 11px; color: var(--text-muted); }
+.job-budget-chip {
+  background: var(--green-light); color: var(--green-dark);
+  font-size: 13px; font-weight: 800; padding: 5px 12px; border-radius: 20px;
+  font-family: 'Outfit', sans-serif; flex-shrink: 0;
+}
+.job-desc { font-size: 13px; color: var(--text-mid); line-height: 1.5; margin-bottom: 10px; }
+.job-tags { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.job-tag {
+  background: var(--surface-2); color: var(--text-mid);
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+  display: flex; align-items: center; gap: 4px;
+}
+.job-tag i { color: var(--green); font-size: 10px; }
+.job-tag.category { background: var(--green-light); color: var(--green-dark); }
+.job-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.job-client-info { display: flex; align-items: center; gap: 8px; }
+.client-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: white; flex-shrink: 0;
+}
+.client-name { font-size: 12px; font-weight: 600; color: var(--text-mid); }
+.btn-apply {
+  background: var(--green); color: white; border: none;
+  padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background var(--t), transform var(--t);
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-apply:hover { background: var(--green-dark); transform: translateY(-1px); }
+.btn-apply:active { transform: translateY(0); }
+.btn-apply:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; }
+.btn-apply.applied { background: var(--surface-2); color: var(--green-dark); cursor: default; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  padding: 60px 20px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.empty-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); }
+.empty-sub { font-size: 14px; color: var(--text-muted); max-width: 260px; line-height: 1.5; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-h);
+  background: rgba(255,255,255,0.96); backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+  z-index: 100; padding: 0 8px;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; cursor: pointer; padding: 8px 16px;
+  color: var(--text-muted); transition: color var(--t);
+  font-size: 10px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+}
+.nav-item i { font-size: 20px; transition: transform var(--t); }
+.nav-item.active { color: var(--green); }
+.nav-item.active i { transform: translateY(-1px); }
+.nav-item:hover { color: var(--green); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(12,15,10,0.55); backdrop-filter: blur(8px);
+  z-index: 3000; display: none; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+@media (min-width: 600px) {
+  .modal-overlay { align-items: center; padding: 24px; }
+  .modal-sheet { border-radius: 24px !important; max-height: 85vh !important; }
+}
+.modal-sheet {
+  background: white; width: 100%; max-width: 540px;
+  border-radius: 24px 24px 0 0; max-height: 90vh;
+  overflow-y: auto; animation: sheetUp 0.34s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+.modal-hero { position: relative; height: 220px; background: var(--surface-2); overflow: hidden; }
+.modal-hero img { width: 100%; height: 100%; object-fit: cover; }
+.modal-hero-avatar {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 72px; color: white;
+}
+.modal-close {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--text); transition: background var(--t); box-shadow: var(--shadow-sm);
+}
+.modal-close:hover { background: white; }
+.vetted-banner {
+  background: var(--green); color: white; padding: 8px 16px;
+  display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700;
+}
+.vetted-banner i { font-size: 14px; }
+.modal-body { padding: 20px; }
+.modal-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px; color: var(--text); margin-bottom: 4px; }
+.modal-tagline { font-size: 14px; color: var(--text-mid); margin-bottom: 12px; line-height: 1.5; }
+.modal-stats {
+  display: flex; gap: 0; margin-bottom: 16px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+}
+.modal-stat { flex: 1; padding: 12px 8px; text-align: center; border-right: 1px solid var(--border); }
+.modal-stat:last-child { border-right: none; }
+.stat-val { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 900; color: var(--text); }
+.stat-lbl { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+.modal-section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.services-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.service-chip {
+  background: var(--green-light); color: var(--green-dark);
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.service-chip i { font-size: 11px; }
+.modal-info-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mid); margin-bottom: 8px; }
+.modal-info-row i { color: var(--green); width: 16px; text-align: center; }
+.modal-cta { padding: 16px 20px 24px; display: flex; gap: 10px; }
+.cta-btn {
+  flex: 1; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; border: none; transition: all var(--t);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.cta-primary { background: var(--green); color: white; }
+.cta-primary:hover { background: var(--green-dark); }
+.cta-secondary { background: var(--surface-2); color: var(--text-mid); border: 1.5px solid var(--border); flex: 0.5; }
+.cta-secondary:hover { background: var(--surface); }
+
+/* ── JOB DETAIL MODAL ── */
+.job-detail-header { padding: 20px; border-bottom: 1px solid var(--border); }
+.detail-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; font-size: 14px; color: var(--text-mid); }
+.detail-row i { color: var(--green); margin-top: 2px; width: 16px; text-align: center; flex-shrink: 0; }
+.detail-label { font-weight: 700; color: var(--text); }
+
+/* ── TOAST ── */
+.toast-wrap { position: fixed; bottom: calc(var(--bottom-nav-h) + 12px); left: 50%; transform: translateX(-50%); z-index: 4000; pointer-events: none; }
+.toast {
+  background: var(--black); color: white; padding: 11px 20px; border-radius: 30px;
+  font-size: 13px; font-weight: 600; box-shadow: var(--shadow-lg);
+  white-space: nowrap; animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes toastIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+.toast.green { background: var(--green); }
+.toast.orange { background: var(--orange); }
+
+/* ── FILTER SHEET ── */
+.filter-sheet { padding: 20px; }
+.filter-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 18px; margin-bottom: 16px; }
+.filter-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.filter-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.filter-opt {
+  padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--border); background: white; color: var(--text-mid);
+  cursor: pointer; transition: all var(--t);
+}
+.filter-opt.active { background: var(--green); color: white; border-color: var(--green); }
+.apply-filter-btn {
+  width: 100%; padding: 14px; background: var(--green); color: white;
+  border: none; border-radius: 14px; font-size: 15px; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background var(--t);
+}
+.apply-filter-btn:hover { background: var(--green-dark); }
+
+/* ── LOCKED BANNER ── */
+.locked-banner {
+  background: linear-gradient(135deg, #fff8f0, #fff3e0);
+  border: 1.5px solid #fdd6aa; border-radius: var(--radius-sm);
+  padding: 14px 16px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.locked-icon { font-size: 22px; flex-shrink: 0; }
+.locked-text { flex: 1; font-size: 13px; color: #7a4a10; line-height: 1.5; }
+.locked-text strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+/* Gig detail modal extras */
+.gig-what-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.gig-what-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mid); }
+.gig-what-item i { color: var(--green); font-size: 12px; flex-shrink: 0; }
+.gig-delivery-row { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid); margin-bottom: 14px; }
+.gig-delivery-row i { color: var(--green); }
+
+/* ── RESPONSIVE ── */
+@media (min-width: 640px) {
+  .helpers-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .main-content { padding: 20px; }
+}
+@media (min-width: 960px) {
+  .helpers-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .main-content { max-width: 860px; margin: 0 auto; padding: 20px 32px; }
+  .helpers-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- DRAWER -->
+<div id="app-menu" class="app-menu hidden"></div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="toggleAppMenu()" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <div class="app-logo" onclick="goToPage('index.html')" role="img" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <button class="icon-btn" onclick="handleProfileClick()" aria-label="Profile"><i class="fas fa-user-circle"></i></button>
+</header>
+
+<!-- MODE TOGGLE -->
+<div class="mode-bar">
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-client" onclick="setMode('client')">
+      <i class="fas fa-store"></i> Browse Gigs
+      <span class="mode-count" id="helpers-count">–</span>
+    </button>
+    <button class="mode-btn" id="btn-helper" onclick="setMode('helper')">
+      <i class="fas fa-briefcase"></i> Browse Jobs
+      <span class="mode-count" id="jobs-count">–</span>
+    </button>
+  </div>
+</div>
+
+<!-- SEARCH + FILTERS -->
+<div class="search-area">
+  <div class="search-row">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="search-input" placeholder="Search helpers, services…" oninput="onSearch(this.value)">
+    </div>
+    <button class="filter-btn" id="filter-btn" onclick="openFilterSheet()" title="Filters">
+      <i class="fas fa-sliders-h"></i>
+    </button>
+  </div>
+  <div class="cat-scroll" id="cat-scroll"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+  <!-- CLIENT VIEW -->
+  <div id="client-view">
+    <div class="sec-header">
+      <div>
+        <div class="sec-title">Available Gigs</div>
+        <div class="sec-count" id="client-sec-sub">Loading…</div>
+      </div>
+    </div>
+    <div id="helpers-container"></div>
+  </div>
+
+  <!-- HELPER VIEW -->
+  <div id="helper-view" style="display:none">
+    <div id="locked-banner-wrap"></div>
+    <div class="sec-header">
+      <div>
+        <div class="sec-title">Open Jobs</div>
+        <div class="sec-count" id="helper-sec-sub">Loading…</div>
+      </div>
+    </div>
+    <div id="jobs-container"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" id="nav-home" onclick="goToPage('index.html')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="nav-item active" id="nav-market" onclick="goToPage('market.html')"><i class="fas fa-store"></i><span>Market</span></button>
+  <button class="nav-item" id="nav-chat" onclick="openChatFromNav()"><i class="fas fa-comments"></i><span>Chat</span></button>
+  <button class="nav-item" id="nav-dashboard" onclick="goToPage('dashboard.html')"><i class="fas fa-th-large"></i><span>Dashboard</span></button>
+</nav>
+
+<!-- GIG DETAIL MODAL -->
+<div class="modal-overlay" id="gig-modal">
+  <div class="modal-sheet" id="gig-sheet">
+    <div class="sheet-handle"></div>
+    <div class="modal-hero" id="gig-modal-hero"></div>
+    <div id="gig-vetted-flag"></div>
+    <div class="modal-body" id="gig-modal-body"></div>
+    <div id="gig-modal-reviews"></div>
+    <div id="gig-modal-badges"></div>
+    <div class="modal-cta" id="gig-modal-cta"></div>
+  </div>
+</div>
+
+<!-- HELPER PROFILE MODAL -->
+<div class="modal-overlay" id="helper-modal">
+  <div class="modal-sheet" id="helper-sheet">
+    <div class="sheet-handle"></div>
+    <div class="modal-hero" id="modal-hero-img">
+      <button class="modal-close" onclick="closeModal('helper-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="vetted-flag"></div>
+    <div class="modal-body" id="modal-body-content"></div>
+    <div id="modal-reviews-wrap" style="border-top:1px solid #edf3ed"></div>
+    <div id="modal-badges-wrap"></div>
+    <div class="modal-cta" id="modal-cta"></div>
+  </div>
+</div>
+
+<!-- JOB DETAIL MODAL -->
+<div class="modal-overlay" id="job-modal">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div style="padding:8px 16px 0;display:flex;justify-content:flex-end">
+      <button class="modal-close" style="position:static;box-shadow:none;background:var(--surface-2)" onclick="closeModal('job-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="job-modal-body"></div>
+  </div>
+</div>
+
+<!-- FILTER SHEET -->
+<div class="modal-overlay" id="filter-modal">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="filter-sheet" id="filter-body"></div>
+  </div>
+</div>
+
+<!-- CUSTOM MODAL (used by app.js showModal()) -->
+<div id="custom-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+  z-index:9000;align-items:center;justify-content:center;padding:20px"
+  onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:20px;padding:28px 24px;max-width:340px;width:100%;
+    box-shadow:0 12px 48px rgba(0,0,0,0.18);font-family:'DM Sans',sans-serif;text-align:center">
+    <h3 id="modal-title" style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;
+      color:#111811;margin-bottom:8px"></h3>
+    <p id="modal-message" style="font-size:14px;color:#445044;line-height:1.5;margin-bottom:20px"></p>
+    <button onclick="document.getElementById('custom-modal').style.display='none'"
+      style="background:#3db83a;color:white;border:none;border-radius:30px;padding:11px 32px;
+      font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%">OK</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap" style="display:none"></div>
+
+<script>
+// ── SUPABASE ──
+const supabaseUrl = 'https://cjpylodggpqqkuvojogb.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcHlsb2RnZ3BxcWt1dm9qb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ3ODgsImV4cCI6MjA4MjY2MDc4OH0.DpfpuCMQr8A3QV11KRVLE2JakuRWAmoGi1Ol_QUFWRE';
+const db = supabase.createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: true, autoRefreshToken: true }
+});
+window.db = db;
+
+// ── STATE ──
+let currentUser = null, currentProfile = null;
+let allHelpers  = [], allGigs = [], allJobs = [];
+let filteredGigs = [], filteredJobs = [];
+let currentMode    = 'client';
+let activeCategory = 'all';
+let appliedJobs    = new Set();
+let filterCity     = '';
+let _gigsLoaded    = false, _jobsLoaded = false; // track independent load state
+
+const avatarColors   = ['#3db83a','#3b82f6','#f07623','#8b5cf6','#ec4899','#f59e0b','#0891b2','#16a34a'];
+const categoryIcons  = { cleaning:'fa-broom',delivery:'fa-truck',repairs:'fa-tools',shopping:'fa-shopping-cart',transport:'fa-car',petcare:'fa-paw',gardening:'fa-leaf',moving:'fa-boxes',security:'fa-shield-alt',tutoring:'fa-book',laundry:'fa-tshirt',events:'fa-calendar-alt' };
+const categories     = ['all','cleaning','delivery','repairs','shopping','transport','petcare','gardening','moving','security','tutoring','laundry','events'];
+const catBgColors    = { cleaning:'#3db83a',delivery:'#3b82f6',repairs:'#f07623',shopping:'#8b5cf6',transport:'#0891b2',petcare:'#ec4899',gardening:'#16a34a',laundry:'#f59e0b',moving:'#6366f1',tutoring:'#14b8a6',events:'#ef4444',security:'#78716c' };
+
+function colorFor(str) { let h=0; for(let c of (str||'?')) h=(h<<5)-h+c.charCodeAt(0); return avatarColors[Math.abs(h)%avatarColors.length]; }
+function initials(name) { return (name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(); }
+function timeAgo(d) {
+  if(!d) return '';
+  const s = Math.floor((Date.now()-new Date(d))/1000);
+  if(s<60) return 'Just now'; if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago'; if(s<604800) return Math.floor(s/86400)+'d ago';
+  return new Date(d).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
+}
+function renderStars(r) {
+  r = parseFloat(r)||0;
+  let s=''; const full=Math.floor(r), half=r%1>=0.5;
+  for(let i=0;i<full;i++) s+='<i class="fas fa-star"></i>';
+  if(half) s+='<i class="fas fa-star-half-alt"></i>';
+  for(let i=full+(half?1:0);i<5;i++) s+='<i class="far fa-star"></i>';
+  return `<span class="stars-row" style="color:#f59e0b;font-size:11px">${s}</span>`;
+}
+
+// ── SKELETONS ──
+function gigSkeletonHTML() {
+  return `<div class="skel-gig-card">
+    <div class="skel-gig-cover skel"></div>
+    <div class="skel-gig-body">
+      <div class="skel-gig-title skel"></div>
+      <div class="skel-gig-title-2 skel"></div>
+      <div class="skel-gig-row">
+        <div class="skel-gig-avatar skel"></div>
+        <div class="skel-gig-name skel"></div>
+      </div>
+      <div class="skel-gig-stars skel"></div>
+    </div>
+    <div class="skel-gig-footer">
+      <div class="skel-gig-price skel"></div>
+      <div class="skel-gig-btn skel"></div>
+    </div>
+  </div>`;
+}
+
+function jobSkeletonHTML() {
+  return `<div class="skel-job-card">
+    <div class="skel-job-top">
+      <div class="skel-job-title-wrap">
+        <div class="skel-job-title skel"></div>
+        <div class="skel-job-time skel"></div>
+      </div>
+      <div class="skel-job-budget skel"></div>
+    </div>
+    <div class="skel-job-desc-1 skel"></div>
+    <div class="skel-job-desc-2 skel"></div>
+    <div class="skel-job-tags">
+      <div class="skel-job-tag skel"></div>
+      <div class="skel-job-tag skel"></div>
+    </div>
+    <div class="skel-job-footer">
+      <div class="skel-job-client">
+        <div class="skel-job-cav skel"></div>
+        <div class="skel-job-cname skel"></div>
+      </div>
+      <div class="skel-job-apply skel"></div>
+    </div>
+  </div>`;
+}
+
+function showGigSkeletons(count = 8) {
+  document.getElementById('helpers-container').innerHTML =
+    `<div class="helpers-grid">${Array(count).fill(gigSkeletonHTML()).join('')}</div>`;
+}
+
+function showJobSkeletons(count = 5) {
+  document.getElementById('jobs-container').innerHTML =
+    `<div class="jobs-list">${Array(count).fill(jobSkeletonHTML()).join('')}</div>`;
+}
+
+// ── INIT ──
+window.addEventListener('load', async () => {
+  buildCategoryPills();
+
+  // Show skeletons for both views immediately — before any data arrives
+  showGigSkeletons();
+  showJobSkeletons();
+
+  // Check URL params early
+  const params      = new URLSearchParams(window.location.search);
+  const urlCat      = params.get('cat');
+  const urlMode     = params.get('mode');
+  const highlightId = params.get('highlight'); // job ID passed from home/search page
+
+  if (urlCat) activeCategory = urlCat;
+  // Switch to helper/jobs view if ?mode=jobs OR a specific job was linked to
+  if (urlMode === 'jobs' || highlightId) { currentMode = 'helper'; setMode('helper'); }
+
+  // 1. Auth (non-blocking — don't await before fetching data)
+  const authPromise = db.auth.getSession().then(async ({ data: { session } }) => {
+    if (session) {
+      currentUser = session.user;
+      const { data: profile } = await db.from('profiles')
+        .select('id,role,full_name,is_vetted')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+      currentProfile = profile;
+    }
+  }).catch(() => {});
+
+  // 2. Fire gigs + jobs fetches in parallel — don't wait for auth
+  const gigsPromise = loadGigs();
+  const jobsPromise = loadJobs();
+
+  // 3. After auth resolves, refresh applied-jobs and re-render for role-aware UI
+  authPromise.then(async () => {
+    if (currentUser) {
+      const { data: apps } = await db.from('bookings')
+        .select('job_id')
+        .eq('helper_id', currentUser.id);
+      if (apps) apps.forEach(a => appliedJobs.add(a.job_id));
+    }
+    // Re-render with role context if data already loaded
+    if (_gigsLoaded) applyFilters();
+    if (_jobsLoaded) renderJobs();
+  });
+
+  await Promise.all([gigsPromise, jobsPromise]);
+  if (urlCat) setActiveCat(urlCat);
+
+  // 4. Auto-open + highlight a specific job if ?highlight=<id> was in the URL
+  if (highlightId) {
+    setTimeout(() => {
+      // Highlight the matching job card with a green glow
+      document.querySelectorAll('.job-card').forEach(card => {
+        const onclick = card.getAttribute('onclick') || '';
+        if (onclick.includes(highlightId)) {
+          card.style.border = '2px solid var(--green)';
+          card.style.boxShadow = '0 0 0 4px rgba(61,184,58,0.18)';
+          card.style.borderRadius = '16px';
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.style.transition = 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+          card.style.transform = 'scale(1.02)';
+          setTimeout(() => { card.style.transform = 'scale(1)'; }, 350);
+        }
+      });
+      // Also auto-open the job detail modal
+      openJobModal(highlightId);
+    }, 400);
+  }
+});
+
+// ── CATEGORY PILLS ──
+function buildCategoryPills() {
+  const scroll = document.getElementById('cat-scroll');
+  scroll.innerHTML = categories.map(c => {
+    const icon  = c === 'all' ? 'fa-th' : (categoryIcons[c] || 'fa-star');
+    const label = c === 'all' ? 'All' : c.charAt(0).toUpperCase() + c.slice(1);
+    return `<button class="cat-pill ${c===activeCategory?'active':''}" onclick="setActiveCat('${c}')">
+      <i class="fas ${icon}"></i> ${label}
+    </button>`;
+  }).join('');
+}
+
+function setActiveCat(cat) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-pill').forEach(p => {
+    const txt = p.textContent.trim().toLowerCase();
+    p.classList.toggle('active', cat === 'all' ? txt.startsWith('all') : txt.startsWith(cat));
+  });
+  applyFilters();
+}
+
+// ── MODE ──
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btn-client').classList.toggle('active', mode==='client');
+  document.getElementById('btn-helper').classList.toggle('active', mode==='helper');
+  document.getElementById('client-view').style.display = mode==='client' ? 'block' : 'none';
+  document.getElementById('helper-view').style.display = mode==='helper' ? 'block' : 'none';
+  document.getElementById('search-input').placeholder = mode==='client' ? 'Search helpers, services…' : 'Search jobs…';
+  document.getElementById('search-input').value = '';
+  applyFilters();
+}
+
+// ── LOAD DATA ──
+// Only select columns that are actually rendered — reduces payload size significantly
+async function loadGigs() {
+  const { data: gigs, error } = await db
+    .from('gigs')
+    .select([
+      'id', 'title', 'description', 'category', 'price', 'price_type',
+      'cover_image_url', 'delivery_time', 'what_you_get', 'views', 'is_active', 'created_at',
+      'helper:profiles!helper_id(id, full_name, avg_rating, total_jobs, selfie_url, location_name, service_category, lat, lng)'
+    ].join(','))
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  allGigs = gigs || [];
+  _gigsLoaded = true;
+  document.getElementById('helpers-count').textContent = allGigs.length;
+
+  // Also keep allHelpers for profile modal (deduplicated from gig data)
+  const helperMap = {};
+  allGigs.forEach(g => { if (g.helper?.id) helperMap[g.helper.id] = g.helper; });
+  allHelpers = Object.values(helperMap);
+
+  applyFilters();
+}
+
+async function loadJobs() {
+  const { data, error } = await db
+    .from('jobs')
+    .select('id, title, description, category, budget, location, status, client_id, created_at, profiles:client_id(full_name, email)')
+    .eq('status', 'open')
+    .order('created_at', { ascending: false });
+
+  allJobs = data || [];
+  _jobsLoaded = true;
+  document.getElementById('jobs-count').textContent = allJobs.length;
+  renderJobs();
+}
+
+// ── SEARCH (debounced) ──
+let _searchTimer;
+function onSearch(q) {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(applyFilters, 250);
+}
+
+// ── FILTER & RENDER DISPATCH ──
+function applyFilters() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+
+  if (currentMode === 'client') {
+    filteredGigs = allGigs.filter(g => {
+      const h = g.helper || {};
+      if (activeCategory !== 'all' && !(g.category||'').toLowerCase().includes(activeCategory)) return false;
+      if (filterCity && !(h.location_name||'').toLowerCase().includes(filterCity.toLowerCase())) return false;
+      if (q && !(g.title||'').toLowerCase().includes(q) && !(g.description||'').toLowerCase().includes(q) && !(h.full_name||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+    renderGigs();
+  } else {
+    filteredJobs = allJobs.filter(j => {
+      if (activeCategory !== 'all' && !(j.category||'').toLowerCase().includes(activeCategory)) return false;
+      if (filterCity && !(j.location||'').toLowerCase().includes(filterCity.toLowerCase())) return false;
+      if (q && !(j.title||'').toLowerCase().includes(q) && !(j.description||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+    renderJobs();
+  }
+}
+
+// ── RENDER GIGS ──
+function renderGigs() {
+  const container = document.getElementById('helpers-container');
+  document.getElementById('client-sec-sub').textContent =
+    `${filteredGigs.length} gig${filteredGigs.length !== 1 ? 's' : ''} available`;
+
+  if (!filteredGigs.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">No gigs found</div>
+      <div class="empty-sub">Try a different category or search term</div>
+    </div>`;
+    return;
+  }
+
+  // Use a document fragment for a single DOM write
+  const html = `<div class="helpers-grid">${filteredGigs.map(gigCardHTML).join('')}</div>`;
+  container.innerHTML = html;
+}
+
+function gigCardHTML(g, i) {
+  const h        = g.helper || {};
+  const bgColor  = catBgColors[g.category] || '#3db83a';
+  const icon     = categoryIcons[g.category] || 'fa-star';
+  const color    = colorFor(h.full_name);
+  const rating   = parseFloat(h.avg_rating) || 0;
+  const jobs     = h.total_jobs || 0;
+  const priceStr = g.price
+    ? (g.price_type === 'hourly' ? `KES ${g.price}/hr` : `From KES ${g.price}`)
+    : 'Negotiable';
+
+  return `<div class="gig-card" onclick="openGigModal('${g.id}')" style="animation-delay:${Math.min(i,12)*0.04}s">
+    <div class="gig-cover" style="background:linear-gradient(135deg,${bgColor},${bgColor}99)">
+      ${g.cover_image_url
+        ? `<img src="${g.cover_image_url}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">`
+        : `<i class="fas ${icon} gig-cover-icon"></i>`}
+      <div class="gig-vetted-badge"><i class="fas fa-shield-check"></i> Vetted</div>
+      <div class="gig-cat-badge">${g.category || 'General'}</div>
+    </div>
+    <div class="gig-body">
+      <div class="gig-title">${g.title}</div>
+      <div class="gig-helper-row">
+        <div class="gig-helper-avatar" style="background:${color}">${initials(h.full_name)}</div>
+        <div class="gig-helper-name">${h.full_name || 'Helper'}</div>
+      </div>
+      ${rating > 0
+        ? `<div class="gig-rating-row">
+            <span class="gig-stars">${'★'.repeat(Math.floor(rating))}${'☆'.repeat(5-Math.floor(rating))}</span>
+            <span class="gig-rating-num">${rating.toFixed(1)}</span>
+            <span class="gig-reviews-cnt">(${jobs})</span>
+          </div>`
+        : `<div style="font-size:11px;color:var(--text-muted)">New helper</div>`}
+    </div>
+    <div class="gig-footer">
+      <div>
+        <div class="gig-price-label">Starting</div>
+        <div class="gig-price">${priceStr}</div>
+      </div>
+      <button class="btn-view-gig" onclick="event.stopPropagation();openGigModal('${g.id}')">View</button>
+    </div>
+  </div>`;
+}
+
+// ── RENDER JOBS ──
+function renderJobs() {
+  const container = document.getElementById('jobs-container');
+  document.getElementById('helper-sec-sub').textContent =
+    `${filteredJobs.length} open job${filteredJobs.length !== 1 ? 's' : ''}`;
+
+  // Locked banner for unvetted helpers
+  const bannerWrap = document.getElementById('locked-banner-wrap');
+  bannerWrap.innerHTML = (currentProfile?.role === 'helper' && !currentProfile?.is_vetted)
+    ? `<div class="locked-banner">
+        <div class="locked-icon">🔒</div>
+        <div class="locked-text">
+          <strong>Account Pending Verification</strong>
+          You can browse jobs but cannot apply until your account is approved.
+        </div>
+      </div>`
+    : '';
+
+  if (!filteredJobs.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">💼</div>
+      <div class="empty-title">No jobs available</div>
+      <div class="empty-sub">No open jobs match your filters. Check back soon!</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="jobs-list">${filteredJobs.map(jobCardHTML).join('')}</div>`;
+}
+
+function jobCardHTML(j, i) {
+  const cat         = j.category || 'general';
+  const icon        = categoryIcons[cat.toLowerCase()] || 'fa-briefcase';
+  const clientName  = j.profiles?.full_name || j.profiles?.email || 'Client';
+  const clientColor = colorFor(clientName);
+  const applied     = appliedJobs.has(j.id);
+  const isHelper    = currentProfile?.role === 'helper';
+  const isLocked    = isHelper && !currentProfile?.is_vetted;
+
+  return `<div class="job-card" onclick="openJobModal('${j.id}')">
+    <div class="job-card-top">
+      <div class="job-title-wrap">
+        <div class="job-title">${j.title || 'Untitled Job'}</div>
+        <div class="job-posted">${timeAgo(j.created_at)}</div>
+      </div>
+      <div class="job-budget-chip">${j.budget || 'Negotiable'}</div>
+    </div>
+    <div class="job-desc">${(j.description||'').slice(0,120)}${(j.description||'').length>120?'…':''}</div>
+    <div class="job-tags">
+      <div class="job-tag category"><i class="fas ${icon}"></i>${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>
+      ${j.location ? `<div class="job-tag"><i class="fas fa-map-marker-alt"></i>${j.location}</div>` : ''}
+    </div>
+    <div class="job-card-footer">
+      <div class="job-client-info">
+        <div class="client-avatar" style="background:${clientColor}">${initials(clientName)}</div>
+        <div class="client-name">${clientName.split(' ')[0]}</div>
+      </div>
+      ${isHelper
+        ? `<button class="btn-apply ${applied?'applied':''}" ${applied||isLocked?'disabled':''} onclick="event.stopPropagation();applyForJob('${j.id}')">
+            ${applied ? '<i class="fas fa-check"></i> Applied' : isLocked ? '<i class="fas fa-lock"></i> Locked' : '<i class="fas fa-paper-plane"></i> Apply'}
+          </button>`
+        : `<button class="btn-apply" onclick="event.stopPropagation();viewJobAsClient('${j.id}')">
+            <i class="fas fa-eye"></i> View
+          </button>`}
+    </div>
+  </div>`;
+}
+
+// ── GIG MODAL ──
+async function openGigModal(gigId) {
+  const g = allGigs.find(x => x.id === gigId);
+  if (!g) return;
+
+  const h        = g.helper || {};
+  const bgColor  = catBgColors[g.category] || '#3db83a';
+  const icon     = categoryIcons[g.category] || 'fa-star';
+  const color    = colorFor(h.full_name);
+  const rating   = parseFloat(h.avg_rating) || 0;
+  const jobs     = h.total_jobs || 0;
+  const priceStr = g.price
+    ? (g.price_type === 'hourly' ? `KES ${g.price}/hr` : `KES ${g.price} fixed`)
+    : 'Negotiable';
+
+  // Increment view count (fire-and-forget)
+  db.from('gigs').update({ views: (g.views||0)+1 }).eq('id', gigId).then(() => {
+    const idx = allGigs.findIndex(x => x.id === gigId);
+    if (idx >= 0) allGigs[idx].views = (g.views||0)+1;
+  });
+
+  document.getElementById('gig-modal-hero').innerHTML = `
+    <button class="modal-close" onclick="closeModal('gig-modal')"><i class="fas fa-times"></i></button>
+    ${g.cover_image_url ? `<img src="${g.cover_image_url}" alt="${g.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+    <div class="modal-hero-avatar" style="background:linear-gradient(135deg,${bgColor},${bgColor}99);${g.cover_image_url?'display:none':''}">
+      <i class="fas ${icon}" style="font-size:56px;color:rgba(255,255,255,0.9)"></i>
+    </div>`;
+
+  document.getElementById('gig-vetted-flag').innerHTML =
+    `<div class="vetted-banner"><i class="fas fa-shield-check"></i> Vetted & Verified Helper — Safe to Hire</div>`;
+
+  const whatHTML = (g.what_you_get||[]).length
+    ? `<div class="modal-section-title">What's Included</div>
+       <div class="gig-what-list">${g.what_you_get.map(w=>`<div class="gig-what-item"><i class="fas fa-check-circle"></i>${w}</div>`).join('')}</div>`
+    : '';
+
+  document.getElementById('gig-modal-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:16px 20px 0">
+      <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:white;flex-shrink:0">${initials(h.full_name)}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px;color:#1a1f1a">${h.full_name||'Helper'}</div>
+        <div style="font-size:12px;color:#8a9a8a">${h.location_name||'Kenya'}</div>
+      </div>
+      ${rating > 0 ? `<div style="text-align:right">
+        <div style="color:#f59e0b;font-size:12px">${'★'.repeat(Math.floor(rating))}${'☆'.repeat(5-Math.floor(rating))}</div>
+        <div style="font-size:11px;color:#8a9a8a">${rating.toFixed(1)} · ${jobs} jobs</div>
+      </div>` : ''}
+    </div>
+    <div class="modal-body" style="padding-top:12px">
+      <div class="modal-name" style="font-size:18px">${g.title}</div>
+      <div class="modal-tagline">${g.description||''}</div>
+      <div class="modal-stats">
+        <div class="modal-stat"><div class="stat-val">${priceStr}</div><div class="stat-lbl">Price</div></div>
+        <div class="modal-stat"><div class="stat-val">${g.delivery_time||'Flexible'}</div><div class="stat-lbl">Availability</div></div>
+        <div class="modal-stat"><div class="stat-val">${jobs||'New'}</div><div class="stat-lbl">Jobs Done</div></div>
+      </div>
+      ${whatHTML}
+      ${g.delivery_time ? `<div class="gig-delivery-row"><i class="fas fa-clock"></i> ${g.delivery_time}</div>` : ''}
+      <div class="modal-info-row"><i class="fas fa-map-marker-alt"></i>${h.location_name||'Kenya'}</div>
+      <div class="modal-info-row"><i class="fas fa-tag"></i>${(g.category||'General').charAt(0).toUpperCase()+(g.category||'general').slice(1)}</div>
+    </div>`;
+
+  // Reviews (async, non-blocking)
+  const reviewsWrap = document.getElementById('gig-modal-reviews');
+  reviewsWrap.innerHTML = '';
+  if (typeof loadHelperReviews === 'function' && h.id) {
+    loadHelperReviews(h.id).then(html => { reviewsWrap.innerHTML = html || ''; });
+  }
+
+  // Badges (async, non-blocking)
+  const gigBadgesWrap = document.getElementById('gig-modal-badges');
+  gigBadgesWrap.innerHTML = '';
+  if (typeof getHelperBadges === 'function' && h.id) {
+    getHelperBadges(h.id).then(badges => {
+      gigBadgesWrap.innerHTML = renderBadgeShowcase?.(badges) || '';
+    });
+  }
+
+  document.getElementById('gig-modal-cta').innerHTML = `
+    <button class="cta-btn cta-secondary" onclick="closeModal('gig-modal')"><i class="fas fa-times"></i></button>
+    <button class="cta-btn cta-primary" onclick="hireFromGig('${h.id}','${(h.full_name||'').replace(/'/g,"\\'")}')">
+      <i class="fas fa-handshake"></i> Hire ${(h.full_name||'').split(' ')[0]}
+    </button>`;
+
+  document.getElementById('gig-modal').classList.add('open');
+}
+
+// ── HELPER MODAL ──
+async function openHelperModal(id) {
+  // Fetch full profile on demand (only when opening modal)
+  let h = allHelpers.find(x => x.id === id);
+  if (!h) {
+    const { data } = await db.from('profiles').select('*').eq('id', id).maybeSingle();
+    h = data;
+    if (!h) return;
+    allHelpers.push(h);
+  }
+
+  const color  = colorFor(h.full_name);
+  const rating = parseFloat(h.avg_rating) || 0;
+  const jobs   = h.total_jobs || 0;
+  const cat    = h.service_category || 'General';
+  const price  = h.hourly_rate ? `KES ${h.hourly_rate}/hr` : 'Negotiable';
+
+  document.getElementById('modal-hero-img').innerHTML = `
+    <button class="modal-close" onclick="closeModal('helper-modal')"><i class="fas fa-times"></i></button>
+    ${h.selfie_url ? `<img src="${h.selfie_url}" alt="${h.full_name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+    <div class="modal-hero-avatar" style="background:linear-gradient(135deg,${color},${color}aa);${h.selfie_url?'display:none':''}">${initials(h.full_name)}</div>`;
+
+  document.getElementById('vetted-flag').innerHTML =
+    `<div class="vetted-banner"><i class="fas fa-shield-check"></i> Vetted & Verified Helper — Safe to Hire</div>`;
+
+  document.getElementById('modal-body-content').innerHTML = `
+    <div class="modal-name">${h.full_name||'Helper'}</div>
+    <div class="modal-tagline">${h.bio||`Professional ${cat} services in ${h.location_name||'Kenya'}.`}</div>
+    <div class="modal-stats">
+      <div class="modal-stat"><div class="stat-val">${jobs}</div><div class="stat-lbl">Jobs Done</div></div>
+      <div class="modal-stat"><div class="stat-val">${rating>0?rating.toFixed(1):'New'}</div><div class="stat-lbl">Rating</div></div>
+      <div class="modal-stat"><div class="stat-val">${price}</div><div class="stat-lbl">Rate</div></div>
+    </div>
+    <div class="modal-section-title">Services</div>
+    <div class="services-chips">
+      <div class="service-chip"><i class="fas ${categoryIcons[cat.toLowerCase()]||'fa-star'}"></i>${cat}</div>
+      ${(h.categories||[]).map(c=>`<div class="service-chip"><i class="fas ${categoryIcons[c.toLowerCase()]||'fa-check'}"></i>${c}</div>`).join('')}
+    </div>
+    <div class="modal-section-title">Details</div>
+    <div class="modal-info-row"><i class="fas fa-map-marker-alt"></i>${h.location_name||'Kenya'}</div>
+    <div class="modal-info-row"><i class="fas fa-phone"></i>${h.phone||'Contact via message'}</div>
+    <div class="modal-info-row"><i class="fas fa-calendar-check"></i>Member since ${new Date(h.created_at).toLocaleDateString('en-KE',{month:'long',year:'numeric'})}</div>`;
+
+  document.getElementById('modal-cta').innerHTML = `
+    <button class="cta-btn cta-secondary" onclick="closeModal('helper-modal')"><i class="fas fa-times"></i></button>
+    <button class="cta-btn cta-primary" onclick="hireHelper('${h.id}','${(h.full_name||'').replace(/'/g,"\\'")}')">
+      <i class="fas fa-handshake"></i> Hire ${(h.full_name||'').split(' ')[0]}
+    </button>`;
+
+  // Reviews async
+  const reviewsWrap = document.getElementById('modal-reviews-wrap');
+  if (reviewsWrap) {
+    reviewsWrap.innerHTML = '';
+    if (typeof loadHelperReviews === 'function') {
+      loadHelperReviews(h.id).then(html => { reviewsWrap.innerHTML = html || ''; });
+    }
+  }
+
+  // Badges async
+  const badgesWrap = document.getElementById('modal-badges-wrap');
+  if (badgesWrap) {
+    badgesWrap.innerHTML = '';
+    if (typeof getHelperBadges === 'function') {
+      getHelperBadges(h.id).then(badges => { badgesWrap.innerHTML = renderBadgeShowcase?.(badges) || ''; });
+    }
+  }
+
+  document.getElementById('helper-modal').classList.add('open');
+}
+
+// ── HIRE ──
+async function hireFromGig(helperId, helperName) {
+  if (!currentUser) { showToast('Please log in to hire helpers','orange'); closeModal('gig-modal'); goToPage('auth.html'); return; }
+  if (currentProfile?.role === 'helper') { showToast('Helpers cannot hire other helpers','orange'); return; }
+  closeModal('gig-modal');
+  showToast(`Opening chat with ${helperName.trim()}…`,'green');
+  localStorage.setItem('openChat','true');
+  localStorage.setItem('chatRecipientId', helperId);
+  localStorage.setItem('chatRecipientName', helperName.trim());
+  localStorage.removeItem('chatJobId');
+  setTimeout(() => goToPage('dashboard.html'), 900);
+}
+
+async function hireHelper(helperId, helperName) {
+  if (!currentUser) { showToast('Please log in to hire helpers','orange'); closeModal('helper-modal'); goToPage('auth.html'); return; }
+  if (currentProfile?.role === 'helper') { showToast('Helpers cannot hire other helpers','orange'); return; }
+  closeModal('helper-modal');
+  localStorage.setItem('openChat','true');
+  localStorage.setItem('chatRecipientId', helperId);
+  localStorage.setItem('chatRecipientName', helperName);
+  showToast(`✅ Opening chat with ${helperName}…`,'green');
+  setTimeout(() => goToPage('dashboard.html'), 900);
+}
+
+// ── JOB MODAL ──
+function openJobModal(id) {
+  const j = allJobs.find(x => x.id === id);
+  if (!j) return;
+  const cat        = j.category || 'general';
+  const icon       = categoryIcons[cat.toLowerCase()] || 'fa-briefcase';
+  const clientName = j.profiles?.full_name || 'Client';
+  const applied    = appliedJobs.has(j.id);
+  const isHelper   = currentProfile?.role === 'helper';
+  const isLocked   = isHelper && !currentProfile?.is_vetted;
+
+  document.getElementById('job-modal-body').innerHTML = `
+    <div class="job-detail-header">
+      <div class="job-budget-chip" style="font-size:16px;padding:12px 20px;text-align:center;margin-bottom:16px">${j.budget||'Budget not specified'}</div>
+      <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px">${j.title||'Untitled'}</div>
+      <div style="font-size:14px;color:var(--text-mid);line-height:1.6;margin-bottom:16px">${j.description||'No description provided.'}</div>
+      <div class="detail-row"><i class="fas ${icon}"></i><span><span class="detail-label">Category: </span>${cat.charAt(0).toUpperCase()+cat.slice(1)}</span></div>
+      ${j.location ? `<div class="detail-row"><i class="fas fa-map-marker-alt"></i><span><span class="detail-label">Location: </span>${j.location}</span></div>` : ''}
+      <div class="detail-row"><i class="fas fa-clock"></i><span><span class="detail-label">Posted: </span>${timeAgo(j.created_at)}</span></div>
+      <div class="detail-row"><i class="fas fa-user"></i><span><span class="detail-label">By: </span>${clientName}</span></div>
+    </div>
+    <div style="padding:16px 20px 24px;display:flex;gap:10px">
+      <button class="cta-btn cta-secondary" style="flex:0.4" onclick="closeModal('job-modal')"><i class="fas fa-times"></i></button>
+      ${isHelper
+        ? `<button class="cta-btn cta-primary" ${applied||isLocked?'disabled style="background:var(--text-muted)"':''} onclick="applyForJob('${j.id}')">
+            ${applied ? '<i class="fas fa-check"></i> Already Applied' : isLocked ? '<i class="fas fa-lock"></i> Pending Approval' : '<i class="fas fa-paper-plane"></i> Apply Now'}
+          </button>`
+        : `<button class="cta-btn cta-primary" onclick="closeModal('job-modal');goToPage('auth.html')">
+            <i class="fas fa-sign-in-alt"></i> Sign In to Apply
+          </button>`}
+    </div>`;
+  document.getElementById('job-modal').classList.add('open');
+}
+
+function viewJobAsClient(id) { openJobModal(id); }
+
+// ── APPLY FOR JOB ──
+async function applyForJob(jobId) {
+  if (!currentUser) { showToast('Please log in first','orange'); goToPage('auth.html'); return; }
+  if (currentProfile?.role !== 'helper') { showToast('Only helpers can apply for jobs','orange'); return; }
+  if (!currentProfile?.is_vetted) { showToast('Your account is pending verification','orange'); return; }
+  if (appliedJobs.has(jobId)) { showToast('Already applied!'); return; }
+
+  const job = allJobs.find(j => j.id === jobId);
+  if (!job) { showToast('Job not found','orange'); return; }
+
+  try {
+    const { error: bookingErr } = await db.from('bookings').insert([{
+      job_id: jobId, helper_id: currentUser.id, client_id: job.client_id, status: 'pending'
+    }]);
+    if (bookingErr) throw bookingErr;
+
+    const helperName = currentProfile?.full_name || 'A helper';
+    const introMsg = `Hi! I'm interested in your job "${job.title||'your job'}". I've applied and would love to discuss the details.`;
+
+    db.from('messages').insert([{
+      sender_id: currentUser.id, recipient_id: job.client_id,
+      job_id: jobId, content: introMsg, is_read: false
+    }]).then(() => { /* Intro message — fire and forget, non-critical */ });
+
+    appliedJobs.add(jobId);
+    showToast('✅ Application sent! The client has been notified.','green');
+    closeModal('job-modal');
+    renderJobs(); // re-render to reflect applied state
+  } catch(e) {
+    showToast('Error: ' + e.message,'orange');
+  }
+}
+
+// ── FILTER SHEET ──
+const cities = ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika'];
+function openFilterSheet() {
+  document.getElementById('filter-body').innerHTML = `
+    <div class="filter-title">Filters</div>
+    <div class="filter-label">City</div>
+    <div class="filter-options">
+      <div class="filter-opt ${!filterCity?'active':''}" onclick="selectCity('')">All Cities</div>
+      ${cities.map(c=>`<div class="filter-opt ${filterCity===c?'active':''}" onclick="selectCity('${c}')">${c}</div>`).join('')}
+    </div>
+    <button class="apply-filter-btn" onclick="applyFiltersAndClose()">Apply Filters</button>`;
+  document.getElementById('filter-modal').classList.add('open');
+  document.getElementById('filter-btn').classList.add('active');
+}
+function selectCity(c) {
+  filterCity = c;
+  document.querySelectorAll('#filter-body .filter-opt').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim() === (c||'All Cities'));
+  });
+}
+function applyFiltersAndClose() {
+  closeModal('filter-modal');
+  document.getElementById('filter-btn').classList.toggle('active', !!filterCity);
+  applyFilters();
+}
+
+// ── MODALS ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── NAVIGATION ──
+function goToPage(page) { window.location.href = page; }
+function handleProfileClick() { currentUser ? goToPage('dashboard.html') : goToPage('auth.html'); }
+async function doLogout() { await db.auth.signOut(); goToPage('index.html'); }
+async function openChatFromNav() {
+  if (!currentUser) { goToPage('auth.html'); return; }
+  if (currentProfile?.role === 'helper' && !currentProfile?.is_vetted) {
+    showToast('Chat available after account approval','orange'); return;
+  }
+  localStorage.setItem('openChat','true'); goToPage('dashboard.html');
+}
+
+// ── TOAST ──
+let _toastTimer;
+function showToast(msg, type='') {
+  const wrap = document.getElementById('toast-wrap');
+  wrap.style.display = 'block';
+  wrap.innerHTML = `<div class="toast ${type}">${msg}</div>`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { wrap.style.display='none'; }, 3000);
+}
+</script>
+<script src="reviews-addon.js"></script>
+<script src="notifications.js"></script>
+<script src="badges.js"></script>
+<script src="map-market.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => initNav("market"));</script>
+</body>
+</html>

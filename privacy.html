@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Helpro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --legal-sidebar-w: 240px;
+      --legal-max: 720px;
+    }
+
+    body {
+      background: #f5f8f5;
+      padding-bottom: calc(var(--bottom-nav-h, 68px) + 16px);
+    }
+
+    /* ── HERO (distinct teal-green shade for privacy) ── */
+    .legal-hero {
+      background: linear-gradient(135deg, #0a2a1f 0%, #124232 50%, #1a5c46 100%);
+      padding: 36px 24px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .legal-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 28px;
+      background: #f5f8f5;
+      border-radius: 28px 28px 0 0;
+    }
+    .legal-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 20% 80%, rgba(61,184,140,0.18) 0%, transparent 60%);
+    }
+    .legal-hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .legal-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(61,184,140,0.18);
+      border: 1px solid rgba(61,184,140,0.35);
+      color: #7ee8c0; font-size: 11px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 20px; margin-bottom: 16px;
+    }
+    .legal-hero h1 {
+      font-family: 'Lora', Georgia, serif;
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 700; color: #fff; line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .legal-hero p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+    .legal-meta {
+      display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;
+    }
+    .legal-meta-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: rgba(255,255,255,0.55);
+    }
+    .legal-meta-item i { color: #7ee8c0; font-size: 11px; }
+    .legal-meta-item strong { color: rgba(255,255,255,0.8); }
+
+    /* ── LAYOUT ── */
+    .legal-layout {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 16px 0;
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    /* ── SIDEBAR ── */
+    .legal-sidebar {
+      width: var(--legal-sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: calc(var(--header-h, 60px) + 12px);
+      display: none;
+    }
+    @media (min-width: 800px) {
+      .legal-sidebar { display: block; }
+    }
+    .sidebar-card {
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #dce8dc;
+      overflow: hidden;
+    }
+    .sidebar-head {
+      padding: 14px 16px;
+      background: #f0f7f0;
+      border-bottom: 1px solid #dce8dc;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: #3a5a3a;
+    }
+    .sidebar-nav { padding: 8px 0; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 16px; font-size: 13px;
+      color: #5a7a5a; text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer; border: none; background: none;
+      text-align: left; width: 100%;
+    }
+    .sidebar-link i { font-size: 11px; color: #3db83a; width: 14px; text-align: center; flex-shrink: 0; }
+    .sidebar-link:hover { background: #f0f7f0; color: #1a4a1a; }
+    .sidebar-link.active { background: #e6f7e6; color: #1a4a1a; font-weight: 600; }
+
+    .sidebar-sister {
+      margin-top: 12px;
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #dce8dc;
+      padding: 16px;
+    }
+    .sister-title { font-size: 12px; font-weight: 700; color: #3a5a3a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sister-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: 10px;
+      background: #f0f7f0; border: 1px solid #c8e0c8;
+      color: #1a4a1a; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .sister-link:hover { background: #e6f7e6; }
+    .sister-link i { color: #3db83a; }
+
+    /* ── DATA TABLE ── */
+    .data-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+    .data-table th {
+      text-align: left; padding: 10px 14px;
+      background: #f0f7f0; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px; color: #3a5a3a;
+      border-bottom: 2px solid #dce8dc;
+    }
+    .data-table td {
+      padding: 11px 14px; color: #3a4d3a;
+      border-bottom: 1px solid #edf3ed;
+      vertical-align: top; line-height: 1.5;
+    }
+    .data-table tr:hover td { background: #f8fbf8; }
+    .data-table td:first-child { font-weight: 600; color: #0d1a0d; width: 35%; }
+
+    /* ── ARTICLE ── */
+    .legal-article {
+      flex: 1;
+      min-width: 0;
+      max-width: var(--legal-max);
+    }
+
+    .legal-section {
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #dce8dc;
+      margin-bottom: 14px;
+      overflow: hidden;
+      scroll-margin-top: calc(var(--header-h, 60px) + 20px);
+    }
+
+    .section-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid #edf3ed;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #e6f7f3; display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: #0a5c3c; flex-shrink: 0;
+    }
+    .section-num {
+      font-size: 11px; font-weight: 700; color: #3db88c;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .section-title-text {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 17px; font-weight: 700; color: #0d1a0d;
+      line-height: 1.3;
+    }
+
+    .section-body {
+      padding: 18px 22px 22px;
+    }
+    .section-body p {
+      font-size: 14px; color: #3a4d3a; line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .legal-list {
+      margin: 10px 0 14px 0;
+      padding-left: 0;
+      list-style: none;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .legal-list li {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 14px; color: #3a4d3a; line-height: 1.65;
+    }
+    .legal-list li::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #3db83a; margin-top: 8px; flex-shrink: 0;
+    }
+
+    .legal-highlight {
+      background: #f0faf5;
+      border-left: 3px solid #3db88c;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 13px; color: #0a3a28; line-height: 1.6;
+    }
+    .legal-highlight strong { font-weight: 700; }
+
+    .legal-warn {
+      background: #fff8ec;
+      border-left: 3px solid #f07623;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 13px; color: #7a4a10; line-height: 1.6;
+    }
+
+    .rights-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin: 14px 0;
+    }
+    .right-card {
+      background: #f0faf5; border: 1px solid #c0e0d0;
+      border-radius: 12px; padding: 14px;
+    }
+    .right-card i { font-size: 18px; color: #1a8a5a; margin-bottom: 8px; display: block; }
+    .right-card strong { font-size: 13px; font-weight: 700; color: #0a3a28; display: block; margin-bottom: 3px; }
+    .right-card span { font-size: 12px; color: #3a6a4a; line-height: 1.5; }
+
+    .contact-box {
+      background: linear-gradient(135deg, #0a2a1f, #124232);
+      border-radius: 14px; padding: 20px 22px; margin-top: 4px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .contact-box p { color: rgba(255,255,255,0.7) !important; font-size: 13px !important; margin-bottom: 0 !important; }
+    .contact-row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: rgba(255,255,255,0.85); }
+    .contact-row i { color: #7ee8c0; font-size: 12px; width: 14px; text-align: center; }
+    .contact-row a { color: #a0f0d8; text-decoration: none; }
+    .contact-row a:hover { text-decoration: underline; }
+
+    .accept-banner {
+      background: white; border-radius: 16px; border: 1.5px solid #dce8dc;
+      padding: 18px 22px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .accept-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: #e6f7f3; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #0a5c3c; flex-shrink: 0;
+    }
+    .accept-text strong { display: block; font-size: 14px; color: #0d1a0d; font-weight: 700; margin-bottom: 2px; }
+    .accept-text span { font-size: 12px; color: #7a8f7a; }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; color: #1a4a1a;
+      text-decoration: none; padding: 10px 16px;
+      background: white; border: 1.5px solid #dce8dc;
+      border-radius: 20px; margin: 0 16px 20px;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: #f0f7f0; }
+    .back-btn i { font-size: 11px; }
+
+    .toc-mobile {
+      background: white; border-radius: 14px; border: 1.5px solid #dce8dc;
+      margin-bottom: 14px; overflow: hidden;
+    }
+    .toc-toggle {
+      width: 100%; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: none; border: none; cursor: pointer;
+      font-size: 14px; font-weight: 700; color: #0d1a0d;
+    }
+    .toc-toggle i { color: #3db83a; transition: transform 0.2s; }
+    .toc-toggle.open i { transform: rotate(180deg); }
+    .toc-list { display: none; padding: 0 0 8px; border-top: 1px solid #edf3ed; }
+    .toc-list.open { display: block; }
+    .toc-list a { display: flex; align-items: center; gap: 9px; padding: 9px 18px; font-size: 13px; color: #3a5a3a; text-decoration: none; }
+    .toc-list a i { font-size: 10px; color: #3db83a; }
+    .toc-list a:hover { background: #f0f7f0; }
+
+    @media (min-width: 800px) {
+      .toc-mobile { display: none; }
+      .rights-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 500px) {
+      .rights-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="history.back()" aria-label="Back">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+  <div class="app-logo" onclick="window.location.href='index.html'" role="img" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <div style="width:38px"></div>
+</header>
+
+<!-- HERO -->
+<div class="legal-hero">
+  <div class="legal-hero-inner">
+    <div class="legal-badge"><i class="fas fa-lock"></i> Privacy &amp; Data</div>
+    <h1>Privacy Policy</h1>
+    <p>We take your privacy seriously. This policy explains exactly what data we collect and how we protect it.</p>
+    <div class="legal-meta">
+      <div class="legal-meta-item"><i class="fas fa-calendar-alt"></i><strong>Effective Date:</strong> January 1, 2025</div>
+      <div class="legal-meta-item"><i class="fas fa-flag"></i><strong>Compliant with:</strong> Kenya Data Protection Act 2019</div>
+      <div class="legal-meta-item"><i class="fas fa-sync-alt"></i><strong>Last Updated:</strong> June 2025</div>
+    </div>
+  </div>
+</div>
+
+<a class="back-btn" href="auth.html"><i class="fas fa-arrow-left"></i> Back to Sign Up</a>
+
+<div class="legal-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="legal-sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-head"><i class="fas fa-list"></i> Contents</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" onclick="scrollTo('p1')"><i class="fas fa-info-circle"></i> Overview</button>
+        <button class="sidebar-link" onclick="scrollTo('p2')"><i class="fas fa-database"></i> Data We Collect</button>
+        <button class="sidebar-link" onclick="scrollTo('p3')"><i class="fas fa-cogs"></i> How We Use It</button>
+        <button class="sidebar-link" onclick="scrollTo('p4')"><i class="fas fa-share-alt"></i> Data Sharing</button>
+        <button class="sidebar-link" onclick="scrollTo('p5')"><i class="fas fa-server"></i> Data Storage</button>
+        <button class="sidebar-link" onclick="scrollTo('p6')"><i class="fas fa-id-card"></i> Verification Docs</button>
+        <button class="sidebar-link" onclick="scrollTo('p7')"><i class="fas fa-cookie-bite"></i> Cookies</button>
+        <button class="sidebar-link" onclick="scrollTo('p8')"><i class="fas fa-child"></i> Children's Privacy</button>
+        <button class="sidebar-link" onclick="scrollTo('p9')"><i class="fas fa-user-shield"></i> Your Rights</button>
+        <button class="sidebar-link" onclick="scrollTo('p10')"><i class="fas fa-history"></i> Policy Changes</button>
+        <button class="sidebar-link" onclick="scrollTo('p11')"><i class="fas fa-envelope"></i> Contact DPO</button>
+      </nav>
+    </div>
+    <div class="sidebar-sister">
+      <div class="sister-title">See also</div>
+      <a class="sister-link" href="terms.html"><i class="fas fa-file-contract"></i> Terms &amp; Conditions</a>
+    </div>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="legal-article">
+
+    <!-- Mobile TOC -->
+    <div class="toc-mobile">
+      <button class="toc-toggle" id="toc-toggle" onclick="toggleToc()">
+        <span><i class="fas fa-list" style="margin-right:8px;color:#3db83a"></i> Jump to a section</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="toc-list" id="toc-list">
+        <a href="#p1"><i class="fas fa-circle"></i> 1. Overview</a>
+        <a href="#p2"><i class="fas fa-circle"></i> 2. Data We Collect</a>
+        <a href="#p3"><i class="fas fa-circle"></i> 3. How We Use It</a>
+        <a href="#p4"><i class="fas fa-circle"></i> 4. Data Sharing</a>
+        <a href="#p5"><i class="fas fa-circle"></i> 5. Data Storage</a>
+        <a href="#p6"><i class="fas fa-circle"></i> 6. Verification Documents</a>
+        <a href="#p7"><i class="fas fa-circle"></i> 7. Cookies</a>
+        <a href="#p8"><i class="fas fa-circle"></i> 8. Children's Privacy</a>
+        <a href="#p9"><i class="fas fa-circle"></i> 9. Your Rights</a>
+        <a href="#p10"><i class="fas fa-circle"></i> 10. Policy Changes</a>
+        <a href="#p11"><i class="fas fa-circle"></i> 11. Contact DPO</a>
+      </div>
+    </div>
+
+    <!-- ACCEPT NOTICE -->
+    <div class="accept-banner">
+      <div class="accept-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="accept-text">
+        <strong>Your data is protected under Kenya's Data Protection Act 2019.</strong>
+        <span>Helpro is committed to handling your personal data responsibly and transparently.</span>
+      </div>
+    </div>
+
+    <!-- P1: OVERVIEW -->
+    <div class="legal-section" id="p1">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+        <div>
+          <div class="section-num">Section 1</div>
+          <div class="section-title-text">Overview</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Helpro Kenya ("Helpro", "we", "us", "our") operates a digital marketplace that connects Clients with Helpers across Kenya. This Privacy Policy explains how we collect, use, store, share, and protect your personal information when you use the Helpro Platform.</p>
+        <p>This policy is written in compliance with the <strong>Kenya Data Protection Act, 2019 (No. 24 of 2019)</strong> and the Kenya Data Protection Regulations, 2021. By using the Platform, you consent to the data practices described in this policy.</p>
+        <div class="legal-highlight">
+          <strong>Quick Summary:</strong> We collect only what we need to run the Platform. We do not sell your personal data. We store it securely. You can request deletion at any time.
+        </div>
+      </div>
+    </div>
+
+    <!-- P2: DATA WE COLLECT -->
+    <div class="legal-section" id="p2">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-database"></i></div>
+        <div>
+          <div class="section-num">Section 2</div>
+          <div class="section-title-text">Data We Collect</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>We collect personal data in the following categories:</p>
+        <table class="data-table">
+          <thead>
+            <tr><th>Data Type</th><th>What We Collect</th><th>Who It Applies To</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Account Data</td><td>Full name, email address, password (hashed), account role</td><td>All users</td></tr>
+            <tr><td>Profile Data</td><td>Bio, service category, hourly rate, profile photo, location name</td><td>Helpers</td></tr>
+            <tr><td>Identity Documents</td><td>Selfie photo, National ID or Passport, Certificate of Good Conduct</td><td>Helpers (vetting only)</td></tr>
+            <tr><td>Location Data</td><td>City/suburb name, GPS coordinates (if location detection used)</td><td>Helpers, optional for Clients</td></tr>
+            <tr><td>Job Data</td><td>Job title, description, budget, category, location, status</td><td>Clients</td></tr>
+            <tr><td>Messages</td><td>Chat messages between Clients and Helpers on the Platform</td><td>All users</td></tr>
+            <tr><td>Transaction Data</td><td>Booking records, payment amounts, job status, payment history</td><td>All users</td></tr>
+            <tr><td>Usage Data</td><td>Pages visited, features used, browser type, device type, IP address</td><td>All users (automatically)</td></tr>
+          </tbody>
+        </table>
+        <p>We do not collect sensitive personal data such as health information, political opinions, or religious beliefs unless you voluntarily provide it in a message or profile description.</p>
+      </div>
+    </div>
+
+    <!-- P3: HOW WE USE IT -->
+    <div class="legal-section" id="p3">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-cogs"></i></div>
+        <div>
+          <div class="section-num">Section 3</div>
+          <div class="section-title-text">How We Use Your Data</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>We use your personal data for the following purposes, each based on a lawful basis under the Kenya Data Protection Act 2019:</p>
+        <ul class="legal-list">
+          <li><strong>To provide the Platform:</strong> Creating and managing your account, enabling job postings, facilitating connections between Clients and Helpers, and processing payments.</li>
+          <li><strong>To verify Helpers:</strong> Reviewing identity documents and certificates of good conduct to maintain a safe marketplace.</li>
+          <li><strong>To improve the Platform:</strong> Analysing usage patterns to understand how features are used and to fix bugs and improve performance.</li>
+          <li><strong>To communicate with you:</strong> Sending account-related notifications, job updates, messages from other users, and (where you have opted in) promotional communications.</li>
+          <li><strong>To ensure safety:</strong> Detecting and preventing fraud, abuse, and violations of our Terms and Conditions.</li>
+          <li><strong>To comply with law:</strong> Meeting our obligations under Kenyan law, including responding to lawful requests from regulatory authorities.</li>
+        </ul>
+        <div class="legal-highlight">
+          <strong>We do not sell your personal data</strong> to third parties for advertising or marketing purposes. Your data is used solely to operate and improve the Helpro Platform.
+        </div>
+      </div>
+    </div>
+
+    <!-- P4: DATA SHARING -->
+    <div class="legal-section" id="p4">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-share-alt"></i></div>
+        <div>
+          <div class="section-num">Section 4</div>
+          <div class="section-title-text">Data Sharing</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>We share personal data only in the following limited circumstances:</p>
+        <ul class="legal-list">
+          <li><strong>With other users:</strong> Your public profile information (name, service category, rating, location name, bio) is visible to Clients browsing the Marketplace. Private information such as your ID or conduct certificate is never shared with other users.</li>
+          <li><strong>With service providers:</strong> We use Supabase (our cloud infrastructure provider) to store data and run the Platform. Supabase processes data on our behalf and is contractually bound to protect it.</li>
+          <li><strong>With payment processors:</strong> If you use payment features, your transaction data may be shared with the relevant payment processor (e.g. Safaricom M-Pesa) solely to complete the transaction.</li>
+          <li><strong>With law enforcement:</strong> We will disclose data when required by Kenyan law, court order, or legitimate government request.</li>
+          <li><strong>With your consent:</strong> We will share data with any third party if you explicitly consent to this.</li>
+        </ul>
+        <div class="legal-warn">
+          <strong>We never sell your data.</strong> Your personal information is not shared with advertisers, data brokers, or any commercial third parties for their own use.
+        </div>
+      </div>
+    </div>
+
+    <!-- P5: STORAGE -->
+    <div class="legal-section" id="p5">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-server"></i></div>
+        <div>
+          <div class="section-num">Section 5</div>
+          <div class="section-title-text">Data Storage &amp; Security</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Your personal data is stored on secure servers provided by <strong>Supabase</strong>, a cloud infrastructure provider. Data may be stored in data centres located outside Kenya. Where this occurs, we ensure that appropriate safeguards are in place to protect your data in accordance with the Kenya Data Protection Act 2019.</p>
+        <p>We implement the following security measures to protect your data:</p>
+        <ul class="legal-list">
+          <li>Encrypted data transmission using HTTPS/TLS on all connections</li>
+          <li>Passwords are hashed using industry-standard algorithms — we never store plain-text passwords</li>
+          <li>Row-Level Security (RLS) policies in our database to ensure users can only access data they are authorised to see</li>
+          <li>Access to personal data is limited to Helpro team members who need it to operate the Platform</li>
+          <li>Verification documents are stored in a private, access-controlled storage bucket</li>
+        </ul>
+        <p><strong>Retention:</strong> We retain your personal data for as long as your account is active. Upon account deletion, your profile data is removed from public view within 30 days. Certain data (such as transaction records) may be retained for up to 7 years as required by Kenyan financial regulations.</p>
+      </div>
+    </div>
+
+    <!-- P6: VERIFICATION DOCS -->
+    <div class="legal-section" id="p6">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-id-card"></i></div>
+        <div>
+          <div class="section-num">Section 6</div>
+          <div class="section-title-text">Verification Documents</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>To become a vetted Helper on Helpro, you must submit identity documents including your selfie, National ID or Passport, and Certificate of Good Conduct. These are sensitive personal documents and we treat them with the highest level of care.</p>
+        <ul class="legal-list">
+          <li>Documents are uploaded to a <strong>private, encrypted storage bucket</strong> that is not publicly accessible</li>
+          <li>Only authorised Helpro administrators can access these documents, solely for vetting purposes</li>
+          <li>Documents are <strong>never shared</strong> with Clients or other Helpers on the Platform</li>
+          <li>Once vetting is complete, documents are retained to support any future disputes or investigations</li>
+          <li>You may request deletion of your verification documents by contacting us at privacy@helpro.co.ke — subject to any legal retention obligations</li>
+        </ul>
+        <div class="legal-highlight">
+          <strong>Your documents are safe.</strong> They are stored in a restricted, private location. No Client or public user of Helpro can access your ID or conduct certificate.
+        </div>
+      </div>
+    </div>
+
+    <!-- P7: COOKIES -->
+    <div class="legal-section" id="p7">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-cookie-bite"></i></div>
+        <div>
+          <div class="section-num">Section 7</div>
+          <div class="section-title-text">Cookies &amp; Local Storage</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Helpro uses browser-based storage technologies to keep you signed in and to store your session preferences. Specifically, we use:</p>
+        <ul class="legal-list">
+          <li><strong>Authentication tokens:</strong> Supabase stores your session token in browser local storage to keep you logged in between visits. This token is essential for the Platform to function.</li>
+          <li><strong>UI preferences:</strong> We may store temporary values (e.g. selected marketplace mode) in local storage to improve your experience. These contain no personal data.</li>
+        </ul>
+        <p>We do not use third-party advertising cookies or tracking cookies. We do not participate in cross-site tracking or behavioural advertising networks.</p>
+        <p>You may clear browser storage at any time through your browser settings, which will log you out of your Helpro account.</p>
+      </div>
+    </div>
+
+    <!-- P8: CHILDREN -->
+    <div class="legal-section" id="p8">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-child"></i></div>
+        <div>
+          <div class="section-num">Section 8</div>
+          <div class="section-title-text">Children's Privacy</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>The Helpro Platform is not intended for use by persons under the age of 18. We do not knowingly collect personal data from children.</p>
+        <p>If you are a parent or guardian and believe that your child has provided us with personal data without your consent, please contact us immediately at privacy@helpro.co.ke and we will promptly delete such information.</p>
+        <div class="legal-warn">
+          <strong>Age Restriction:</strong> You must be 18 years or older to create an Helpro account or use the Platform in any capacity.
+        </div>
+      </div>
+    </div>
+
+    <!-- P9: YOUR RIGHTS -->
+    <div class="legal-section" id="p9">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-user-shield"></i></div>
+        <div>
+          <div class="section-num">Section 9</div>
+          <div class="section-title-text">Your Rights Under Kenya's DPA 2019</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>Under the Kenya Data Protection Act 2019, you have the following rights regarding your personal data:</p>
+        <div class="rights-grid">
+          <div class="right-card">
+            <i class="fas fa-eye"></i>
+            <strong>Right of Access</strong>
+            <span>Request a copy of all personal data we hold about you.</span>
+          </div>
+          <div class="right-card">
+            <i class="fas fa-edit"></i>
+            <strong>Right to Rectification</strong>
+            <span>Request correction of inaccurate or incomplete data.</span>
+          </div>
+          <div class="right-card">
+            <i class="fas fa-trash-alt"></i>
+            <strong>Right to Erasure</strong>
+            <span>Request deletion of your personal data, subject to legal obligations.</span>
+          </div>
+          <div class="right-card">
+            <i class="fas fa-ban"></i>
+            <strong>Right to Object</strong>
+            <span>Object to the processing of your data for certain purposes.</span>
+          </div>
+          <div class="right-card">
+            <i class="fas fa-download"></i>
+            <strong>Right to Portability</strong>
+            <span>Request your data in a structured, machine-readable format.</span>
+          </div>
+          <div class="right-card">
+            <i class="fas fa-pause-circle"></i>
+            <strong>Right to Restrict</strong>
+            <span>Request restriction of processing while a dispute is resolved.</span>
+          </div>
+        </div>
+        <p>To exercise any of these rights, contact our Data Protection Officer at <a href="mailto:privacy@helpro.co.ke" style="color:#1a5c46;font-weight:600">privacy@helpro.co.ke</a>. We will respond within 30 days as required by law.</p>
+        <p>You also have the right to lodge a complaint with the <strong>Office of the Data Protection Commissioner (ODPC)</strong> of Kenya if you believe your rights have been violated.</p>
+      </div>
+    </div>
+
+    <!-- P10: POLICY CHANGES -->
+    <div class="legal-section" id="p10">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-history"></i></div>
+        <div>
+          <div class="section-num">Section 10</div>
+          <div class="section-title-text">Changes to This Policy</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>We may update this Privacy Policy from time to time to reflect changes in our data practices, legal requirements, or Platform features. When we make material changes, we will:</p>
+        <ul class="legal-list">
+          <li>Update the "Last Updated" date at the top of this page</li>
+          <li>Notify registered users via email or a prominent in-app notice</li>
+          <li>Give you reasonable notice before changes take effect where required by law</li>
+        </ul>
+        <p>We encourage you to review this Policy periodically. Your continued use of the Platform after any changes constitutes your acceptance of the updated Policy.</p>
+      </div>
+    </div>
+
+    <!-- P11: CONTACT DPO -->
+    <div class="legal-section" id="p11">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-envelope"></i></div>
+        <div>
+          <div class="section-num">Section 11</div>
+          <div class="section-title-text">Contact Our Data Protection Officer</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p>For any privacy-related questions, data requests, or complaints, please contact our Data Protection Officer directly:</p>
+        <div class="contact-box">
+          <p>Helpro Kenya — Data Protection Officer</p>
+          <div class="contact-row"><i class="fas fa-envelope"></i><a href="mailto:privacy@helpro.co.ke">privacy@helpro.co.ke</a></div>
+          <div class="contact-row"><i class="fas fa-headset"></i><a href="mailto:support@helpro.co.ke">support@helpro.co.ke</a></div>
+          <div class="contact-row"><i class="fas fa-map-marker-alt"></i><span>Nairobi, Kenya</span></div>
+          <div class="contact-row"><i class="fas fa-balance-scale"></i><span>Office of the Data Protection Commissioner (ODPC), Kenya</span></div>
+        </div>
+        <p style="margin-top:14px">Read our <a href="terms.html" style="color:#1a5c46;font-weight:600">Terms &amp; Conditions</a> for the full agreement governing your use of the Helpro Platform.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="window.location.href='index.html'"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="nav-item" onclick="window.location.href='market.html'"><i class="fas fa-store"></i><span>Market</span></button>
+  <button class="nav-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-comments"></i><span>Chat</span></button>
+  <button class="nav-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-th-large"></i><span>Dashboard</span></button>
+</nav>
+
+<script>
+  function scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function toggleToc() {
+    const btn = document.getElementById('toc-toggle');
+    const list = document.getElementById('toc-list');
+    btn.classList.toggle('open');
+    list.classList.toggle('open');
+  }
+  document.querySelectorAll('.toc-list a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.getElementById('toc-toggle').classList.remove('open');
+      document.getElementById('toc-list').classList.remove('open');
+    });
+  });
+</script>
+
+</body>
+</html>

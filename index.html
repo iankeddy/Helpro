@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3db83a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Helpro">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <title>Helpro — Trusted Local Services</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="nav-drawer.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader-overlay" class="loader-overlay" style="display:none;">
+  <div class="spinner-container">
+    <div class="custom-spinner"></div>
+    <p>Loading...</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="custom-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-content">
+    <h3 id="modal-title"></h3>
+    <p id="modal-message"></p>
+    <button onclick="document.getElementById('custom-modal').style.display='none'">OK</button>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div id="app-menu" class="app-menu hidden"></div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="icon-btn" onclick="toggleAppMenu()" aria-label="Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="app-logo" onclick="goToPage('index.html')" role="img" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
+  </div>
+  <button class="icon-btn" onclick="handleProfileClick()" aria-label="Profile">
+    <i class="fas fa-user-circle"></i>
+  </button>
+</header>
+
+<!-- SEARCH -->
+<div class="search-box">
+  <input type="text" id="homeSearch" placeholder="Search jobs, services…" autocomplete="off">
+  <select id="location-filter">
+    <option value="">All Locations</option>
+    <option value="Nairobi">Nairobi</option>
+    <option value="Mombasa">Mombasa</option>
+    <option value="Kisumu">Kisumu</option>
+    <option value="Nakuru">Nakuru</option>
+    <option value="Eldoret">Eldoret</option>
+  </select>
+</div>
+<div id="search-results" class="search-results"></div>
+
+<!-- SERVICE CATEGORIES -->
+<section class="section">
+  <h3 class="section-title">Services</h3>
+  <div class="service-grid">
+    <a href="market.html?cat=cleaning" class="service-card"><i class="fas fa-broom"></i><span>Cleaning</span></a>
+    <a href="market.html?cat=delivery" class="service-card"><i class="fas fa-truck"></i><span>Delivery</span></a>
+    <a href="market.html?cat=repairs"  class="service-card"><i class="fas fa-tools"></i><span>Repairs</span></a>
+    <a href="market.html?cat=shopping" class="service-card"><i class="fas fa-cart-shopping"></i><span>Shopping</span></a>
+    <a href="market.html?cat=transport" class="service-card"><i class="fas fa-car"></i><span>Transport</span></a>
+    <a href="market.html?cat=petcare"  class="service-card"><i class="fas fa-paw"></i><span>Pet Care</span></a>
+    <a href="market.html?cat=gardening" class="service-card"><i class="fas fa-leaf"></i><span>Gardening</span></a>
+    <a href="market.html?cat=laundry"  class="service-card"><i class="fas fa-shirt"></i><span>Laundry</span></a>
+    <a href="market.html?cat=moving"   class="service-card"><i class="fas fa-boxes-stacked"></i><span>Moving</span></a>
+    <a href="market.html?cat=tutoring" class="service-card"><i class="fas fa-book-open"></i><span>Tutoring</span></a>
+    <a href="market.html?cat=events"   class="service-card"><i class="fas fa-calendar-star"></i><span>Events</span></a>
+    <a href="market.html"              class="service-card"><i class="fas fa-ellipsis"></i><span>More</span></a>
+  </div>
+</section>
+
+<!-- TRENDING JOBS -->
+<section class="section" style="margin-bottom:20px">
+  <div class="section-row">
+    <h3 class="section-title">Trending Jobs</h3>
+    <a href="market.html?mode=jobs" class="link-green">View all <i class="fas fa-arrow-right" style="font-size:11px"></i></a>
+  </div>
+  <div id="trending-jobs-container" class="job-cards">
+    <p class="muted">Loading jobs…</p>
+  </div>
+</section>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="goToPage('index.html')" id="nav-home">
+    <i class="fas fa-home"></i><span>Home</span>
+  </button>
+  <button class="nav-item" onclick="goToPage('market.html')" id="nav-market">
+    <i class="fas fa-store"></i><span>Market</span>
+  </button>
+  <button class="nav-item" onclick="openChatFromNav()" id="nav-chat">
+    <i class="fas fa-comments"></i><span>Chat</span>
+  </button>
+  <button class="nav-item" onclick="goToPage('dashboard.html')" id="nav-dashboard">
+    <i class="fas fa-th-large"></i><span>Dashboard</span>
+  </button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script src="notifications.js"></script>
+<script>
+  window.onload = async function() {
+    loadTrendingJobs?.();
+    // Populate menu user info
+    try {
+      const { data: { user } } = await client.auth.getUser();
+      if (user) {
+        const { data: p } = await client.from('profiles').select('full_name,role').eq('id', user.id).maybeSingle();
+        if (p) {
+          const name = p.full_name || user.email || 'User';
+          document.getElementById('menu-name').textContent = name.split(' ')[0];
+          document.getElementById('menu-role').textContent = p.role ? p.role.charAt(0).toUpperCase() + p.role.slice(1) : 'Member';
+          document.getElementById('menu-avatar').textContent = name.slice(0,1).toUpperCase();
+        }
+      }
+    } catch(e) {}
+  };
+</script>
+
+<script>document.addEventListener("DOMContentLoaded", () => initNav("home"));</script>
+</body>
+</html>
