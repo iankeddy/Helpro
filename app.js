@@ -95,8 +95,13 @@ async function signUp(email, password, role, fullName) {
         return showModal("Signup Failed", error.message, "error");
     }
     if (data.user) {
+        // Generate a short unique referral code for this new user
+        const refCode = Math.random().toString(36).substring(2, 6).toUpperCase()
+                      + Math.random().toString(36).substring(2, 6).toUpperCase();
+
         const { error: profileError } = await client.from('profiles').insert([{
-            id: data.user.id, email, role, full_name: fullName, is_vetted: false
+            id: data.user.id, email, role, full_name: fullName, is_vetted: false,
+            referral_code: refCode
         }]);
         toggleLoader(false);
         profileError ? showModal("Error", "Profile save failed.") : showModal("Success!", "Confirm email, then login.");
