@@ -87,6 +87,8 @@ function showToast(title, message, type = 'success') {
 }
 
 // --- AUTHENTICATION ---
+// NOTE: handleSignup() in auth.html is the primary signup handler.
+// This legacy function is kept for any direct calls from other pages.
 async function signUp(email, password, role, fullName) {
     toggleLoader(true);
     const { data, error } = await client.auth.signUp({ email, password });
@@ -94,17 +96,28 @@ async function signUp(email, password, role, fullName) {
         toggleLoader(false);
         return showModal("Signup Failed", error.message, "error");
     }
-    if (data.user) {
-        // Generate a short unique referral code for this new user
-        const refCode = Math.random().toString(36).substring(2, 6).toUpperCase()
-                      + Math.random().toString(36).substring(2, 6).toUpperCase();
-
-        const { error: profileError } = await client.from('profiles').insert([{
-            id: data.user.id, email, role, full_name: fullName, is_vetted: false,
-            referral_code: refCode
-        }]);
+    if (!data.user) {
         toggleLoader(false);
-        profileError ? showModal("Error", "Profile save failed.") : showModal("Success!", "Confirm email, then login.");
+        return showModal("Signup Failed", "Please try again.", "error");
+    }
+    // Detect already-registered (Supabase returns fake user with empty identities)
+    if (data.user.identities && data.user.identities.length === 0) {
+        toggleLoader(false);
+        return showModal("Already Registered", "An account with this email already exists. Please sign in.", "warning");
+    }
+    const refCode = Math.random().toString(36).substring(2, 6).toUpperCase()
+                  + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const profileData = { id: data.user.id, email, role, full_name: fullName, is_vetted: false, referral_code: refCode };
+    if (data.session) {
+        const { error: profileError } = await client.from('profiles').insert([profileData]);
+        toggleLoader(false);
+        profileError
+            ? showModal("Error", "Profile save failed: " + profileError.message, "error")
+            : showModal("Success!", "Account created! You are now signed in.", "success");
+    } else {
+        localStorage.setItem('helpro_pending_profile', JSON.stringify(profileData));
+        toggleLoader(false);
+        showModal("Success!", "Account created! Check your email to confirm, then sign in.", "success");
     }
 }
 
@@ -114,10 +127,40 @@ async function login(email, password) {
     if (error) {
         toggleLoader(false);
         showModal("Login Error", error.message, "error");
-    } else {
-        const { data: profile } = await client.from('profiles').select('role').eq('id', data.user.id).maybeSingle();
-        window.location.href = profile?.role === 'admin' ? './admin.html' : './dashboard.html';
+        return;
     }
+
+    // ── Flush any pending profile from the email-confirm signup flow ──
+    const pendingRaw = localStorage.getItem('helpro_pending_profile');
+    if (pendingRaw) {
+        try {
+            const pending = JSON.parse(pendingRaw);
+            if (pending.id === data.user.id) {
+                const { data: existing } = await client.from('profiles').select('id').eq('id', pending.id).maybeSingle();
+                if (!existing) {
+                    await client.from('profiles').insert([pending]);
+                    const refCode = pending.referred_by || null;
+                    if (refCode) {
+                        const { data: referrer } = await client.from('profiles').select('id').eq('referral_code', refCode).maybeSingle();
+                        if (referrer) {
+                            await client.from('referrals').insert([{
+                                referrer_id: referrer.id, referred_id: pending.id,
+                                referral_code: refCode, status: 'pending', reward_amount: 100
+                            }]);
+                        }
+                    }
+                }
+                localStorage.removeItem('helpro_pending_profile');
+            }
+        } catch(e) {
+            console.warn('Pending profile flush failed:', e.message);
+            localStorage.removeItem('helpro_pending_profile');
+        }
+    }
+
+    const { data: profile } = await client.from('profiles').select('role').eq('id', data.user.id).maybeSingle();
+    toggleLoader(false);
+    window.location.href = profile?.role === 'admin' ? './admin.html' : './dashboard.html';
 }
 
 // --- VETTING & LOCATION ---

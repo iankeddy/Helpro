@@ -478,31 +478,48 @@ async function handleSignup() {
   if (typeof toggleLoader === 'function') toggleLoader(true);
   try {
     const { data, error } = await db.auth.signUp({ email, password: pass });
-    if (error) { if (typeof toggleLoader === 'function') toggleLoader(false); showToast(error.message, 'orange'); return; }
-    if (!data.user) { if (typeof toggleLoader === 'function') toggleLoader(false); showToast('Please confirm your email then sign in.'); return; }
+
+    // ── Handle errors ──
+    if (error) {
+      if (typeof toggleLoader === 'function') toggleLoader(false);
+      showToast(error.message, 'orange');
+      return;
+    }
+
+    if (!data.user) {
+      if (typeof toggleLoader === 'function') toggleLoader(false);
+      showToast('Signup failed — please try again.', 'orange');
+      return;
+    }
+
+    // ── Detect "user already exists" (Supabase returns a fake user with no identities) ──
+    if (data.user.identities && data.user.identities.length === 0) {
+      if (typeof toggleLoader === 'function') toggleLoader(false);
+      showToast('An account with this email already exists. Please sign in.', 'orange');
+      setTimeout(() => switchTab('login'), 1800);
+      return;
+    }
 
     const userId = data.user.id;
-    _pendingUserId = userId; _pendingPhone = phone;
+    _pendingUserId = userId;
+    _pendingPhone  = phone;
 
-    let referrerId = null;
-    if (ref) {
-      const { data: referrer } = await db.from('profiles').select('id').eq('referral_code', ref).maybeSingle();
-      if (referrer) referrerId = referrer.id;
-    }
-    const refCode = Math.random().toString(36).substring(2,6).toUpperCase() + Math.random().toString(36).substring(2,6).toUpperCase();
+    const refCode = Math.random().toString(36).substring(2,6).toUpperCase()
+                  + Math.random().toString(36).substring(2,6).toUpperCase();
 
-    const { error: profileErr } = await db.from('profiles').insert([{
-      id: userId, email, role, full_name: name,
-      is_vetted: false, phone: phone || null,
-      phone_verified: false, referred_by: ref || null, referral_code: refCode,
-    }]);
+    // ── If email confirmation is ON, session is null — we cannot INSERT yet ──
+    // Store profile data in localStorage; login() will write it after confirmation.
+    const pendingProfile = { id: userId, email, role, full_name: name,
+      is_vetted: false, phone: phone || null, phone_verified: false,
+      referred_by: ref || null, referral_code: refCode };
+    localStorage.setItem('helpro_pending_profile', JSON.stringify(pendingProfile));
 
-    if (referrerId && !profileErr) {
-      await db.from('referrals').insert([{ referrer_id: referrerId, referred_id: userId, referral_code: ref, status: 'pending', reward_amount: 100 }]);
+    // ── If session exists (email confirm disabled) — write profile immediately ──
+    if (data.session) {
+      await _writePendingProfile(db, pendingProfile, ref);
     }
 
     if (typeof toggleLoader === 'function') toggleLoader(false);
-    if (profileErr) { showToast('Profile save failed. Try again.', 'orange'); return; }
 
     if (phone) {
       await sendOTP(phone, userId, 'verify');
@@ -511,13 +528,35 @@ async function handleSignup() {
       setHero('Verify Your Number', 'Almost there!');
       startCountdown('wa-verify-countdown', 'wa-verify-resend', 60);
     } else {
-      showToast(referrerId ? '🎉 Account created! Confirm your email to log in.' : '✅ Account created! Check your email.', 'green');
-      setTimeout(() => switchTab('login'), 2000);
+      showToast('✅ Account created! Check your email to confirm, then sign in.', 'green');
+      setTimeout(() => switchTab('login'), 2200);
     }
   } catch(e) {
     if (typeof toggleLoader === 'function') toggleLoader(false);
     showToast(e.message || 'Something went wrong', 'orange');
   }
+}
+
+/* ── Write pending profile (called immediately if no email confirm, else called on first login) ── */
+async function _writePendingProfile(db, profile, refCode) {
+  // Check if profile row already exists (safety guard)
+  const { data: existing } = await db.from('profiles').select('id').eq('id', profile.id).maybeSingle();
+  if (existing) { localStorage.removeItem('helpro_pending_profile'); return; }
+
+  const { error: profileErr } = await db.from('profiles').insert([profile]);
+  if (profileErr) { console.warn('Profile insert error:', profileErr.message); return; }
+
+  // Write referral record if applicable
+  if (refCode) {
+    const { data: referrer } = await db.from('profiles').select('id').eq('referral_code', refCode).maybeSingle();
+    if (referrer) {
+      await db.from('referrals').insert([{
+        referrer_id: referrer.id, referred_id: profile.id,
+        referral_code: refCode, status: 'pending', reward_amount: 100
+      }]);
+    }
+  }
+  localStorage.removeItem('helpro_pending_profile');
 }
 
 /* ── FORGOT PASSWORD ── */
