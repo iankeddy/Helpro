@@ -91,7 +91,10 @@ function showToast(title, message, type = 'success') {
 // This legacy function is kept for any direct calls from other pages.
 async function signUp(email, password, role, fullName) {
     toggleLoader(true);
-    const { data, error } = await client.auth.signUp({ email, password });
+    const { data, error } = await client.auth.signUp({
+        email, password,
+        options: { data: { full_name: fullName, role: role } }
+    });
     if (error) {
         toggleLoader(false);
         return showModal("Signup Failed", error.message, "error");
@@ -138,7 +141,7 @@ async function login(email, password) {
             if (pending.id === data.user.id) {
                 const { data: existing } = await client.from('profiles').select('id').eq('id', pending.id).maybeSingle();
                 if (!existing) {
-                    await client.from('profiles').insert([pending]);
+                    await client.from('profiles').upsert([pending], { onConflict: 'id' });
                     const refCode = pending.referred_by || null;
                     if (refCode) {
                         const { data: referrer } = await client.from('profiles').select('id').eq('referral_code', refCode).maybeSingle();

@@ -477,7 +477,11 @@ async function handleSignup() {
   const db = getDB();
   if (typeof toggleLoader === 'function') toggleLoader(true);
   try {
-    const { data, error } = await db.auth.signUp({ email, password: pass });
+    const { data, error } = await db.auth.signUp({
+      email,
+      password: pass,
+      options: { data: { full_name: name, role: role } }
+    });
 
     // ── Handle errors ──
     if (error) {
@@ -539,12 +543,10 @@ async function handleSignup() {
 
 /* ── Write pending profile (called immediately if no email confirm, else called on first login) ── */
 async function _writePendingProfile(db, profile, refCode) {
-  // Check if profile row already exists (safety guard)
-  const { data: existing } = await db.from('profiles').select('id').eq('id', profile.id).maybeSingle();
-  if (existing) { localStorage.removeItem('helpro_pending_profile'); return; }
-
-  const { error: profileErr } = await db.from('profiles').insert([profile]);
-  if (profileErr) { console.warn('Profile insert error:', profileErr.message); return; }
+  // Upsert so we overwrite the DB trigger's incomplete row (which only has role+email)
+  // with the full profile data including phone, referral_code, full_name, etc.
+  const { error: profileErr } = await db.from('profiles').upsert([profile], { onConflict: 'id' });
+  if (profileErr) { console.warn('Profile upsert error:', profileErr.message); return; }
 
   // Write referral record if applicable
   if (refCode) {
