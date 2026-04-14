@@ -2816,7 +2816,7 @@ async function loadVettingQueue() {
         <div class="vq-docs">
           ${h.selfie_url?`<a href="${h.selfie_url}" target="_blank"><img src="${h.selfie_url}" class="doc-thumb" title="Selfie" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">🤳</div>`}
           ${h.id_url?`<a href="${h.id_url}" target="_blank"><img src="${h.id_url}" class="doc-thumb" title="National ID" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">🪪</div>`}
-          ${h.cert_good_conduct_url?`<a href="${h.cert_good_conduct_url}" target="_blank"><img src="${h.cert_good_conduct_url}" class="doc-thumb" title="Police Clearance" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">📋</div>`}
+          ${h.trade_cert_url?`<a href="${h.trade_cert_url}" target="_blank"><img src="${h.trade_cert_url}" class="doc-thumb" title="${h.trade_cert_label||'Trade Cert'}" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">🏅</div>`}
         </div>
         <div class="vq-info">
           <div class="vq-name">${h.full_name||'Unknown Helper'}</div>
@@ -2974,7 +2974,7 @@ async function openHelperModal(id) {
   document.getElementById('modal-docs').innerHTML = `
     ${h.selfie_url?`<a href="${h.selfie_url}" target="_blank" class="doc-card"><div class="doc-icon">🤳</div><div class="doc-name">Selfie</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🤳</div><div class="doc-name">Selfie</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
     ${h.id_url?`<a href="${h.id_url}" target="_blank" class="doc-card"><div class="doc-icon">🪪</div><div class="doc-name">National ID</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🪪</div><div class="doc-name">National ID</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
-    ${h.cert_good_conduct_url?`<a href="${h.cert_good_conduct_url}" target="_blank" class="doc-card"><div class="doc-icon">📋</div><div class="doc-name">Police Cert</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">📋</div><div class="doc-name">Police Cert</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
+    ${h.trade_cert_url?`<a href="${h.trade_cert_url}" target="_blank" class="doc-card"><div class="doc-icon">🏅</div><div class="doc-name">${h.trade_cert_label||'Trade Cert'}</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🏅</div><div class="doc-name">Trade Cert</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
   `;
   document.getElementById('modal-actions').innerHTML = h.is_vetted===true?`
     <button class="btn btn-danger" onclick="suspendHelper('${h.id}','${(h.full_name||'').replace(/'/g,"\\'")}');closeModal('helperModal')"><i class="fas fa-ban"></i> Suspend</button>

@@ -183,10 +183,10 @@ async function detectMyLocation() {
 async function handleVettingUpload() {
     const selfie = document.getElementById('upload-selfie')?.files[0];
     const idCard = document.getElementById('upload-id')?.files[0];
-    const conduct = document.getElementById('upload-conduct')?.files[0];
+    const tradeCert = document.getElementById('upload-trade-cert')?.files[0];
     const locName = document.getElementById('location-name')?.value;
 
-    if (!selfie || !idCard || !conduct) return showModal("Missing Documents", "Please select all three documents before uploading.", "warning");
+    if (!selfie || !idCard) return showModal("Missing Documents", "Please upload your Selfie and National ID.", "warning");
 
     toggleLoader(true);
     try {
@@ -194,7 +194,7 @@ async function handleVettingUpload() {
         const files = [
             { file: selfie, name: 'selfie', col: 'selfie_url' },
             { file: idCard, name: 'id', col: 'id_url' },
-            { file: conduct, name: 'conduct', col: 'cert_good_conduct_url' }
+            { file: tradeCert, name: 'trade-cert', col: 'trade_cert_url' }
         ];
 
         let updateData = { location_name: locName, is_vetted: false };
@@ -246,7 +246,7 @@ async function loadPendingHelpers() {
         <div class="doc-viewer">
             <a href="${escapeHtml(helper.selfie_url || '')}" target="_blank"><img src="${escapeHtml(helper.selfie_url || '')}" class="doc-thumb" title="Selfie"></a>
             <a href="${escapeHtml(helper.id_url || '')}" target="_blank"><img src="${escapeHtml(helper.id_url || '')}" class="doc-thumb" title="ID Card"></a>
-            <a href="${escapeHtml(helper.cert_good_conduct_url || '')}" target="_blank"><img src="${escapeHtml(helper.cert_good_conduct_url || '')}" class="doc-thumb" title="Conduct Cert"></a>
+            <a href="${escapeHtml(helper.trade_cert_url || '')}" target="_blank"><img src="${escapeHtml(helper.trade_cert_url || '')}" class="doc-thumb" title="${escapeHtml(helper.trade_cert_label || 'Trade Cert')}"></a>
         </div>
         <div class="vetting-actions">
             <h2>${escapeHtml(helper.full_name || 'Anonymous')}</h2>
@@ -1144,6 +1144,97 @@ const WIZARD_STEPS = [
   { id: 'review',    title: 'Submit',     icon: 'fa-circle-check' },
 ];
 
+// ── TRADE CERTIFICATE CONFIG PER CATEGORY ──
+// mandatory: cert is required to submit — helper cannot proceed without it
+// label: what the upload field says
+// hint: guidance text shown under the upload zone
+// icon: Font Awesome icon class
+const TRADE_CERT_CONFIG = {
+  'Transport':  {
+    mandatory: true,
+    label: 'PSV Badge & Driver's Licence',
+    hint: 'Upload your NTSA PSV Badge and valid Driver's Licence (Class B3 or above). Both documents are legally required to offer transport services.',
+    icon: 'fa-id-badge',
+  },
+  'Repairs':    {
+    mandatory: true,
+    label: 'NITA Trade Test Certificate',
+    hint: 'Upload your NITA Trade Test Certificate (Artisan Grade II or above) for your trade e.g. Plumbing, Electrical Wireman, Mason, Carpentry.',
+    icon: 'fa-scroll',
+  },
+  'Cleaning':   {
+    mandatory: false,
+    label: 'Cleaning / Hospitality Certificate (Optional)',
+    hint: 'NITA Housekeeping or Hospitality certificate strengthens your profile. Not mandatory but highly recommended.',
+    icon: 'fa-broom',
+  },
+  'Gardening':  {
+    mandatory: false,
+    label: 'Horticulture / Landscaping Certificate (Optional)',
+    hint: 'NITA Landscaper or Horticulture certificate. Optional but increases trust with clients.',
+    icon: 'fa-seedling',
+  },
+  'Security':   {
+    mandatory: true,
+    label: 'PSASB Security Guard Licence',
+    hint: 'Upload your Private Security Regulatory Authority (PSRA/PSASB) guard licence or certificate of training. Mandatory for all security helpers.',
+    icon: 'fa-shield-halved',
+  },
+  'Tutoring':   {
+    mandatory: true,
+    label: 'Teaching Certificate / Academic Transcript',
+    hint: 'Upload a TSC certificate, college diploma, or official academic transcript showing your subject competency.',
+    icon: 'fa-graduation-cap',
+  },
+  'Pet Care':   {
+    mandatory: false,
+    label: 'Animal Care / Vet Assistant Certificate (Optional)',
+    hint: 'NITA or TVETA animal husbandry / pet care certificate. Optional but builds client confidence.',
+    icon: 'fa-paw',
+  },
+  'Delivery':   {
+    mandatory: false,
+    label: 'Driver's Licence (Optional)',
+    hint: 'A valid Kenya Driver's Licence. Required only if you use a vehicle for deliveries — optional for on-foot or bicycle delivery.',
+    icon: 'fa-truck',
+  },
+  'Moving':     {
+    mandatory: false,
+    label: 'Driver's Licence or Moving Experience Certificate (Optional)',
+    hint: 'A valid driver's licence or any relevant certification for furniture / goods handling.',
+    icon: 'fa-truck-moving',
+  },
+  'Laundry':    {
+    mandatory: false,
+    label: 'Laundry / Textile Care Certificate (Optional)',
+    hint: 'NITA Sewing/Textile or hospitality-laundry certificate. Not mandatory.',
+    icon: 'fa-shirt',
+  },
+  'Events':     {
+    mandatory: false,
+    label: 'Events / Catering Certificate (Optional)',
+    hint: 'Any catering, event management, or hospitality certificate from a recognised institution.',
+    icon: 'fa-champagne-glasses',
+  },
+  'Shopping':   {
+    mandatory: false,
+    label: 'Trade Certificate (Optional)',
+    hint: 'Any relevant certificate e.g. retail, procurement, or customer service. Optional.',
+    icon: 'fa-bag-shopping',
+  },
+};
+
+// Returns the cert config for the current category, or a generic optional fallback
+function getTradeCertConfig(category) {
+  return TRADE_CERT_CONFIG[category] || {
+    mandatory: false,
+    label: 'Trade / Competence Certificate (Optional)',
+    hint: 'Upload any relevant trade certificate, diploma, or licence that proves your competency in this field.',
+    icon: 'fa-certificate',
+  };
+}
+
+
 // Wizard state — persisted in localStorage so a refresh doesn't reset progress
 const WIZ_KEY = 'helpro_wizard_state';
 let wizState = {
@@ -1157,14 +1248,17 @@ let wizState = {
   selfieFile: null,
   idFile: null,
   conductFile: null,
+  tradeCertFile: null,
   // B-02 fix: store only filename flags, NOT base64 previews
   // Base64 images (up to 15MB total) reliably overflow the 5MB localStorage quota
   selfieFileName: null,
   idFileName: null,
   conductFileName: null,
+  tradeCertFileName: null,
   selfieHasFile: false,
   idHasFile: false,
   conductHasFile: false,
+  tradeCertHasFile: false,
 };
 
 function wizSave() {
@@ -1180,9 +1274,11 @@ function wizSave() {
       selfieFileName:   wizState.selfieFileName,
       idFileName:       wizState.idFileName,
       conductFileName:  wizState.conductFileName,
+      tradeCertFileName: wizState.tradeCertFileName,
       selfieHasFile:    wizState.selfieHasFile,
       idHasFile:        wizState.idHasFile,
       conductHasFile:   wizState.conductHasFile,
+      tradeCertHasFile: wizState.tradeCertHasFile,
     };
     localStorage.setItem(WIZ_KEY, JSON.stringify(s));
   } catch(e) {}
@@ -1292,7 +1388,7 @@ function stepWelcome() {
         <div class="wiz-need-grid">
           <div class="wiz-need-item"><i class="fas fa-camera"></i><span>Selfie photo</span></div>
           <div class="wiz-need-item"><i class="fas fa-id-card"></i><span>National ID</span></div>
-          <div class="wiz-need-item"><i class="fas fa-file-certificate"></i><span>Police Clearance</span></div>
+          <div class="wiz-need-item"><i class="fas fa-certificate"></i><span>Trade Certificate</span></div>
         </div>
       </div>
     </div>`;
@@ -1397,16 +1493,19 @@ function stepDocuments() {
         fileName: wizState.idFileName,
         needsReselect: wizState.idHasFile && !wizState.idFile,
       })}
-      ${docUploadField({
-        id: 'upload-conduct',
-        label: 'Police Clearance Certificate',
-        required: true,
-        icon: 'fa-file-certificate',
-        hint: 'Certificate of Good Conduct from the Kenya Police Service.',
-        hasFile: wizState.conductHasFile,
-        fileName: wizState.conductFileName,
-        needsReselect: wizState.conductHasFile && !wizState.conductFile,
-      })}
+      ${(function() {
+        const certCfg = getTradeCertConfig(wizState.serviceCategory);
+        return docUploadField({
+          id: 'upload-trade-cert',
+          label: certCfg.label,
+          required: certCfg.mandatory,
+          icon: certCfg.icon,
+          hint: certCfg.hint,
+          hasFile: wizState.tradeCertHasFile,
+          fileName: wizState.tradeCertFileName,
+          needsReselect: wizState.tradeCertHasFile && !wizState.tradeCertFile,
+        });
+      })()}
     </div>`;
 }
 
@@ -1461,7 +1560,8 @@ function docUploadField({ id, label, required, icon, hint, hasFile, fileName, ne
 }
 
 function stepReview() {
-  const allDocs = wizState.selfieHasFile && wizState.idHasFile && wizState.conductHasFile;
+  const certCfgR = getTradeCertConfig(wizState.serviceCategory);
+  const allDocs = wizState.selfieHasFile && wizState.idHasFile && (!certCfgR.mandatory || wizState.tradeCertHasFile);
   return `
     <div class="wiz-step-content">
       <div class="wiz-step-header">
@@ -1498,7 +1598,7 @@ function stepReview() {
         <div class="wiz-docs-grid">
           ${wizDocThumb(wizState.selfieHasFile, wizState.selfieFileName || 'Selfie', 1)}
           ${wizDocThumb(wizState.idHasFile, wizState.idFileName || 'National ID', 2)}
-          ${wizDocThumb(wizState.conductHasFile, wizState.conductFileName || 'Police Cert', 3)}
+          ${(function(){const c=getTradeCertConfig(wizState.serviceCategory);return wizDocThumb(wizState.tradeCertHasFile, wizState.tradeCertFileName || c.label, 3, !c.mandatory);}())}
         </div>
       </div>
 
@@ -1514,12 +1614,12 @@ function stepReview() {
     </div>`;
 }
 
-function wizDocThumb(hasFile, label, step) {
+function wizDocThumb(hasFile, label, step, isOptional) {
   return `
-    <div class="wiz-doc-thumb ${hasFile ? 'ready' : 'missing'}" onclick="wizGoTo(3)">
+    <div class="wiz-doc-thumb ${hasFile ? 'ready' : isOptional ? 'optional' : 'missing'}" onclick="wizGoTo(3)">
       ${hasFile
         ? `<i class="fas fa-check-circle" style="font-size:28px;color:#3db83a"></i>`
-        : `<i class="fas fa-circle-plus"></i>`}
+        : isOptional ? `<i class="fas fa-circle-plus" style="color:#94a3b8"></i>` : `<i class="fas fa-circle-plus"></i>`}
       <span>${escWiz(label)}</span>
       ${hasFile ? '<div class="wiz-thumb-tick"><i class="fas fa-check"></i></div>' : ''}
     </div>`;
@@ -1597,8 +1697,11 @@ function wizValidateStep(step) {
     if (!wizState.idFile && !wizState.idHasFile)               missing.push('National ID');
     else if (!wizState.idFile && wizState.idHasFile)           reselect.push('National ID');
 
-    if (!wizState.conductFile && !wizState.conductHasFile)     missing.push('Police Clearance');
-    else if (!wizState.conductFile && wizState.conductHasFile) reselect.push('Police Clearance');
+    const certCfgV = getTradeCertConfig(wizState.serviceCategory);
+    if (certCfgV.mandatory) {
+      if (!wizState.tradeCertFile && !wizState.tradeCertHasFile)     missing.push(certCfgV.label);
+      else if (!wizState.tradeCertFile && wizState.tradeCertHasFile) reselect.push(certCfgV.label);
+    }
 
     if (reselect.length) {
       wizShowToast(`Page was refreshed — please re-select: ${reselect.join(', ')}`, 'warning');
@@ -1714,10 +1817,10 @@ function wizHandleFile(inputId, input) {
     wizState.idFile     = file;
     wizState.idFileName = file.name;
     wizState.idHasFile  = true;
-  } else if (inputId === 'upload-conduct') {
-    wizState.conductFile     = file;
-    wizState.conductFileName = file.name;
-    wizState.conductHasFile  = true;
+  } else if (inputId === 'upload-trade-cert') {
+    wizState.tradeCertFile     = file;
+    wizState.tradeCertFileName = file.name;
+    wizState.tradeCertHasFile  = true;
   }
   wizSave();
 
@@ -1760,7 +1863,8 @@ async function wizSubmit() {
   const needsReselect = [];
   if (wizState.selfieHasFile  && !wizState.selfieFile)  needsReselect.push('Selfie');
   if (wizState.idHasFile      && !wizState.idFile)      needsReselect.push('National ID');
-  if (wizState.conductHasFile && !wizState.conductFile) needsReselect.push('Police Clearance');
+  const certCfgS = getTradeCertConfig(wizState.serviceCategory);
+  if (wizState.tradeCertHasFile && !wizState.tradeCertFile) needsReselect.push(certCfgS.label);
   if (needsReselect.length) {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit'; }
     wizShowToast(`Page was refreshed — please re-select your files: ${needsReselect.join(', ')}`, 'warning');
@@ -1771,16 +1875,23 @@ async function wizSubmit() {
   // Check for completely missing files
   if (!wizState.selfieFile && !wizState.selfieHasFile)  { wizShowToast('Missing selfie', 'warning'); wizGoTo(3); return; }
   if (!wizState.idFile && !wizState.idHasFile)          { wizShowToast('Missing National ID', 'warning'); wizGoTo(3); return; }
-  if (!wizState.conductFile && !wizState.conductHasFile){ wizShowToast('Missing Police Clearance', 'warning'); wizGoTo(3); return; }
+  if (certCfgS.mandatory && !wizState.tradeCertFile && !wizState.tradeCertHasFile) {
+    wizShowToast('Missing ' + certCfgS.label, 'warning'); wizGoTo(3); return;
+  }
 
   try {
     const { data: { user } } = await client.auth.getUser();
 
     const filesToUpload = [
-      { file: wizState.selfieFile,  name: 'selfie',  col: 'selfie_url' },
-      { file: wizState.idFile,      name: 'id',      col: 'id_url' },
-      { file: wizState.conductFile, name: 'conduct', col: 'cert_good_conduct_url' },
+      { file: wizState.selfieFile,    name: 'selfie',     col: 'selfie_url' },
+      { file: wizState.idFile,        name: 'id',         col: 'id_url' },
+      { file: wizState.tradeCertFile, name: 'trade-cert', col: 'trade_cert_url' },
     ].filter(f => f.file); // only upload new files
+
+    // Store the human-readable cert label so admins know what cert type was uploaded
+    if (wizState.tradeCertFile || wizState.tradeCertHasFile) {
+      updateData.trade_cert_label = certCfgS.label;
+    }
 
     let updateData = {
       full_name:        wizState.fullName,
@@ -2040,6 +2151,8 @@ function injectWizardStyles() {
   .wiz-doc-thumb span { font-size: 10px; font-weight: 700; color: var(--text-muted,#8a9a8a); position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(255,255,255,0.85); padding: 2px 0; }
   .wiz-doc-thumb.missing i { font-size: 22px; color: var(--border,#dfe6df); }
   .wiz-doc-thumb.ready { border-color: var(--green,#3db83a); }
+  .wiz-doc-thumb.optional { border-color: #cbd5e1; background: #f8fafc; }
+  .wiz-doc-thumb.optional span { color: #94a3b8; font-size:10px; }
   .wiz-thumb-tick {
     position: absolute; top: 5px; right: 5px;
     width: 18px; height: 18px; border-radius: 50%;
