@@ -40,7 +40,6 @@
   function init() {
     injectHTML();
     injectCSS();
-    wireToggleButton();
   }
 
   function injectHTML() {

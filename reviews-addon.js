@@ -236,7 +236,7 @@ function emptyStateHTML(icon, title, message, action) {
 
 
 // ── TOAST ────────────────────────────────────────────────────
-let _toastTimer;
+let _reviewToastTimer;
 function reviewToast(msg, type = '') {
   let toast = document.getElementById('review-toast');
   if (!toast) {
@@ -248,8 +248,8 @@ function reviewToast(msg, type = '') {
   toast.textContent = msg;
   toast.className = `review-toast ${type}`;
   requestAnimationFrame(() => toast.classList.add('show'));
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  clearTimeout(_reviewToastTimer);
+  _reviewToastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
 }
 
 
