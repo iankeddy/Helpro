@@ -1152,8 +1152,8 @@ const WIZARD_STEPS = [
 const TRADE_CERT_CONFIG = {
   'Transport':  {
     mandatory: true,
-    label: 'PSV Badge & Driver's Licence',
-    hint: 'Upload your NTSA PSV Badge and valid Driver's Licence (Class B3 or above). Both documents are legally required to offer transport services.',
+    label: "PSV Badge & Driver's Licence",
+    hint: "Upload your NTSA PSV Badge and valid Driver's Licence (Class B3 or above). Both documents are legally required to offer transport services.",
     icon: 'fa-id-badge',
   },
   'Repairs':    {
@@ -1194,14 +1194,14 @@ const TRADE_CERT_CONFIG = {
   },
   'Delivery':   {
     mandatory: false,
-    label: 'Driver's Licence (Optional)',
-    hint: 'A valid Kenya Driver's Licence. Required only if you use a vehicle for deliveries — optional for on-foot or bicycle delivery.',
+    label: "Driver's Licence (Optional)",
+    hint: "A valid Kenya Driver's Licence. Required only if you use a vehicle for deliveries — optional for on-foot or bicycle delivery.",
     icon: 'fa-truck',
   },
   'Moving':     {
     mandatory: false,
-    label: 'Driver's Licence or Moving Experience Certificate (Optional)',
-    hint: 'A valid driver's licence or any relevant certification for furniture / goods handling.',
+    label: "Driver's Licence or Moving Experience Certificate (Optional)",
+    hint: "A valid driver's licence or any relevant certification for furniture / goods handling.",
     icon: 'fa-truck-moving',
   },
   'Laundry':    {
