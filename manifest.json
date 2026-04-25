@@ -1,9 +1,9 @@
 {
-  "name": "Helpro \u2014 Trusted Local Services",
+  "name": "Helpro — Trusted Local Services",
   "short_name": "Helpro",
   "description": "Find trusted local helpers in Kenya for cleaning, delivery, repairs and more.",
-  "start_url": "/helpro-main/index.html",
-  "scope": "/helpro-main/",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
@@ -44,7 +44,7 @@
       "name": "Browse Gigs",
       "short_name": "Market",
       "description": "Browse available services",
-      "url": "/helpro-main/market.html",
+      "url": "/market.html",
       "icons": [
         {
           "src": "images/icon-96.png",
@@ -57,7 +57,7 @@
       "name": "My Dashboard",
       "short_name": "Dashboard",
       "description": "View your dashboard",
-      "url": "/helpro-main/dashboard.html",
+      "url": "/dashboard.html",
       "icons": [
         {
           "src": "images/icon-96.png",

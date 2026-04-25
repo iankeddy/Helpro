@@ -4,7 +4,7 @@
 // Version bump here forces browser to re-install the worker
 // ============================================================
 
-const SW_VERSION = 'helpro-sw-v1';
+const SW_VERSION = 'helpro-sw-v2';
 
 // ── INSTALL ──────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
