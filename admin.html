@@ -2788,6 +2788,28 @@ async function loadOverview() {
   }
 }
 
+// ── SIGN DOCUMENT URLS (private bucket requires signed URLs) ──
+async function signDocUrls(helper) {
+  const paths = [
+    { key: 'selfie_url',     path: helper.selfie_url },
+    { key: 'id_url',         path: helper.id_url },
+    { key: 'trade_cert_url', path: helper.trade_cert_url },
+  ].filter(d => d.path);
+
+  const signed = { ...helper };
+  await Promise.all(paths.map(async d => {
+    const { data } = await db.storage
+      .from('verification-docs')
+      .createSignedUrl(d.path, 3600); // 1 hour expiry
+    if (data?.signedUrl) signed[d.key] = data.signedUrl;
+  }));
+  return signed;
+}
+
+async function signAllHelpers(helpers) {
+  return Promise.all((helpers || []).map(h => signDocUrls(h)));
+}
+
 // ── VETTING QUEUE (original logic preserved + logging) ────────
 async function loadVettingQueue() {
   const container = document.getElementById('queue-container');
@@ -2796,7 +2818,11 @@ async function loadVettingQueue() {
   try {
     const { data: helpers, error } = await db.from('profiles').select('*').eq('role','helper').eq('is_vetted',false);
     if(error) throw error;
-    const submitted = (helpers||[]).filter(h=>h.selfie_url&&h.id_url);
+    // Sign all document URLs before rendering (private bucket)
+    const signedHelpers = await signAllHelpers(helpers);
+    // Only show helpers who have uploaded at least selfie + ID — skip empty profiles
+    const submitted = signedHelpers.filter(h=>h.selfie_url&&h.id_url);
+    const readyToReview = submitted; // these are the ones shown in the queue
     const statsEl = document.getElementById('vetting-stats');
     if(statsEl) statsEl.innerHTML = `
       ${metricCard('orange','fa-user-clock',helpers?.length||0,'Pending Review')}
@@ -2811,12 +2837,13 @@ async function loadVettingQueue() {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><h4>All caught up!</h4><p>No helpers pending review right now.</p></div>`;
       return;
     }
-    container.innerHTML = helpers.map(h=>`
+    container.innerHTML = readyToReview.map(h=>`
       <div class="vq-card" id="vcard-${h.id}">
         <div class="vq-docs">
           ${h.selfie_url?`<a href="${h.selfie_url}" target="_blank"><img src="${h.selfie_url}" class="doc-thumb" title="Selfie" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">🤳</div>`}
           ${h.id_url?`<a href="${h.id_url}" target="_blank"><img src="${h.id_url}" class="doc-thumb" title="National ID" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">🪪</div>`}
           ${h.trade_cert_url?`<a href="${h.trade_cert_url}" target="_blank"><img src="${h.trade_cert_url}" class="doc-thumb" title="${h.trade_cert_label||'Trade Cert'}" onerror="this.style.display='none'"></a>`:`<div class="doc-thumb-placeholder">🏅</div>`}
+          ${(!h.selfie_url&&!h.id_url&&!h.trade_cert_url)?`<span style="color:var(--grey-400);font-size:12px">No documents uploaded yet</span>`:``}
         </div>
         <div class="vq-info">
           <div class="vq-name">${h.full_name||'Unknown Helper'}</div>
@@ -2839,16 +2866,31 @@ async function loadVettingQueue() {
 
 async function approveHelper(id, name='') {
   try {
-    const { error } = await db.from('profiles').update({ is_vetted: true, rejection_feedback: null }).eq('id', id);
+    const { data: { user } } = await db.auth.getUser();
+    const { error } = await db.from('profiles').update({
+      is_vetted: true,
+      rejection_feedback: null,
+      vetted_at: new Date().toISOString(),
+      vetted_by: user?.id || null,
+    }).eq('id', id);
     if(error) { showToast('Error: '+error.message,'red'); return; }
-    document.getElementById(`vcard-${id}`)?.remove();
-    showToast('✅ Helper approved!');
+
+    // Notify the helper
+    await db.from('notifications').insert([{
+      user_id: id,
+      title: '🎉 Application Approved!',
+      body: 'Congratulations ' + (name||'') + '! Your Helpro helper application has been approved. You can now receive job requests.',
+      type: 'vetting_approved',
+      read: false,
+    }]);
+
+    document.getElementById('vcard-'+id)?.remove();
+    showToast('✅ ' + (name||'Helper') + ' approved and notified!');
     await logAction('approve_helper','profiles',id,{helper_name:name});
     if(!document.querySelector('.vq-card')) {
-      document.getElementById('queue-container').innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><h4>Queue cleared!</h4></div>`;
+      document.getElementById('queue-container').innerHTML = '<div class="empty-state"><div class="empty-icon">🎉</div><h4>Queue cleared!</h4></div>';
     }
     loadOverview(); updateVettingBadge();
-
   } catch(e) {
     showToast(e.message || 'Operation failed', 'red');
     console.error('approveHelper:', e);
@@ -2857,18 +2899,30 @@ async function approveHelper(id, name='') {
 
 async function rejectHelper(id, name='') {
   try {
-    const feedback = document.getElementById(`feedback-${id}`)?.value?.trim();
-    if(!feedback) { showToast('Please provide a rejection reason','orange'); return; }
-    const { error } = await db.from('profiles').update({ is_vetted: false, rejection_feedback: feedback }).eq('id', id);
+    const feedback = document.getElementById('feedback-'+id)?.value?.trim();
+    if(!feedback) { showToast('Please enter a rejection reason so the helper knows what to fix','orange'); return; }
+    const { error } = await db.from('profiles').update({
+      is_vetted: false,
+      rejection_feedback: feedback,
+    }).eq('id', id);
     if(error) { showToast('Error: '+error.message,'red'); return; }
-    document.getElementById(`vcard-${id}`)?.remove();
-    showToast('Helper application rejected.','orange');
+
+    // Notify the helper with the reason
+    await db.from('notifications').insert([{
+      user_id: id,
+      title: '⚠️ Application Needs Attention',
+      body: 'Hi ' + (name||'') + ', your Helpro application was not approved. Reason: ' + feedback + '. Please update your documents and resubmit.',
+      type: 'vetting_rejected',
+      read: false,
+    }]);
+
+    document.getElementById('vcard-'+id)?.remove();
+    showToast((name||'Helper') + ' notified of rejection.','orange');
     await logAction('reject_helper','profiles',id,{helper_name:name,reason:feedback});
     if(!document.querySelector('.vq-card')) {
-      document.getElementById('queue-container').innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><h4>Queue cleared!</h4></div>`;
+      document.getElementById('queue-container').innerHTML = '<div class="empty-state"><div class="empty-icon">🎉</div><h4>Queue cleared!</h4></div>';
     }
     updateVettingBadge();
-
   } catch(e) {
     showToast(e.message || 'Operation failed', 'red');
     console.error('rejectHelper:', e);
@@ -2971,10 +3025,12 @@ async function openHelperModal(id) {
     <div><div class="info-label">Rating</div><div class="info-value">${h.avg_rating?stars(h.avg_rating):'No ratings yet'}</div></div>
     <div><div class="info-label">Jobs Done</div><div class="info-value">${h.total_jobs||0}</div></div>
   `;
+  // Sign URLs for private bucket before rendering modal
+  const sh = await signDocUrls(h);
   document.getElementById('modal-docs').innerHTML = `
-    ${h.selfie_url?`<a href="${h.selfie_url}" target="_blank" class="doc-card"><div class="doc-icon">🤳</div><div class="doc-name">Selfie</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🤳</div><div class="doc-name">Selfie</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
-    ${h.id_url?`<a href="${h.id_url}" target="_blank" class="doc-card"><div class="doc-icon">🪪</div><div class="doc-name">National ID</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🪪</div><div class="doc-name">National ID</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
-    ${h.trade_cert_url?`<a href="${h.trade_cert_url}" target="_blank" class="doc-card"><div class="doc-icon">🏅</div><div class="doc-name">${h.trade_cert_label||'Trade Cert'}</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🏅</div><div class="doc-name">Trade Cert</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
+    ${sh.selfie_url?`<a href="${sh.selfie_url}" target="_blank" class="doc-card"><div class="doc-icon">🤳</div><div class="doc-name">Selfie</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🤳</div><div class="doc-name">Selfie</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
+    ${sh.id_url?`<a href="${sh.id_url}" target="_blank" class="doc-card"><div class="doc-icon">🪪</div><div class="doc-name">National ID</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🪪</div><div class="doc-name">National ID</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
+    ${sh.trade_cert_url?`<a href="${sh.trade_cert_url}" target="_blank" class="doc-card"><div class="doc-icon">🏅</div><div class="doc-name">${sh.trade_cert_label||'Trade Cert'}</div><div class="doc-status" style="color:var(--green-dark)">✅ Uploaded</div></a>`:`<div class="doc-card"><div class="doc-icon">🏅</div><div class="doc-name">Trade Cert</div><div class="doc-status" style="color:var(--red)">❌ Missing</div></div>`}
   `;
   document.getElementById('modal-actions').innerHTML = h.is_vetted===true?`
     <button class="btn btn-danger" onclick="suspendHelper('${h.id}','${(h.full_name||'').replace(/'/g,"\\'")}');closeModal('helperModal')"><i class="fas fa-ban"></i> Suspend</button>
