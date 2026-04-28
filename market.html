@@ -10,10 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Helpro">
   <link rel="apple-touch-icon" href="images/icon-192.png">
-<title>Helpro Marketplace — Errands, Done Right.</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="nav-drawer.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -523,8 +520,54 @@ body {
   .helpers-grid { grid-template-columns: repeat(4, 1fr); }
 }
 </style>
+  <!-- ── SEO ─────────────────────────────────────────── -->
+  <title>Casual Jobs & Gig Work in Nairobi, Kenya | Part-Time Jobs — Helpro</title>
+  <meta name="description" content="Browse cleaning jobs, delivery jobs, driving jobs, repair jobs and more in Nairobi and across Kenya. Apply today. Get paid via M-Pesa. Helpro gig marketplace.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.helpro.co.ke/market.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Gig Jobs in Nairobi & Kenya — Helpro Marketplace">
+  <meta property="og:description" content="Find cleaning, delivery, driving and repair jobs in Kenya. Apply, get hired, earn via M-Pesa. Join thousands of Helpro helpers.">
+  <meta property="og:url" content="https://www.helpro.co.ke/market.html">
+  <meta property="og:image" content="https://www.helpro.co.ke/images/helpro-logo.png">
+  <meta property="og:site_name" content="Helpro">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Gig Jobs in Nairobi & Kenya — Helpro Marketplace">
+  <meta name="twitter:description" content="Find cleaning, delivery, driving and repair jobs in Kenya. Apply, get hired, earn via M-Pesa. Join thousands of Helpro helpers.">
+  <meta name="twitter:image" content="https://www.helpro.co.ke/images/helpro-logo.png">
+  <!-- Keywords -->
+  <meta name="keywords" content="casual jobs Kenya, gig work Nairobi, cleaning jobs Kenya, delivery jobs Nairobi, find jobs Kenya, part-time jobs Kenya, errands jobs Nairobi, local services Kenya, helpro">
+  <!-- Geo -->
+  <meta name="geo.region" content="KE">
+  <meta name="geo.placename" content="Nairobi, Kenya">
+  <script type="application/ld+json">
+  {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "name": "Local Service Jobs in Kenya",
+      "description": "Browse hundreds of local service jobs in Nairobi and Kenya — cleaning, delivery, repairs, transport, tutoring and more.",
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": "Helpro",
+        "sameAs": "https://www.helpro.co.ke"
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Nairobi",
+          "addressCountry": "KE"
+        }
+      },
+      "employmentType": "PART_TIME"
+    }
+  </script>
+  <!-- ─────────────────────────────────────────────────── -->
 </head>
 <body>
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap">Casual Jobs &amp; Gig Work in Nairobi, Kenya — Helpro Marketplace</h1>
 
 <!-- DRAWER -->
 <div id="app-menu" class="app-menu hidden"></div>
@@ -1378,5 +1421,7 @@ function showToast(msg, type='') {
 <script src="badges.js"></script>
 <script src="map-market.js"></script>
 <script>document.addEventListener("DOMContentLoaded", () => initNav("market"));</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="nav-drawer.js"></script>
 </body>
 </html>

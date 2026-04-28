@@ -13,8 +13,8 @@
   <title>Helpro Dashboard</title>
 
   <link rel="stylesheet" href="style.css">
-  <script src="nav-drawer.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="robots" content="noindex, nofollow">
 </head>
 
 <body class="mobile-dashboard">
@@ -264,6 +264,111 @@
     </div>
 
   </section>
+
+<!-- ══ DANGER ZONE ══════════════════════════════════════════ -->
+<div class="card" id="danger-zone-card" style="margin-top:8px;border:2px solid #fee2e2;background:#fff5f5;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <i class="fas fa-shield-exclamation" style="color:#dc2626;font-size:16px"></i>
+    </div>
+    <div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:#dc2626">Danger Zone</div>
+      <div style="font-size:11px;color:#9ca3af">These actions are serious and may be irreversible</div>
+    </div>
+  </div>
+
+  <div style="height:1px;background:#fee2e2;margin:14px 0"></div>
+
+  <!-- Deactivate -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:4px 0 14px">
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:13px;color:#374151;margin-bottom:3px">
+        <i class="fas fa-moon" style="color:#f59e0b;margin-right:5px"></i>Deactivate Account
+      </div>
+      <div style="font-size:12px;color:#6b7280;line-height:1.5">
+        Temporarily hide your profile and pause all activity. You can reactivate anytime by signing back in.
+      </div>
+    </div>
+    <button onclick="showDeactivateConfirm()"
+      style="flex-shrink:0;background:#fef3c7;color:#92400e;border:1.5px solid #fde68a;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">
+      Deactivate
+    </button>
+  </div>
+
+  <div style="height:1px;background:#fee2e2;margin-bottom:14px"></div>
+
+  <!-- Delete -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:4px 0 4px">
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:13px;color:#dc2626;margin-bottom:3px">
+        <i class="fas fa-trash-can" style="color:#dc2626;margin-right:5px"></i>Delete Account
+      </div>
+      <div style="font-size:12px;color:#6b7280;line-height:1.5">
+        Permanently delete your account and all data. This cannot be undone. You will lose all history, wallet balance, and reviews.
+      </div>
+    </div>
+    <button onclick="showDeleteConfirm()"
+      style="flex-shrink:0;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">
+      Delete
+    </button>
+  </div>
+</div>
+
+<!-- ── DEACTIVATE CONFIRM MODAL ── -->
+<div id="deactivate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px">🌙</div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:18px;margin-bottom:8px">Deactivate Account?</div>
+      <div style="font-size:13px;color:#6b7280;line-height:1.6">
+        Your profile will be hidden, your gigs paused, and you won't receive notifications. <strong>You can reactivate anytime</strong> by signing back in.
+      </div>
+    </div>
+    <button onclick="confirmDeactivate()"
+      style="width:100%;background:#f59e0b;color:white;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-bottom:10px">
+      Yes, Deactivate My Account
+    </button>
+    <button onclick="closeModals()"
+      style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body)">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px">🗑️</div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#dc2626;margin-bottom:8px">Delete Account?</div>
+      <div style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:16px">
+        This will <strong>permanently delete</strong> your profile, reviews, messages, and all personal data. This action <strong>cannot be undone</strong>.
+      </div>
+      <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px;margin-bottom:16px;text-align:left">
+        <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px">Type DELETE to confirm:</div>
+        <input id="delete-confirm-input" type="text" placeholder="Type DELETE here"
+          oninput="document.getElementById('confirm-delete-btn').disabled = this.value !== 'DELETE'"
+          style="width:100%;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);background:white;color:#dc2626;font-weight:700;letter-spacing:1px;box-sizing:border-box">
+      </div>
+    </div>
+    <button id="confirm-delete-btn" onclick="confirmDelete()" disabled
+      style="width:100%;background:#dc2626;color:white;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-bottom:10px;opacity:0.5;transition:opacity 0.2s"
+      onmouseenter="if(!this.disabled)this.style.opacity='1'"
+      onmouseleave="if(!this.disabled)this.style.opacity='0.9'">
+      <i class="fas fa-trash-can"></i> Permanently Delete My Account
+    </button>
+    <button onclick="closeModals()"
+      style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body)">
+      Cancel — Keep My Account
+    </button>
+  </div>
+</div>
+
+<style>
+#confirm-delete-btn:not([disabled]) { opacity: 1 !important; }
+#deactivate-modal.open, #delete-modal.open { display: flex !important; }
+</style>
+
 </main>
 
 <!-- CHAT FLOAT -->
@@ -330,6 +435,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+<script src="nav-drawer.js"></script>
 <script src="badges.js"></script>
 <script src="notifications.js"></script>
 <script src="reviews-addon.js"></script>
@@ -364,6 +470,34 @@
       // Silently redirect them to admin.html — no link is ever shown publicly.
       if (profile.role === "admin") {
         window.location.href = "admin.html";
+        return;
+      }
+
+      // Deactivated account — show reactivation screen
+      if (profile.deactivated_at) {
+        document.body.innerHTML = `
+          <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;font-family:'DM Sans',sans-serif;background:#f9fafb">
+            <div style="width:72px;height:72px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px">🌙</div>
+            <h2 style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px;text-align:center">Account Deactivated</h2>
+            <p style="color:#6b7280;font-size:14px;text-align:center;max-width:280px;line-height:1.6;margin-bottom:28px">
+              Your account is currently deactivated. Would you like to reactivate and continue using Helpro?
+            </p>
+            <button onclick="reactivateAccount()" style="background:#3db83a;color:white;border:none;border-radius:14px;padding:16px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px;width:100%;max-width:280px">
+              ✅ Reactivate My Account
+            </button>
+            <button onclick="client.auth.signOut().then(()=>window.location.href='auth.html')"
+              style="background:#f3f4f6;color:#374151;border:none;border-radius:14px;padding:16px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;max-width:280px">
+              Sign Out
+            </button>
+          </div>
+          <script>
+          async function reactivateAccount() {
+            const { error } = await client.rpc('reactivate_my_account');
+            if (error) { alert('Failed: ' + error.message); return; }
+            window.location.reload();
+          }
+          <\/script>
+        `;
         return;
       }
 

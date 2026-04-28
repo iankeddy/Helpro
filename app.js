@@ -192,10 +192,10 @@ async function handleVettingUpload() {
     try {
         const { data: { user } } = await client.auth.getUser();
         const files = [
-            { file: selfie,    name: 'selfie',     col: 'selfie_url' },
-            { file: idCard,    name: 'id',          col: 'id_url' },
-            { file: tradeCert, name: 'trade-cert',  col: 'trade_cert_url' },
-        ].filter(f => f.file); // guard: skip if file not selected (tradeCert is optional)
+            { file: selfie, name: 'selfie', col: 'selfie_url' },
+            { file: idCard, name: 'id', col: 'id_url' },
+            { file: tradeCert, name: 'trade-cert', col: 'trade_cert_url' }
+        ];
 
         let updateData = { location_name: locName, is_vetted: false };
 
@@ -1882,7 +1882,17 @@ async function wizSubmit() {
   try {
     const { data: { user } } = await client.auth.getUser();
 
-    // Build updateData FIRST — must be declared before any property assignment
+    const filesToUpload = [
+      { file: wizState.selfieFile,    name: 'selfie',     col: 'selfie_url' },
+      { file: wizState.idFile,        name: 'id',         col: 'id_url' },
+      { file: wizState.tradeCertFile, name: 'trade-cert', col: 'trade_cert_url' },
+    ].filter(f => f.file); // only upload new files
+
+    // Store the human-readable cert label so admins know what cert type was uploaded
+    if (wizState.tradeCertFile || wizState.tradeCertHasFile) {
+      updateData.trade_cert_label = certCfgS.label;
+    }
+
     let updateData = {
       full_name:        wizState.fullName,
       bio:              wizState.bio,
@@ -1891,17 +1901,6 @@ async function wizSubmit() {
       location_name:    wizState.locationName,
       is_vetted:        false,
     };
-
-    // Store the human-readable cert label so admins know what cert type was uploaded
-    if (wizState.tradeCertFile || wizState.tradeCertHasFile) {
-      updateData.trade_cert_label = certCfgS.label;
-    }
-
-    const filesToUpload = [
-      { file: wizState.selfieFile,    name: 'selfie',     col: 'selfie_url' },
-      { file: wizState.idFile,        name: 'id',         col: 'id_url' },
-      { file: wizState.tradeCertFile, name: 'trade-cert', col: 'trade_cert_url' },
-    ].filter(f => f.file); // only upload new files
 
     for (const item of filesToUpload) {
       const ext  = item.file.name.split('.').pop();
@@ -2220,3 +2219,114 @@ window.selectWizCat   = selectWizCat;
 window.wizDetectLocation = wizDetectLocation;
 window.wizHandleFile  = wizHandleFile;
 window.wizToggleSubmit = wizToggleSubmit;
+
+// ════════════════════════════════════════════════════════════════
+// HELPRO — DANGER ZONE: Account Deactivation & Deletion
+// ════════════════════════════════════════════════════════════════
+
+function showDeactivateConfirm() {
+  closeModals();
+  document.getElementById('deactivate-modal').classList.add('open');
+}
+
+function showDeleteConfirm() {
+  closeModals();
+  const input = document.getElementById('delete-confirm-input');
+  if (input) input.value = '';
+  const btn = document.getElementById('confirm-delete-btn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+function closeModals() {
+  document.getElementById('deactivate-modal')?.classList.remove('open');
+  document.getElementById('delete-modal')?.classList.remove('open');
+}
+
+// Close modals on backdrop click
+document.addEventListener('click', (e) => {
+  const deactivateModal = document.getElementById('deactivate-modal');
+  const deleteModal     = document.getElementById('delete-modal');
+  if (e.target === deactivateModal) closeModals();
+  if (e.target === deleteModal)     closeModals();
+});
+
+async function confirmDeactivate() {
+  const btn = document.querySelector('#deactivate-modal button');
+  if (btn) { btn.disabled = true; btn.textContent = 'Deactivating…'; }
+  try {
+    const { data, error } = await client.rpc('deactivate_my_account');
+    if (error) throw error;
+    if (!data?.success) throw new Error(data?.error || 'Deactivation failed');
+    closeModals();
+    showToast('Account deactivated. Signing you out…', 'orange');
+    setTimeout(async () => {
+      await client.auth.signOut();
+      window.location.href = './auth.html';
+    }, 2000);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Yes, Deactivate My Account'; }
+    showToast(e.message || 'Something went wrong', 'error');
+  }
+}
+
+async function confirmDelete() {
+  const btn = document.getElementById('confirm-delete-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting…'; btn.style.opacity = '1'; }
+  try {
+    // Get session token to pass to edge function
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) throw new Error('Session expired. Please sign in again.');
+
+    const res = await fetch(
+      'https://cjpylodggpqqkuvojogb.supabase.co/functions/v1/delete-account',
+      {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + session.access_token,
+        },
+      }
+    );
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      // Handle specific safety guard errors
+      if (result.error === 'withdraw_first') {
+        closeModals();
+        showToast(
+          'Please withdraw your wallet balance of KES ' + result.balance + ' before deleting your account.',
+          'orange'
+        );
+        return;
+      }
+      if (result.error === 'active_bookings') {
+        closeModals();
+        showToast('You have active bookings. Please complete or cancel them before deleting your account.', 'orange');
+        return;
+      }
+      throw new Error(result.error || 'Deletion failed');
+    }
+
+    closeModals();
+    showToast('Account permanently deleted. Goodbye 👋', 'green');
+    setTimeout(async () => {
+      await client.auth.signOut();
+      localStorage.clear();
+      window.location.href = './index.html';
+    }, 2500);
+  } catch(e) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-trash-can"></i> Permanently Delete My Account';
+      btn.style.opacity = '1';
+    }
+    showToast(e.message || 'Deletion failed — please try again', 'error');
+  }
+}
+
+window.showDeactivateConfirm = showDeactivateConfirm;
+window.showDeleteConfirm     = showDeleteConfirm;
+window.closeModals           = closeModals;
+window.confirmDeactivate     = confirmDeactivate;
+window.confirmDelete         = confirmDelete;

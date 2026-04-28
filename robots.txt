@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /dashboard.html
+Disallow: /auth.html
+
+Sitemap: https://www.helpro.co.ke/sitemap.xml

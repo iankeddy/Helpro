@@ -10,7 +10,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Helpro">
   <link rel="apple-touch-icon" href="images/icon-192.png">
-  <title>Helpro — Sign In</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -172,6 +171,29 @@
     .toast.green  { background:var(--green); }
     .toast.orange { background:var(--orange); }
   </style>
+  <!-- ── SEO ─────────────────────────────────────────── -->
+  <title>Sign Up & Start Earning — Casual Jobs in Kenya | Helpro</title>
+  <meta name="description" content="Join Helpro to find casual jobs in Nairobi and Kenya. Create a free helper account and start earning via M-Pesa. Cleaning, delivery, repairs and more.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.helpro.co.ke/auth.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Join Helpro — Find Jobs & Earn in Kenya">
+  <meta property="og:description" content="Sign up free. Find cleaning, delivery and repair jobs in Kenya. Get paid via M-Pesa.">
+  <meta property="og:url" content="https://www.helpro.co.ke/auth.html">
+  <meta property="og:image" content="https://www.helpro.co.ke/images/helpro-logo.png">
+  <meta property="og:site_name" content="Helpro">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Join Helpro — Find Jobs & Earn in Kenya">
+  <meta name="twitter:description" content="Sign up free. Find cleaning, delivery and repair jobs in Kenya. Get paid via M-Pesa.">
+  <meta name="twitter:image" content="https://www.helpro.co.ke/images/helpro-logo.png">
+  <!-- Keywords -->
+  <meta name="keywords" content="casual jobs Kenya, gig work Nairobi, cleaning jobs Kenya, delivery jobs Nairobi, find jobs Kenya, part-time jobs Kenya, errands jobs Nairobi, local services Kenya, helpro">
+  <!-- Geo -->
+  <meta name="geo.region" content="KE">
+  <meta name="geo.placename" content="Nairobi, Kenya">
+  <!-- ─────────────────────────────────────────────────── -->
 </head>
 <body>
 
@@ -528,6 +550,7 @@ async function handleSignup() {
     if (phone) {
       await sendOTP(phone, userId, 'verify');
       document.getElementById('verify-phone-hint').textContent = 'Code sent to ' + phone + ' on WhatsApp';
+      showToast('✅ Account created! Tap the WhatsApp banner to get your OTP.', 'green');
       showScreen('screen-wa-verify');
       setHero('Verify Your Number', 'Almost there!');
       startCountdown('wa-verify-countdown', 'wa-verify-resend', 60);
@@ -552,10 +575,16 @@ async function _writePendingProfile(db, profile, refCode) {
   if (refCode) {
     const { data: referrer } = await db.from('profiles').select('id').eq('referral_code', refCode).maybeSingle();
     if (referrer) {
-      await db.from('referrals').insert([{
-        referrer_id: referrer.id, referred_id: profile.id,
-        referral_code: refCode, status: 'pending', reward_amount: 100
-      }]);
+      // Idempotency guard — don't double-insert if signup retried
+      const { data: existingRef } = await db.from('referrals')
+        .select('id').eq('referred_id', profile.id).maybeSingle();
+      if (!existingRef) {
+        await db.from('referrals').insert([{
+          referrer_id: referrer.id, referred_id: profile.id,
+          referral_code: refCode, status: 'pending',
+          reward_amount: 100, reward_type: 'cash'
+        }]);
+      }
     }
   }
   localStorage.removeItem('helpro_pending_profile');
@@ -589,10 +618,24 @@ function deliverOTPWhatsApp(phone, otp, purpose) {
     ? 'Your Helpro password reset code is: *' + otp + '*. Valid for 10 minutes. Do not share.'
     : 'Your Helpro verification code is: *' + otp + '*. Valid for 10 minutes. Do not share.';
   const waPhone = phone.startsWith('+') ? phone.replace('+','') : (phone.startsWith('0') ? '254'+phone.slice(1) : phone);
-  // Show OTP in toast for dev/testing — remove once real WhatsApp API is live
-  showToast('OTP: ' + otp, 'green');
-  // Open WhatsApp — swap this for your real API call (Africa\'s Talking, Twilio, etc.)
-  setTimeout(() => window.open('https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg), '_blank'), 500);
+  const waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg);
+
+  // Show a non-dismissing banner with a tap-to-open button — never auto-navigate away
+  // Auto-navigating to WhatsApp on mobile PWA loses the page state entirely
+  const existing = document.getElementById('wa-otp-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'wa-otp-banner';
+  banner.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:#25D366;color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.18);font-family:var(--font-body)';
+  banner.innerHTML = '<i class="fab fa-whatsapp" style="font-size:26px;flex-shrink:0"></i>'
+    + '<div style="flex:1"><div style="font-weight:700;font-size:14px">Tap to get your OTP on WhatsApp</div>'
+    + '<div style="font-size:12px;opacity:.9">Opens WhatsApp with your code pre-filled</div></div>'
+    + '<a href="' + waUrl + '" target="_blank" rel="noopener" style="background:rgba(0,0,0,.2);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap">Open</a>';
+  document.body.appendChild(banner);
+
+  // Auto-dismiss banner after 60 seconds
+  setTimeout(() => banner.remove(), 60000);
 }
 
 async function verifyOTP(phone, code, purpose) {
@@ -673,6 +716,14 @@ function skipPhoneVerify() {
 
 /* ── OTP INPUT WIRING — auto-advance, backspace, paste ── */
 document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Pre-select role from URL param (e.g. auth.html?role=helper) ──
+  const urlRole = new URLSearchParams(window.location.search).get('role');
+  if (urlRole === 'helper' || urlRole === 'client') {
+    selectRole(urlRole);
+    switchTab('signup');
+  }
+
   document.querySelectorAll('.otp-inputs').forEach(container => {
     const digits = container.querySelectorAll('.otp-digit');
     digits.forEach((inp, idx) => {
