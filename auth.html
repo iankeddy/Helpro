@@ -165,11 +165,47 @@
     .nav-item:hover { color:var(--green); }
 
     /* TOAST */
-    .toast-wrap { position:fixed; bottom:calc(68px + 12px); left:50%; transform:translateX(-50%); z-index:4000; pointer-events:none; display:none; }
-    .toast { background:#0c0f0a; color:white; padding:11px 20px; border-radius:30px; font-size:13px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.18); white-space:nowrap; animation:toastIn .3s cubic-bezier(.34,1.56,.64,1); }
-    @keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-    .toast.green  { background:var(--green); }
-    .toast.orange { background:var(--orange); }
+    .toast-wrap {
+      position: fixed;
+      bottom: 90px;
+      left: 16px;
+      right: 16px;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+    }
+    .toast {
+      background: #0c0f0a;
+      color: white;
+      padding: 13px 18px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      white-space: normal;
+      word-break: break-word;
+      text-align: center;
+      animation: toastIn .25s cubic-bezier(.34,1.56,.64,1);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .toast .toast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .toast .toast-msg  { flex: 1; text-align: left; }
+    @keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .toast.green  { background: var(--green); }
+    .toast.orange { background: #e07b00; }
+    .toast.error  { background: #c0392b; }
+    .pw-rule { font-size: 11px; color: #9ca3af; display: flex; align-items: center; transition: color .2s; }
+    .pw-rule.pass { color: #16a34a; }
+    .pw-rule.pass i { color: #16a34a !important; }
+  
+    /* Google OAuth button */
+    .btn-google { width:100%; background:#fff; color:#3c4043; border:1.5px solid #dadce0; border-radius:14px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; font-family:var(--font-body); display:flex; align-items:center; justify-content:center; gap:10px; transition:box-shadow .2s,border-color .2s; margin-bottom:0; }
+    .btn-google:hover { box-shadow:0 2px 8px rgba(0,0,0,0.12); border-color:#bbb; }
+    .btn-google:disabled { opacity:0.6; cursor:not-allowed; }
+
   </style>
   <!-- ── SEO ─────────────────────────────────────────── -->
   <title>Sign Up & Start Earning — Casual Jobs in Kenya | Helpro</title>
@@ -265,8 +301,13 @@
           <span class="forgot-link" onclick="showScreen('screen-forgot');setHero('Reset Password','We will send you a reset link')">Forgot password?</span>
           <button class="btn-primary full" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
           <div class="or-divider">or</div>
-          <button class="btn-wa" onclick="showScreen('screen-wa-login');setHero('WhatsApp Sign In','Enter your number to receive an OTP')">
-            <i class="fab fa-whatsapp" style="font-size:18px"></i> Sign in with WhatsApp OTP
+          <button class="btn-sms" onclick="showScreen('screen-sms-login');setHero('SMS Sign In','Enter your number to receive an OTP')">
+            <i class="fas fa-message" style="font-size:16px"></i> Sign in with SMS OTP
+          </button>
+          <div class="or-divider">or</div>
+          <button class="btn-google" onclick="signInWithGoogle()" id="google-login-btn">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+            Continue with Google
           </button>
         </div>
 
@@ -282,14 +323,31 @@
           </div>
           <div class="input-wrap">
             <i class="fas fa-lock icon-left"></i>
-            <input type="password" id="signup-password" placeholder="Create password (min. 6 chars)" autocomplete="new-password">
+            <input type="password" id="signup-password" placeholder="Create password" autocomplete="new-password"
+              oninput="updatePwStrength(this.value)">
             <button type="button" class="eye-btn" onclick="toggleEye('signup-password','eye-signup')" aria-label="Toggle password">
               <i class="fas fa-eye" id="eye-signup"></i>
             </button>
           </div>
+          <!-- Password strength indicator -->
+          <div id="pw-strength-wrap" style="display:none;padding:8px 2px 2px">
+            <div style="display:flex;gap:4px;margin-bottom:8px">
+              <div id="pw-bar-1" style="flex:1;height:3px;border-radius:4px;background:#e5e7eb;transition:background .2s"></div>
+              <div id="pw-bar-2" style="flex:1;height:3px;border-radius:4px;background:#e5e7eb;transition:background .2s"></div>
+              <div id="pw-bar-3" style="flex:1;height:3px;border-radius:4px;background:#e5e7eb;transition:background .2s"></div>
+              <div id="pw-bar-4" style="flex:1;height:3px;border-radius:4px;background:#e5e7eb;transition:background .2s"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div id="pw-rule-len"  class="pw-rule"><i class="fas fa-circle" style="font-size:6px;margin-right:6px;color:#d1d5db"></i>At least 6 characters</div>
+              <div id="pw-rule-up"   class="pw-rule"><i class="fas fa-circle" style="font-size:6px;margin-right:6px;color:#d1d5db"></i>Uppercase letter (A–Z)</div>
+              <div id="pw-rule-low"  class="pw-rule"><i class="fas fa-circle" style="font-size:6px;margin-right:6px;color:#d1d5db"></i>Lowercase letter (a–z)</div>
+              <div id="pw-rule-num"  class="pw-rule"><i class="fas fa-circle" style="font-size:6px;margin-right:6px;color:#d1d5db"></i>Number (0–9)</div>
+              <div id="pw-rule-spec" class="pw-rule"><i class="fas fa-circle" style="font-size:6px;margin-right:6px;color:#d1d5db"></i>Special character ($ ! @ # …)</div>
+            </div>
+          </div>
           <div class="input-wrap no-eye">
-            <i class="fab fa-whatsapp icon-left" style="color:#25d366"></i>
-            <input type="tel" id="signup-phone" placeholder="WhatsApp number e.g. 0712345678" autocomplete="tel">
+            <i class="fas fa-phone icon-left" style="color:var(--green)"></i>
+            <input type="tel" id="signup-phone" placeholder="Phone number e.g. 0712345678" autocomplete="tel">
           </div>
           <div class="auth-label" style="margin-bottom:8px">I am a…</div>
           <div class="role-grid">
@@ -309,6 +367,11 @@
               oninput="this.value=this.value.toUpperCase();document.getElementById('signup-ref-code').value=this.value">
           </div>
           <button class="btn-primary full" onclick="handleSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
+          <div class="or-divider">or</div>
+          <button class="btn-google" onclick="signInWithGoogle()" id="google-signup-btn">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+            Sign up with Google
+          </button>
         </div>
 
         <div class="auth-footer">
@@ -344,30 +407,30 @@
       </div>
     </div><!-- /screen-forgot -->
 
-    <!-- ══ SCREEN: WA LOGIN ══ -->
-    <div id="screen-wa-login" class="auth-screen">
+    <!-- ══ SCREEN: SMS LOGIN ══ -->
+    <div id="screen-sms-login" class="auth-screen">
       <div class="auth-body">
         <div class="back-link" onclick="showScreen('screen-auth');setHero('Welcome back','Hire helpers or start earning today')">
           <i class="fas fa-arrow-left"></i> Back
         </div>
         <div style="text-align:center;margin-bottom:16px">
-          <div class="screen-icon" style="background:#e8f8ef"><i class="fab fa-whatsapp" style="color:#25d366;font-size:26px"></i></div>
-          <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;margin-bottom:4px">WhatsApp Sign In</div>
-          <div style="font-size:13px;color:var(--text-muted)">We'll send a 6-digit OTP to your WhatsApp</div>
+          <div class="screen-icon" style="background:#e8f0fe"><i class="fas fa-message" style="color:#4f6ef7;font-size:22px"></i></div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;margin-bottom:4px">SMS Sign In</div>
+          <div style="font-size:13px;color:var(--text-muted)">We'll send a 6-digit code to your phone via SMS</div>
         </div>
-        <!-- Step 1 -->
-        <div id="wa-login-step1">
+        <!-- Step 1: Enter phone -->
+        <div id="sms-login-step1">
           <div class="input-wrap no-eye">
-            <i class="fab fa-whatsapp icon-left" style="color:#25d366"></i>
-            <input type="tel" id="wa-login-phone" placeholder="e.g. 0712345678" autocomplete="tel">
+            <i class="fas fa-phone icon-left" style="color:var(--green)"></i>
+            <input type="tel" id="sms-login-phone" placeholder="Phone number e.g. 0712345678" autocomplete="tel">
           </div>
-          <button class="btn-wa" id="wa-send-btn" onclick="sendLoginOTP()">
-            <i class="fab fa-whatsapp"></i> Send OTP via WhatsApp
+          <button class="btn-sms" id="sms-send-btn" onclick="sendLoginOTP()">
+            <i class="fas fa-paper-plane"></i> Send OTP via SMS
           </button>
         </div>
-        <!-- Step 2 -->
-        <div id="wa-login-step2" style="display:none">
-          <div class="wa-badge"><i class="fab fa-whatsapp"></i> Code sent to your WhatsApp</div>
+        <!-- Step 2: Enter OTP -->
+        <div id="sms-login-step2" style="display:none">
+          <div class="sms-badge"><i class="fas fa-message"></i> Code sent via SMS</div>
           <div style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:2px">Enter the 6-digit code below</div>
           <div class="otp-inputs" id="otp-login-inputs">
             <input class="otp-digit" maxlength="1" inputmode="numeric">
@@ -377,24 +440,24 @@
             <input class="otp-digit" maxlength="1" inputmode="numeric">
             <input class="otp-digit" maxlength="1" inputmode="numeric">
           </div>
-          <button class="btn-wa" onclick="verifyLoginOTP()"><i class="fas fa-check-circle"></i> Verify &amp; Sign In</button>
+          <button class="btn-sms" onclick="verifyLoginOTP()"><i class="fas fa-check-circle"></i> Verify &amp; Sign In</button>
           <div class="resend-row">
-            <span id="wa-login-countdown"></span>
-            <button class="resend-btn" id="wa-login-resend" onclick="sendLoginOTP(true)" disabled>Resend code</button>
+            <span id="sms-login-countdown"></span>
+            <button class="resend-btn" id="sms-login-resend" onclick="sendLoginOTP(true)" disabled>Resend code</button>
           </div>
         </div>
       </div>
-    </div><!-- /screen-wa-login -->
+    </div><!-- /screen-sms-login -->
 
-    <!-- ══ SCREEN: VERIFY PHONE (post-signup) ══ -->
+    <!-- ══ SCREEN: SMS VERIFY PHONE (post-signup) ══ -->
     <div id="screen-wa-verify" class="auth-screen">
       <div class="auth-body">
         <div style="text-align:center;margin-bottom:16px">
-          <div class="screen-icon" style="background:#e8f8ef"><i class="fab fa-whatsapp" style="color:#25d366;font-size:26px"></i></div>
+          <div class="screen-icon" style="background:#e8f0fe"><i class="fas fa-message" style="color:#4f6ef7;font-size:22px"></i></div>
           <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;margin-bottom:4px">Verify Your Number</div>
-          <div style="font-size:13px;color:var(--text-muted)" id="verify-phone-hint">A 6-digit code was sent to your WhatsApp.</div>
+          <div style="font-size:13px;color:var(--text-muted)" id="verify-phone-hint">A 6-digit code was sent to your phone via SMS.</div>
         </div>
-        <div class="wa-badge"><i class="fab fa-whatsapp"></i> Code sent to WhatsApp</div>
+        <div class="sms-badge"><i class="fas fa-message"></i> Code sent via SMS</div>
         <div style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:2px">Enter the 6-digit code</div>
         <div class="otp-inputs" id="otp-verify-inputs">
           <input class="otp-digit" maxlength="1" inputmode="numeric">
@@ -404,14 +467,76 @@
           <input class="otp-digit" maxlength="1" inputmode="numeric">
           <input class="otp-digit" maxlength="1" inputmode="numeric">
         </div>
-        <button class="btn-wa" onclick="verifySignupOTP()"><i class="fas fa-check-circle"></i> Verify Number</button>
+        <button class="btn-sms" onclick="verifySignupOTP()"><i class="fas fa-check-circle"></i> Verify Number</button>
         <div class="resend-row">
           <span id="wa-verify-countdown"></span>
           <button class="resend-btn" id="wa-verify-resend" onclick="resendSignupOTP()" disabled>Resend code</button>
         </div>
         <button onclick="skipPhoneVerify()" style="width:100%;margin-top:10px;background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:var(--font-body)">Skip for now →</button>
       </div>
-    </div><!-- /screen-wa-verify -->
+    </div><!-- /screen-sms-verify -->
+
+
+    <!-- ══ SCREEN: 2FA CONFIRM (post email+password login) ══ -->
+    <div id="screen-2fa" class="auth-screen">
+      <div class="auth-body">
+        <div style="text-align:center;margin-bottom:20px">
+          <div class="screen-icon" style="background:#f0fdf4"><i class="fas fa-shield-check" style="color:var(--green);font-size:22px"></i></div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;margin-bottom:6px">Confirm It's You</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.5" id="twofa-hint">Choose how to verify your login</div>
+        </div>
+
+        <!-- Channel selector -->
+        <div id="twofa-channel-select" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+          <button onclick="send2FA('sms')" id="twofa-sms-btn"
+            style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1.5px solid var(--green);border-radius:14px;padding:14px 16px;cursor:pointer;font-family:var(--font-body);text-align:left">
+            <i class="fas fa-message" style="color:var(--green);font-size:20px;flex-shrink:0"></i>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#1f2937">Send SMS to my phone</div>
+              <div style="font-size:12px;color:#6b7280" id="twofa-phone-hint">Loading…</div>
+            </div>
+          </button>
+          <button onclick="send2FA('email')" id="twofa-email-btn"
+            style="display:flex;align-items:center;gap:12px;background:#eff6ff;border:1.5px solid #93c5fd;border-radius:14px;padding:14px 16px;cursor:pointer;font-family:var(--font-body);text-align:left">
+            <i class="fas fa-envelope" style="color:#3b82f6;font-size:20px;flex-shrink:0"></i>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#1f2937">Send code to my email</div>
+              <div style="font-size:12px;color:#6b7280" id="twofa-email-hint">Loading…</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- OTP input (hidden until channel chosen) -->
+        <div id="twofa-otp-section" style="display:none">
+          <div class="sms-badge" id="twofa-sent-badge"><i class="fas fa-check"></i> Code sent!</div>
+          <div style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:2px">Enter the 6-digit code</div>
+          <div class="otp-inputs" id="otp-2fa-inputs">
+            <input class="otp-digit" maxlength="1" inputmode="numeric">
+            <input class="otp-digit" maxlength="1" inputmode="numeric">
+            <input class="otp-digit" maxlength="1" inputmode="numeric">
+            <input class="otp-digit" maxlength="1" inputmode="numeric">
+            <input class="otp-digit" maxlength="1" inputmode="numeric">
+            <input class="otp-digit" maxlength="1" inputmode="numeric">
+          </div>
+          <button class="btn-primary full" onclick="verify2FA()">
+            <i class="fas fa-shield-check"></i> Confirm Login
+          </button>
+          <div class="resend-row">
+            <span id="twofa-countdown"></span>
+            <button class="resend-btn" id="twofa-resend" onclick="resend2FA()" disabled>Resend code</button>
+          </div>
+          <button onclick="showTwofaChannels()"
+            style="width:100%;margin-top:8px;background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:var(--font-body)">
+            ← Use a different method
+          </button>
+        </div>
+
+        <button onclick="skip2FA()"
+          style="width:100%;margin-top:12px;background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:var(--font-body)">
+          Skip verification →
+        </button>
+      </div>
+    </div><!-- /screen-2fa -->
 
   </div><!-- /auth-card -->
 </div><!-- /auth-wrap -->
@@ -477,11 +602,52 @@ function selectRole(role) {
 }
 
 /* ── LOGIN ── */
+
+// loginWith2FA — wraps login() to intercept and show 2FA screen
+async function loginWith2FA(email, password) {
+  if (typeof toggleLoader === 'function') toggleLoader(true);
+  const db = getDB();
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (typeof toggleLoader === 'function') toggleLoader(false);
+
+  if (error) {
+    showToast(error.message, 'orange');
+    return;
+  }
+
+  // Flush pending profile if needed
+  const pendingRaw = localStorage.getItem('helpro_pending_profile');
+  if (pendingRaw) {
+    try {
+      const pending = JSON.parse(pendingRaw);
+      if (pending.id === data.user.id) {
+        await db.from('profiles').upsert([pending], { onConflict: 'id' });
+        localStorage.removeItem('helpro_pending_profile');
+      }
+    } catch(e) { localStorage.removeItem('helpro_pending_profile'); }
+  }
+
+  // Fetch profile for 2FA hints
+  const { data: profile } = await db.from('profiles')
+    .select('role, phone, email, phone_verified')
+    .eq('id', data.user.id)
+    .maybeSingle();
+
+  if (profile?.role === 'admin') {
+    window.location.href = './admin.html';
+    return;
+  }
+
+  // Show 2FA screen — user must confirm login
+  await show2FAScreen(data.session, profile);
+}
+
 function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-password').value;
   if (!email || !pass) { showToast('Please enter your email and password', 'orange'); return; }
-  if (typeof login === 'function') login(email, pass);
+  if (typeof loginWith2FA === 'function') loginWith2FA(email, pass);
+  else if (typeof login === 'function') login(email, pass);
 }
 
 /* ── SIGN UP ── */
@@ -494,7 +660,20 @@ async function handleSignup() {
   const ref   = (document.getElementById('signup-ref-code').value || '').toUpperCase().trim();
 
   if (!name || !email || !pass) { showToast('Please fill in all required fields', 'orange'); return; }
-  if (pass.length < 6) { showToast('Password must be at least 6 characters', 'orange'); return; }
+
+  // ── Password strength rules ──
+  const pwErrors = [];
+  if (pass.length < 6)                      pwErrors.push('at least 6 characters');
+  if (!/[A-Z]/.test(pass))                  pwErrors.push('an uppercase letter (A–Z)');
+  if (!/[a-z]/.test(pass))                  pwErrors.push('a lowercase letter (a–z)');
+  if (!/[0-9]/.test(pass))                  pwErrors.push('a number (0–9)');
+  if (!/[$!@#%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pass))
+                                            pwErrors.push('a special character (e.g. $ ! @ #)');
+  if (pwErrors.length) {
+    showToast('Password needs: ' + pwErrors.join(', '), 'orange');
+    document.getElementById('signup-password').focus();
+    return;
+  }
 
   const db = getDB();
   if (typeof toggleLoader === 'function') toggleLoader(true);
@@ -603,52 +782,58 @@ async function handleForgotPassword() {
   else { document.getElementById('forgot-btn').style.display='none'; document.getElementById('forgot-success').style.display='block'; showToast('✅ Reset link sent!', 'green'); }
 }
 
-/* ── OTP CORE ── */
+/* ── OTP CORE — Edge Function based ── */
+const EDGE_BASE = 'https://cjpylodggpqqkuvojogb.supabase.co/functions/v1';
+const ANON_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcHlsb2RnZ3BxcWt1dm9qb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ3ODgsImV4cCI6MjA4MjY2MDc4OH0.DpfpuCMQr8A3QV11KRVLE2JakuRWAmoGi1Ol_QUFWRE';
+
+async function edgeFetch(endpoint, body) {
+  const res = await fetch(EDGE_BASE + endpoint, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+    body:    JSON.stringify(body),
+  });
+  return res.json();
+}
+
+// sendOTP — calls edge function which hashes OTP and sends via WhatsApp API
 async function sendOTP(phone, userId, purpose) {
-  const db  = getDB();
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  await db.from('phone_otps').update({ used: true }).eq('phone', phone).eq('purpose', purpose).eq('used', false);
-  await db.from('phone_otps').insert([{ phone, otp_code: otp, purpose, user_id: userId || null, expires_at: new Date(Date.now() + 10*60*1000).toISOString() }]);
-  deliverOTPWhatsApp(phone, otp, purpose);
-  return otp;
+  const normalized = normalizePhone(phone);
+  showOTPSendingState(true);
+  try {
+    const result = await edgeFetch('/send-otp', { phone: normalized, purpose, user_id: userId || undefined });
+    if (result.error) throw new Error(result.error);
+    if (result.dev_mode) {
+      // No WhatsApp API keys configured — show dev toast
+      showToast('⚠️ Dev mode: check Supabase edge function logs for OTP code', 'orange');
+    } else {
+      showToast('✅ OTP sent to your WhatsApp!', 'green');
+    }
+  } catch(e) {
+    showToast('Failed to send OTP: ' + e.message, 'orange');
+  } finally {
+    showOTPSendingState(false);
+  }
 }
 
-function deliverOTPWhatsApp(phone, otp, purpose) {
-  const msg = purpose === 'reset'
-    ? 'Your Helpro password reset code is: *' + otp + '*. Valid for 10 minutes. Do not share.'
-    : 'Your Helpro verification code is: *' + otp + '*. Valid for 10 minutes. Do not share.';
-  const waPhone = phone.startsWith('+') ? phone.replace('+','') : (phone.startsWith('0') ? '254'+phone.slice(1) : phone);
-  const waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg);
-
-  // Show a non-dismissing banner with a tap-to-open button — never auto-navigate away
-  // Auto-navigating to WhatsApp on mobile PWA loses the page state entirely
-  const existing = document.getElementById('wa-otp-banner');
-  if (existing) existing.remove();
-
-  const banner = document.createElement('div');
-  banner.id = 'wa-otp-banner';
-  banner.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:#25D366;color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.18);font-family:var(--font-body)';
-  banner.innerHTML = '<i class="fab fa-whatsapp" style="font-size:26px;flex-shrink:0"></i>'
-    + '<div style="flex:1"><div style="font-weight:700;font-size:14px">Tap to get your OTP on WhatsApp</div>'
-    + '<div style="font-size:12px;opacity:.9">Opens WhatsApp with your code pre-filled</div></div>'
-    + '<a href="' + waUrl + '" target="_blank" rel="noopener" style="background:rgba(0,0,0,.2);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap">Open</a>';
-  document.body.appendChild(banner);
-
-  // Auto-dismiss banner after 60 seconds
-  setTimeout(() => banner.remove(), 60000);
+function showOTPSendingState(loading) {
+  const btn = document.getElementById('wa-send-btn');
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? '<i class="fas fa-spinner fa-spin"></i> Sending to WhatsApp…'
+    : '<i class="fab fa-whatsapp"></i> Send OTP via WhatsApp';
 }
 
+// verifyOTP — calls edge function which checks hash and returns session
 async function verifyOTP(phone, code, purpose) {
-  const db = getDB();
-  const { data: rec } = await db.from('phone_otps')
-    .select('id,otp_code,expires_at,used').eq('phone', phone).eq('purpose', purpose).eq('used', false)
-    .order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (!rec)            return { ok: false, msg: 'No OTP found. Request a new code.' };
-  if (rec.used)        return { ok: false, msg: 'Code already used.' };
-  if (new Date(rec.expires_at) < new Date()) return { ok: false, msg: 'Code expired. Request a new one.' };
-  if (rec.otp_code !== code.trim()) return { ok: false, msg: 'Incorrect code. Try again.' };
-  await db.from('phone_otps').update({ used: true }).eq('id', rec.id);
-  return { ok: true };
+  const normalized = normalizePhone(phone);
+  try {
+    const result = await edgeFetch('/verify-otp', { phone: normalized, otp_code: code, purpose });
+    if (result.error) return { ok: false, msg: result.error };
+    return result; // { ok, email, full_name, role, session }
+  } catch(e) {
+    return { ok: false, msg: 'Network error. Please try again.' };
+  }
 }
 
 function getOTPValue(containerId) {
@@ -657,7 +842,7 @@ function getOTPValue(containerId) {
 
 /* ── WA LOGIN — SEND ── */
 async function sendLoginOTP(isResend) {
-  const raw   = document.getElementById('wa-login-phone').value.trim();
+  const raw   = document.getElementById('sms-login-phone').value.trim();
   const phone = normalizePhone(raw);
   if (!phone) { showToast('Please enter a valid phone number', 'orange'); return; }
   const btn = document.getElementById('wa-send-btn');
@@ -669,27 +854,52 @@ async function sendLoginOTP(isResend) {
     showToast('No account found for this number. Please sign up.', 'orange'); return;
   }
   await sendOTP(phone, profile.id, 'login');
-  btn.disabled = false; btn.innerHTML = '<i class="fab fa-whatsapp"></i> Send OTP via WhatsApp';
-  document.getElementById('wa-login-step1').style.display = 'none';
-  document.getElementById('wa-login-step2').style.display = 'block';
-  document.getElementById('wa-login-phone').dataset.phone = phone;
-  startCountdown('wa-login-countdown', 'wa-login-resend', 60);
+  btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP via SMS';
+  document.getElementById('sms-login-step1').style.display = 'none';
+  document.getElementById('sms-login-step2').style.display = 'block';
+  document.getElementById('sms-login-phone').dataset.phone = phone;
+  startCountdown('sms-login-countdown', 'sms-login-resend', 60);
   document.querySelector('#otp-login-inputs .otp-digit')?.focus();
 }
 
 /* ── WA LOGIN — VERIFY ── */
 async function verifyLoginOTP() {
-  const phone = document.getElementById('wa-login-phone').dataset.phone || normalizePhone(document.getElementById('wa-login-phone').value.trim());
+  const phone = document.getElementById('sms-login-phone').dataset.phone || normalizePhone(document.getElementById('sms-login-phone').value.trim());
   const code  = getOTPValue('otp-login-inputs');
   if (code.length < 6) { showToast('Please enter all 6 digits', 'orange'); return; }
+
+  const verifyBtn = document.querySelector('#sms-login-step2 .btn-sms');
+  if (verifyBtn) { verifyBtn.disabled = true; verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…'; }
+
   const result = await verifyOTP(phone, code, 'login');
-  if (!result.ok) { showToast(result.msg, 'orange'); return; }
-  const db = getDB();
-  const { data: profile } = await db.from('profiles').select('email,full_name').eq('phone', phone).maybeSingle();
-  if (!profile) { showToast('Account not found', 'orange'); return; }
-  showToast('✅ Verified! Enter your password to complete sign in.', 'green');
+
+  if (!result.ok) {
+    if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Sign In'; }
+    showToast(result.msg, 'orange');
+    return;
+  }
+
+  // If edge function returned a session — set it directly (true passwordless)
+  if (result.session) {
+    const db = getDB();
+    const { error } = await db.auth.setSession({
+      access_token:  result.session.access_token,
+      refresh_token: result.session.refresh_token,
+    });
+    if (error) {
+      showToast('Session error: ' + error.message, 'orange');
+      if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Sign In'; }
+      return;
+    }
+    showToast('✅ Signed in! Welcome back, ' + (result.full_name || '') + '!', 'green');
+    setTimeout(() => window.location.href = result.role === 'admin' ? './admin.html' : './dashboard.html', 1200);
+    return;
+  }
+
+  // Fallback: session generation failed — pre-fill email and redirect to password login
+  showToast('✅ OTP verified. Please enter your password to continue.', 'green');
   showScreen('screen-auth'); switchTab('login');
-  document.getElementById('login-email').value = profile.email;
+  document.getElementById('login-email').value = result.email || '';
   setTimeout(() => document.getElementById('login-password').focus(), 300);
 }
 
@@ -697,11 +907,32 @@ async function verifyLoginOTP() {
 async function verifySignupOTP() {
   const code = getOTPValue('otp-verify-inputs');
   if (code.length < 6) { showToast('Please enter all 6 digits', 'orange'); return; }
+
+  const verifyBtn = document.querySelector('#screen-wa-verify .btn-wa');
+  if (verifyBtn) { verifyBtn.disabled = true; verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…'; }
+
   const result = await verifyOTP(_pendingPhone, code, 'verify');
-  if (!result.ok) { showToast(result.msg, 'orange'); return; }
-  if (_pendingUserId) { const db = getDB(); await db.from('profiles').update({ phone_verified: true }).eq('id', _pendingUserId); }
-  showToast('✅ Phone verified! Check your email to confirm your account.', 'green');
-  setTimeout(() => { showScreen('screen-auth'); switchTab('login'); }, 2200);
+
+  if (!result.ok) {
+    if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Number'; }
+    showToast(result.msg, 'orange');
+    return;
+  }
+
+  // If edge fn returned a session, set it so user is immediately logged in
+  if (result.session) {
+    const db = getDB();
+    await db.auth.setSession({
+      access_token:  result.session.access_token,
+      refresh_token: result.session.refresh_token,
+    });
+    showToast('✅ Phone verified! Taking you to your dashboard…', 'green');
+    setTimeout(() => window.location.href = './dashboard.html', 1500);
+    return;
+  }
+
+  showToast('✅ Phone verified! Please sign in to continue.', 'green');
+  setTimeout(() => { showScreen('screen-auth'); switchTab('login'); }, 2000);
 }
 async function resendSignupOTP() {
   if (!_pendingPhone) return;
@@ -802,14 +1033,228 @@ document.addEventListener('keydown', e => {
 
 /* ── UTILS ── */
 function goToPage(p) { window.location.href = p; }
+function updatePwStrength(val) {
+  const wrap = document.getElementById('pw-strength-wrap');
+  if (!wrap) return;
+  wrap.style.display = val.length ? 'block' : 'none';
+
+  const rules = [
+    { id: 'pw-rule-len',  pass: val.length >= 6 },
+    { id: 'pw-rule-up',   pass: /[A-Z]/.test(val) },
+    { id: 'pw-rule-low',  pass: /[a-z]/.test(val) },
+    { id: 'pw-rule-num',  pass: /[0-9]/.test(val) },
+    { id: 'pw-rule-spec', pass: /[$!@#%^&*()_+\-=\[\]{};':"\|,.<>\/?`~]/.test(val) },
+  ];
+
+  let score = 0;
+  rules.forEach(r => {
+    const el = document.getElementById(r.id);
+    if (!el) return;
+    if (r.pass) { el.classList.add('pass'); score++; }
+    else         { el.classList.remove('pass'); }
+    // Update dot color inline
+    const dot = el.querySelector('i');
+    if (dot) dot.style.color = r.pass ? '#16a34a' : '#d1d5db';
+  });
+
+  // Update strength bars
+  const barColors = ['#ef4444','#f59e0b','#3b82f6','#16a34a'];
+  const activeColor = barColors[Math.min(score - 1, 3)] || '#e5e7eb';
+  for (let i = 1; i <= 4; i++) {
+    const bar = document.getElementById('pw-bar-' + i);
+    if (bar) bar.style.background = i <= score ? activeColor : '#e5e7eb';
+  }
+}
+
+function updatePwStrength(val) {
+  const wrap = document.getElementById('pw-strength-wrap');
+  if (!wrap) return;
+  wrap.style.display = val.length > 0 ? 'block' : 'none';
+
+  const checks = {
+    len:     val.length >= 6,
+    upper:   /[A-Z]/.test(val),
+    lower:   /[a-z]/.test(val),
+    num:     /[0-9]/.test(val),
+    special: /[$!@#%^&*()+\-=\[\]{};':"\\|,.<>\/?`~]/.test(val),
+  };
+
+  // Update rule rows
+  const ruleMap = { len:'pw-rule-len', upper:'pw-rule-up', lower:'pw-rule-low', num:'pw-rule-num', special:'pw-rule-spec' };
+  for (const [key, id] of Object.entries(ruleMap)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const icon = el.querySelector('i');
+    if (checks[key]) {
+      el.style.color = 'var(--green,#3db83a)';
+      if (icon) icon.style.color = 'var(--green,#3db83a)';
+    } else {
+      el.style.color = '#6b7280';
+      if (icon) icon.style.color = '#d1d5db';
+    }
+  }
+
+  // Update strength bar (4 segments)
+  const score  = Object.values(checks).filter(Boolean).length;
+  const colors = ['#e5e7eb', '#ef4444', '#f97316', '#eab308', '#22c55e'];
+  const active = colors[Math.min(score, 4)];
+  for (let i = 1; i <= 4; i++) {
+    const seg = document.getElementById('pw-bar-' + i);
+    if (seg) seg.style.background = i <= score ? active : '#e5e7eb';
+  }
+}
+
 let _toastTimer;
 function showToast(msg, type='') {
+  const icons = { green: '✅', orange: '⚠️', error: '❌', '': 'ℹ️' };
+  const icon  = icons[type] || 'ℹ️';
   const w = document.getElementById('toast-wrap');
   w.style.display = 'block';
-  w.innerHTML = '<div class="toast ' + type + '">' + msg + '</div>';
+  w.innerHTML = `<div class="toast ${type}">
+    <span class="toast-icon">${icon}</span>
+    <span class="toast-msg">${msg}</span>
+  </div>`;
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => { w.style.display='none'; }, 3500);
+  // Longer display for error messages
+  const duration = (type === 'orange' || type === 'error') ? 5000 : 3500;
+  _toastTimer = setTimeout(() => { w.style.display='none'; }, duration);
 }
+
+// ════════════════════════════════════════════
+// 2FA POST-LOGIN CONFIRMATION
+// ════════════════════════════════════════════
+let _2fa_channel = null;  // 'sms' | 'email'
+let _2fa_session = null;  // pending session after email+password login
+
+// Called from login() — intercept before redirect
+async function show2FAScreen(session, profile) {
+  _2fa_session = session;
+
+  // Populate hints
+  const phoneHint = document.getElementById('twofa-phone-hint');
+  const emailHint = document.getElementById('twofa-email-hint');
+  const mainHint  = document.getElementById('twofa-hint');
+
+  if (profile?.phone) {
+    const masked = profile.phone.replace(/^(\+254|0)(\d{3})(\d+)(\d{2})$/, (_, pre, a, mid, end) =>
+      pre + a + '*'.repeat(mid.length) + end);
+    if (phoneHint) phoneHint.textContent = masked;
+  } else {
+    const smsBtn = document.getElementById('twofa-sms-btn');
+    if (smsBtn) smsBtn.style.display = 'none';
+    if (mainHint) mainHint.textContent = 'Verify your email to complete login';
+  }
+
+  if (profile?.email) {
+    const masked = profile.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => a + '*'.repeat(b.length) + c);
+    if (emailHint) emailHint.textContent = masked;
+  }
+
+  showTwofaChannels();
+  showScreen('screen-2fa');
+  setHero('Confirm Login', 'One more step for your security');
+}
+
+function showTwofaChannels() {
+  document.getElementById('twofa-channel-select').style.display = 'flex';
+  document.getElementById('twofa-otp-section').style.display   = 'none';
+  _2fa_channel = null;
+}
+
+async function send2FA(channel) {
+  _2fa_channel = channel;
+  const db = getDB();
+  const { data: { user } } = await db.auth.getUser();
+  const { data: profile }  = await db.from('profiles').select('phone,email').eq('id', user.id).maybeSingle();
+
+  const smsBtn   = document.getElementById('twofa-sms-btn');
+  const emailBtn = document.getElementById('twofa-email-btn');
+  if (smsBtn)   { smsBtn.disabled   = true; smsBtn.style.opacity   = '0.6'; }
+  if (emailBtn) { emailBtn.disabled = true; emailBtn.style.opacity = '0.6'; }
+
+  if (channel === 'sms') {
+    if (!profile?.phone) { showToast('No phone number on your account', 'orange'); showTwofaChannels(); return; }
+    await sendOTP(profile.phone, user.id, '2fa');
+    const badge = document.getElementById('twofa-sent-badge');
+    if (badge) badge.innerHTML = '<i class="fas fa-message"></i> SMS sent to your phone';
+  } else {
+    // Email OTP — use Supabase magic link OTP
+    await db.auth.signInWithOtp({ email: profile.email, options: { shouldCreateUser: false } });
+    const badge = document.getElementById('twofa-sent-badge');
+    if (badge) badge.innerHTML = '<i class="fas fa-envelope"></i> Code sent to your email';
+  }
+
+  document.getElementById('twofa-channel-select').style.display = 'none';
+  document.getElementById('twofa-otp-section').style.display    = 'flex';
+  document.getElementById('twofa-otp-section').style.flexDirection = 'column';
+  startCountdown('twofa-countdown', 'twofa-resend', 60);
+  document.querySelector('#otp-2fa-inputs .otp-digit')?.focus();
+
+  if (smsBtn)   { smsBtn.disabled   = false; smsBtn.style.opacity   = '1'; }
+  if (emailBtn) { emailBtn.disabled = false; emailBtn.style.opacity = '1'; }
+}
+
+async function verify2FA() {
+  const code = getOTPValue('otp-2fa-inputs');
+  if (code.length < 6) { showToast('Enter all 6 digits', 'orange'); return; }
+
+  const btn = document.querySelector('#twofa-otp-section .btn-primary');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…'; }
+
+  if (_2fa_channel === 'email') {
+    // Verify Supabase email OTP
+    const db = getDB();
+    const { data: { user } } = await db.auth.getUser();
+    const { data: profile }  = await db.from('profiles').select('email,role').eq('id', user.id).maybeSingle();
+    const { error } = await db.auth.verifyOtp({ email: profile.email, token: code, type: 'email' });
+    if (error) {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-shield-check"></i> Confirm Login'; }
+      showToast('Incorrect code. Try again.', 'orange');
+      return;
+    }
+    redirectAfterLogin(profile.role);
+    return;
+  }
+
+  // SMS OTP
+  const db = getDB();
+  const { data: { user } } = await db.auth.getUser();
+  const { data: profile }  = await db.from('profiles').select('phone,role').eq('id', user.id).maybeSingle();
+  const result = await verifyOTP(profile.phone, code, '2fa');
+  if (!result.ok) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-shield-check"></i> Confirm Login'; }
+    showToast(result.msg, 'orange');
+    return;
+  }
+  redirectAfterLogin(profile.role);
+}
+
+function redirectAfterLogin(role) {
+  showToast('✅ Login confirmed!', 'green');
+  setTimeout(() => {
+    window.location.href = role === 'admin' ? './admin.html' : './dashboard.html';
+  }, 800);
+}
+
+async function resend2FA() {
+  if (_2fa_channel) await send2FA(_2fa_channel);
+}
+
+function skip2FA() {
+  const db = getDB();
+  db.auth.getUser().then(({ data: { user } }) => {
+    db.from('profiles').select('role').eq('id', user.id).maybeSingle().then(({ data: p }) => {
+      redirectAfterLogin(p?.role);
+    });
+  });
+}
+
+window.send2FA          = send2FA;
+window.verify2FA        = verify2FA;
+window.resend2FA        = resend2FA;
+window.skip2FA          = skip2FA;
+window.showTwofaChannels = showTwofaChannels;
+
 </script>
 </body>
 </html>
