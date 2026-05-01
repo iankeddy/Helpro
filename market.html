@@ -10,7 +10,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Helpro">
   <link rel="apple-touch-icon" href="images/icon-192.png">
-<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -720,8 +721,18 @@ body {
 // ── SUPABASE ──
 const supabaseUrl = 'https://cjpylodggpqqkuvojogb.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcHlsb2RnZ3BxcWt1dm9qb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ3ODgsImV4cCI6MjA4MjY2MDc4OH0.DpfpuCMQr8A3QV11KRVLE2JakuRWAmoGi1Ol_QUFWRE';
+// Detect if localStorage is available (blocked by tracking prevention in some browsers)
+const _storageAvailable = (() => {
+  try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return true; }
+  catch(e) { return false; }
+})();
+
 const db = supabase.createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: true, autoRefreshToken: true }
+  auth: {
+    persistSession: _storageAvailable,   // fall back to memory-only if storage blocked
+    autoRefreshToken: true,
+    storage: _storageAvailable ? localStorage : undefined,
+  }
 });
 window.db = db;
 
@@ -1346,10 +1357,14 @@ async function hireFromGig(helperId, helperName) {
   if (currentProfile?.role === 'helper') { showToast('Helpers cannot hire other helpers','orange'); return; }
   closeModal('gig-modal');
   showToast(`Opening chat with ${helperName.trim()}…`,'green');
-  localStorage.setItem('openChat','true');
-  localStorage.setItem('chatRecipientId', helperId);
-  localStorage.setItem('chatRecipientName', helperName.trim());
-  localStorage.removeItem('chatJobId');
+  try {
+    localStorage.setItem('openChat','true');
+    localStorage.setItem('chatRecipientId', helperId);
+    localStorage.setItem('chatRecipientName', helperName.trim());
+    localStorage.removeItem('chatJobId');
+  } catch(e) {
+    console.warn('Storage blocked by tracking prevention:', e.message);
+  }
   setTimeout(() => goToPage('dashboard.html'), 900);
 }
 
@@ -1357,9 +1372,13 @@ async function hireHelper(helperId, helperName) {
   if (!currentUser) { showToast('Please log in to hire helpers','orange'); closeModal('helper-modal'); goToPage('auth.html'); return; }
   if (currentProfile?.role === 'helper') { showToast('Helpers cannot hire other helpers','orange'); return; }
   closeModal('helper-modal');
-  localStorage.setItem('openChat','true');
-  localStorage.setItem('chatRecipientId', helperId);
-  localStorage.setItem('chatRecipientName', helperName);
+  try {
+    localStorage.setItem('openChat','true');
+    localStorage.setItem('chatRecipientId', helperId);
+    localStorage.setItem('chatRecipientName', helperName);
+  } catch(e) {
+    console.warn('Storage blocked by tracking prevention:', e.message);
+  }
   showToast(`✅ Opening chat with ${helperName}…`,'green');
   setTimeout(() => goToPage('dashboard.html'), 900);
 }
@@ -1474,7 +1493,7 @@ async function openChatFromNav() {
   if (currentProfile?.role === 'helper' && !currentProfile?.is_vetted) {
     showToast('Chat available after account approval','orange'); return;
   }
-  localStorage.setItem('openChat','true'); goToPage('dashboard.html');
+  try { localStorage.setItem('openChat','true'); } catch(e) { console.warn('Storage blocked:', e.message); } goToPage('dashboard.html');
 }
 
 // ── TOAST ──
@@ -1492,7 +1511,6 @@ function showToast(msg, type='') {
 <script src="badges.js"></script>
 <script src="map-market.js"></script>
 <script>document.addEventListener("DOMContentLoaded", () => initNav("market"));</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="nav-drawer.js"></script>
 </body>
 </html>

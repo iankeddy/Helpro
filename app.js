@@ -7,11 +7,18 @@
 const supabaseUrl = 'https://cjpylodggpqqkuvojogb.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcHlsb2RnZ3BxcWt1dm9qb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ3ODgsImV4cCI6MjA4MjY2MDc4OH0.DpfpuCMQr8A3QV11KRVLE2JakuRWAmoGi1Ol_QUFWRE';
 
+// Detect if localStorage is blocked by browser tracking prevention (Edge/Safari ITP)
+const _storageAvailable = (() => {
+  try { localStorage.setItem('_hpro_t','1'); localStorage.removeItem('_hpro_t'); return true; }
+  catch(e) { return false; }
+})();
+
 const client = supabase.createClient(supabaseUrl, supabaseKey, {
   auth: {
-    persistSession: true,
+    persistSession: _storageAvailable,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    storage: _storageAvailable ? localStorage : undefined,
   }
 });
 
@@ -118,7 +125,7 @@ async function signUp(email, password, role, fullName) {
             ? showModal("Error", "Profile save failed: " + profileError.message, "error")
             : showModal("Success!", "Account created! You are now signed in.", "success");
     } else {
-        localStorage.setItem('helpro_pending_profile', JSON.stringify(profileData));
+        safeStorage.set('helpro_pending_profile', JSON.stringify(profileData));
         toggleLoader(false);
         showModal("Success!", "Account created! Check your email to confirm, then sign in.", "success");
     }
@@ -134,7 +141,7 @@ async function login(email, password) {
     }
 
     // ── Flush any pending profile from the email-confirm signup flow ──
-    const pendingRaw = localStorage.getItem('helpro_pending_profile');
+    const pendingRaw = safeStorage.get('helpro_pending_profile');
     if (pendingRaw) {
         try {
             const pending = JSON.parse(pendingRaw);
@@ -153,11 +160,11 @@ async function login(email, password) {
                         }
                     }
                 }
-                localStorage.removeItem('helpro_pending_profile');
+                safeStorage.remove('helpro_pending_profile');
             }
         } catch(e) {
             console.warn('Pending profile flush failed:', e.message);
-            localStorage.removeItem('helpro_pending_profile');
+            safeStorage.remove('helpro_pending_profile');
         }
     }
 
@@ -570,7 +577,7 @@ async function openChatFromNav() {
   if (chatPage) {
     openChatPage();
   } else {
-    localStorage.setItem("openChat", "true");
+    safeStorage.set("openChat", "true");
     window.location.href = "dashboard.html";
   }
 }
@@ -958,10 +965,10 @@ async function startChatWith(recipientId, recipientName, jobId = null) {
     await loadMessages();
     subscribeToMessages();
   } else {
-    localStorage.setItem('openChat', 'true');
-    localStorage.setItem('chatRecipientId', recipientId);
-    localStorage.setItem('chatRecipientName', recipientName);
-    if (jobId) localStorage.setItem('chatJobId', jobId);
+    safeStorage.set('openChat', 'true');
+    safeStorage.set('chatRecipientId', recipientId);
+    safeStorage.set('chatRecipientName', recipientName);
+    if (jobId) safeStorage.set('chatJobId', jobId);
     window.location.href = 'dashboard.html';
   }
 }
@@ -1081,15 +1088,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateUnreadBadge();
 
     // Auto-open chat if redirected from another page
-    if (localStorage.getItem("openChat") === "true") {
-      localStorage.removeItem("openChat");
-      const recipientId = localStorage.getItem('chatRecipientId');
-      const recipientName = localStorage.getItem('chatRecipientName');
-      const jobId = localStorage.getItem('chatJobId');
+    if (safeStorage.get("openChat") === "true") {
+      safeStorage.remove("openChat");
+      const recipientId = safeStorage.get('chatRecipientId');
+      const recipientName = safeStorage.get('chatRecipientName');
+      const jobId = safeStorage.get('chatJobId');
       if (recipientId && recipientName) {
-        localStorage.removeItem('chatRecipientId');
-        localStorage.removeItem('chatRecipientName');
-        localStorage.removeItem('chatJobId');
+        safeStorage.remove('chatRecipientId');
+        safeStorage.remove('chatRecipientName');
+        safeStorage.remove('chatJobId');
         setTimeout(() => startChatWith(recipientId, recipientName, jobId), 400);
       } else {
         setTimeout(() => openChatPage(), 300);
@@ -1102,6 +1109,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 // GLOBAL EXPOSURE
 // ============================================================
 window.client = client;
+
+// ── safeStorage: wraps localStorage to gracefully handle tracking prevention ──
+const safeStorage = {
+  get:    (k, def=null) => { try { const v = localStorage.getItem(k); return v !== null ? v : def; } catch(e) { return def; } },
+  set:    (k, v) =>        { try { localStorage.setItem(k, v); } catch(e) { console.warn('Storage blocked:', k); } },
+  remove: (k) =>           { try { localStorage.removeItem(k); } catch(e) {} },
+  clear:  () =>            { try { localStorage.clear(); } catch(e) {} },
+};
+
 window.signUp = signUp;
 window.login = login;
 window.detectMyLocation = detectMyLocation;
@@ -1479,13 +1495,13 @@ function wizSave() {
       conductHasFile:   wizState.conductHasFile,
       tradeCertHasFile: wizState.tradeCertHasFile,
     };
-    localStorage.setItem(WIZ_KEY, JSON.stringify(s));
+    safeStorage.set(WIZ_KEY, JSON.stringify(s));
   } catch(e) {}
 }
 
 function wizLoad() {
   try {
-    const saved = JSON.parse(localStorage.getItem(WIZ_KEY) || '{}');
+    const saved = JSON.parse(safeStorage.get(WIZ_KEY) || '{}');
     wizState = { ...wizState, ...saved };
   } catch(e) {}
 }
@@ -2115,7 +2131,7 @@ async function wizSubmit() {
     if (error) throw error;
 
     // Clear wizard state
-    localStorage.removeItem(WIZ_KEY);
+    safeStorage.remove(WIZ_KEY);
 
     // Show success state
     const container = document.getElementById('vetting-form');
@@ -2511,7 +2527,7 @@ async function confirmDelete() {
     showToast('Account permanently deleted. Goodbye 👋', 'green');
     setTimeout(async () => {
       await client.auth.signOut();
-      localStorage.clear();
+      safeStorage.clear();
       window.location.href = './index.html';
     }, 2500);
   } catch(e) {

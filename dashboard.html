@@ -309,109 +309,6 @@
 
   </section>
 
-<!-- ══ DANGER ZONE ══════════════════════════════════════════ -->
-<div class="card" id="danger-zone-card" style="margin-top:8px;border:2px solid #fee2e2;background:#fff5f5;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-    <div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <i class="fas fa-shield-exclamation" style="color:#dc2626;font-size:16px"></i>
-    </div>
-    <div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:#dc2626">Danger Zone</div>
-      <div style="font-size:11px;color:#9ca3af">These actions are serious and may be irreversible</div>
-    </div>
-  </div>
-
-  <div style="height:1px;background:#fee2e2;margin:14px 0"></div>
-
-  <!-- Deactivate -->
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:4px 0 14px">
-    <div style="flex:1">
-      <div style="font-weight:700;font-size:13px;color:#374151;margin-bottom:3px">
-        <i class="fas fa-moon" style="color:#f59e0b;margin-right:5px"></i>Deactivate Account
-      </div>
-      <div style="font-size:12px;color:#6b7280;line-height:1.5">
-        Temporarily hide your profile and pause all activity. You can reactivate anytime by signing back in.
-      </div>
-    </div>
-    <button onclick="showDeactivateConfirm()"
-      style="flex-shrink:0;background:#fef3c7;color:#92400e;border:1.5px solid #fde68a;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">
-      Deactivate
-    </button>
-  </div>
-
-  <div style="height:1px;background:#fee2e2;margin-bottom:14px"></div>
-
-  <!-- Delete -->
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:4px 0 4px">
-    <div style="flex:1">
-      <div style="font-weight:700;font-size:13px;color:#dc2626;margin-bottom:3px">
-        <i class="fas fa-trash-can" style="color:#dc2626;margin-right:5px"></i>Delete Account
-      </div>
-      <div style="font-size:12px;color:#6b7280;line-height:1.5">
-        Permanently delete your account and all data. This cannot be undone. You will lose all history, wallet balance, and reviews.
-      </div>
-    </div>
-    <button onclick="showDeleteConfirm()"
-      style="flex-shrink:0;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">
-      Delete
-    </button>
-  </div>
-</div>
-
-<!-- ── DEACTIVATE CONFIRM MODAL ── -->
-<div id="deactivate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="width:56px;height:56px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px">🌙</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:18px;margin-bottom:8px">Deactivate Account?</div>
-      <div style="font-size:13px;color:#6b7280;line-height:1.6">
-        Your profile will be hidden, your gigs paused, and you won't receive notifications. <strong>You can reactivate anytime</strong> by signing back in.
-      </div>
-    </div>
-    <button onclick="confirmDeactivate()"
-      style="width:100%;background:#f59e0b;color:white;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-bottom:10px">
-      Yes, Deactivate My Account
-    </button>
-    <button onclick="closeModals()"
-      style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body)">
-      Cancel
-    </button>
-  </div>
-</div>
-
-<!-- ── DELETE CONFIRM MODAL ── -->
-<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="width:56px;height:56px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px">🗑️</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#dc2626;margin-bottom:8px">Delete Account?</div>
-      <div style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:16px">
-        This will <strong>permanently delete</strong> your profile, reviews, messages, and all personal data. This action <strong>cannot be undone</strong>.
-      </div>
-      <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px;margin-bottom:16px;text-align:left">
-        <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px">Type DELETE to confirm:</div>
-        <input id="delete-confirm-input" type="text" placeholder="Type DELETE here"
-          oninput="document.getElementById('confirm-delete-btn').disabled = this.value !== 'DELETE'"
-          style="width:100%;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);background:white;color:#dc2626;font-weight:700;letter-spacing:1px;box-sizing:border-box">
-      </div>
-    </div>
-    <button id="confirm-delete-btn" onclick="confirmDelete()" disabled
-      style="width:100%;background:#dc2626;color:white;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-bottom:10px;opacity:0.5;transition:opacity 0.2s"
-      onmouseenter="if(!this.disabled)this.style.opacity='1'"
-      onmouseleave="if(!this.disabled)this.style.opacity='0.9'">
-      <i class="fas fa-trash-can"></i> Permanently Delete My Account
-    </button>
-    <button onclick="closeModals()"
-      style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body)">
-      Cancel — Keep My Account
-    </button>
-  </div>
-</div>
-
-<style>
-#confirm-delete-btn:not([disabled]) { opacity: 1 !important; }
-#deactivate-modal.open, #delete-modal.open { display: flex !important; }
-</style>
 
 </main>
 
@@ -470,6 +367,9 @@
   </button>
   <button class="nav-item active" onclick="goToPage('dashboard.html')" id="nav-dashboard">
     <i class="fas fa-th-large"></i><span>Dashboard</span>
+  </button>
+  <button class="nav-item" onclick="openSettings()" id="nav-settings">
+    <i class="fas fa-gear"></i><span>Settings</span>
   </button>
 </nav>
 
@@ -813,6 +713,186 @@ window.copyDashCode = function() {
     </div>
   </div>
 </div>
+
+<!-- ══ SETTINGS DRAWER ══════════════════════════════════════ -->
+<div id="settings-overlay" onclick="closeSettings()"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:8000;opacity:0;transition:opacity .25s"></div>
+
+<div id="settings-drawer"
+  style="display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:8001;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1,.5,1);padding-bottom:env(safe-area-inset-bottom,16px)">
+
+  <!-- Handle -->
+  <div style="display:flex;justify-content:center;padding:12px 0 4px">
+    <div style="width:36px;height:4px;border-radius:2px;background:#e5e7eb"></div>
+  </div>
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px 16px">
+    <div style="font-family:var(--font-display);font-weight:800;font-size:18px">Settings</div>
+    <button onclick="closeSettings()"
+      style="width:32px;height:32px;border-radius:50%;background:#f3f4f6;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">
+      <i class="fas fa-xmark" style="font-size:14px;color:#6b7280"></i>
+    </button>
+  </div>
+
+  <div style="padding:0 16px 24px;display:flex;flex-direction:column;gap:8px">
+
+    <!-- Account section -->
+    <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;padding:0 4px;margin-bottom:2px">Account</div>
+
+    <a href="referral.html" style="text-decoration:none">
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#f0fdf4"><i class="fas fa-gift" style="color:var(--green)"></i></div>
+        <div class="settings-row-body"><div class="settings-row-title">Referrals & Rewards</div><div class="settings-row-sub">Invite friends, earn KES 100</div></div>
+        <i class="fas fa-chevron-right settings-row-arrow"></i>
+      </div>
+    </a>
+
+    <div class="settings-row" onclick="showToast('Notifications settings coming soon','orange')">
+      <div class="settings-row-icon" style="background:#eff6ff"><i class="fas fa-bell" style="color:#3b82f6"></i></div>
+      <div class="settings-row-body"><div class="settings-row-title">Notifications</div><div class="settings-row-sub">Manage push & email alerts</div></div>
+      <i class="fas fa-chevron-right settings-row-arrow"></i>
+    </div>
+
+    <div class="settings-row" onclick="showToast('Privacy settings coming soon','orange')">
+      <div class="settings-row-icon" style="background:#faf5ff"><i class="fas fa-lock" style="color:#7c3aed"></i></div>
+      <div class="settings-row-body"><div class="settings-row-title">Privacy</div><div class="settings-row-sub">Control your data & visibility</div></div>
+      <i class="fas fa-chevron-right settings-row-arrow"></i>
+    </div>
+
+    <a href="privacy.html" style="text-decoration:none">
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#f0f9ff"><i class="fas fa-file-shield" style="color:#0284c7"></i></div>
+        <div class="settings-row-body"><div class="settings-row-title">Privacy Policy</div><div class="settings-row-sub">How we handle your data</div></div>
+        <i class="fas fa-chevron-right settings-row-arrow"></i>
+      </div>
+    </a>
+
+    <a href="terms.html" style="text-decoration:none">
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#f8fafc"><i class="fas fa-scroll" style="color:#64748b"></i></div>
+        <div class="settings-row-body"><div class="settings-row-title">Terms of Service</div><div class="settings-row-sub">Our terms and conditions</div></div>
+        <i class="fas fa-chevron-right settings-row-arrow"></i>
+      </div>
+    </a>
+
+    <!-- Sign out -->
+    <div style="height:1px;background:#f3f4f6;margin:8px 0"></div>
+
+    <div class="settings-row" onclick="handleSignOut()" style="cursor:pointer">
+      <div class="settings-row-icon" style="background:#fef2f2"><i class="fas fa-right-from-bracket" style="color:#dc2626"></i></div>
+      <div class="settings-row-body"><div class="settings-row-title" style="color:#dc2626">Sign Out</div><div class="settings-row-sub">Log out of your account</div></div>
+    </div>
+
+    <!-- ── DANGER ZONE (collapsed by default) ── -->
+    <div style="height:1px;background:#f3f4f6;margin:8px 0"></div>
+
+    <button onclick="toggleDangerZone(this)"
+      style="width:100%;background:none;border:none;padding:12px 4px;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-body);text-align:left">
+      <i class="fas fa-triangle-exclamation" style="color:#dc2626;font-size:14px"></i>
+      <span style="font-size:13px;font-weight:600;color:#dc2626;flex:1">Account Actions</span>
+      <i class="fas fa-chevron-down" style="font-size:11px;color:#9ca3af;transition:transform .2s" id="dz-chevron"></i>
+    </button>
+
+    <!-- Danger zone content — hidden by default -->
+    <div id="danger-zone-settings" style="display:none">
+      <div style="background:#fff5f5;border:1.5px solid #fecaca;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px">
+
+        <!-- Deactivate -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px;color:#374151;margin-bottom:2px"><i class="fas fa-moon" style="color:#f59e0b;margin-right:5px"></i>Deactivate</div>
+            <div style="font-size:11px;color:#6b7280;line-height:1.5">Temporarily hide your profile. Reactivate anytime by signing back in.</div>
+          </div>
+          <button onclick="closeSettings();setTimeout(showDeactivateConfirm,300)"
+            style="flex-shrink:0;background:#fef3c7;color:#92400e;border:1.5px solid #fde68a;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">
+            Deactivate
+          </button>
+        </div>
+
+        <div style="height:1px;background:#fecaca"></div>
+
+        <!-- Delete -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px;color:#dc2626;margin-bottom:2px"><i class="fas fa-trash-can" style="color:#dc2626;margin-right:5px"></i>Delete Account</div>
+            <div style="font-size:11px;color:#6b7280;line-height:1.5">Permanently delete all your data. This cannot be undone.</div>
+          </div>
+          <button onclick="closeSettings();setTimeout(showDeleteConfirm,300)"
+            style="flex-shrink:0;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.settings-row { display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;cursor:pointer;transition:background .15s; }
+.settings-row:hover, .settings-row:active { background:#f9fafb; }
+.settings-row-icon { width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px; }
+.settings-row-body { flex:1;min-width:0; }
+.settings-row-title { font-size:14px;font-weight:600;color:#111827; }
+.settings-row-sub { font-size:12px;color:#6b7280;margin-top:1px; }
+.settings-row-arrow { color:#d1d5db;font-size:12px;flex-shrink:0; }
+#nav-settings.active .fa-gear { color:var(--green); }
+</style>
+
+<script>
+function openSettings() {
+  const overlay = document.getElementById('settings-overlay');
+  const drawer  = document.getElementById('settings-drawer');
+  overlay.style.display = 'block';
+  drawer.style.display  = 'block';
+  // Trigger animation next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay.style.opacity  = '1';
+      drawer.style.transform = 'translateY(0)';
+    });
+  });
+  // Mark settings nav active
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-settings')?.classList.add('active');
+}
+
+function closeSettings() {
+  const overlay = document.getElementById('settings-overlay');
+  const drawer  = document.getElementById('settings-drawer');
+  overlay.style.opacity  = '0';
+  drawer.style.transform = 'translateY(100%)';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    drawer.style.display  = 'none';
+    // Restore dashboard nav active state
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('nav-dashboard')?.classList.add('active');
+  }, 300);
+}
+
+function toggleDangerZone(btn) {
+  const dz      = document.getElementById('danger-zone-settings');
+  const chevron = document.getElementById('dz-chevron');
+  const open    = dz.style.display === 'none';
+  dz.style.display      = open ? 'block' : 'none';
+  chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+function handleSignOut() {
+  closeSettings();
+  setTimeout(async () => {
+    await window.client.auth.signOut();
+    window.location.href = './auth.html';
+  }, 300);
+}
+
+window.openSettings  = openSettings;
+window.closeSettings = closeSettings;
+window.toggleDangerZone = toggleDangerZone;
+window.handleSignOut = handleSignOut;
+</script>
 
 </body>
 </html>
