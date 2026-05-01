@@ -1149,78 +1149,277 @@ const WIZARD_STEPS = [
 // label: what the upload field says
 // hint: guidance text shown under the upload zone
 // icon: Font Awesome icon class
+const WIZ_CAT_ICONS = {
+  'Cleaning':'fa-broom','Plumbing':'fa-faucet','Electrical':'fa-bolt','Painting':'fa-paint-roller',
+  'Pest Control':'fa-bug-slash','Appliance Repair':'fa-plug','Carpentry':'fa-screwdriver-wrench',
+  'Gardening':'fa-leaf','General Repairs':'fa-tools',
+  'Masonry/Fundi':'fa-helmet-safety','Welding':'fa-gear','Solar Installation':'fa-solar-panel',
+  'CCTV/Security Tech':'fa-camera','Wi-Fi/Internet Setup':'fa-wifi','Generator Service':'fa-plug-circle-bolt',
+  'Water/Borehole':'fa-droplet',
+  'Bookkeeping':'fa-book','Tax Filing':'fa-file-invoice','Graphic Design':'fa-palette',
+  'IT Support':'fa-laptop','Printing':'fa-print','Company Registration':'fa-building',
+  'Moving/Relocation':'fa-truck-moving','Laundry':'fa-shirt','Beauty/Barber':'fa-scissors',
+  'Catering':'fa-utensils','Photography':'fa-camera-retro','Tutoring':'fa-graduation-cap',
+  'Events':'fa-champagne-glasses','Pet Care':'fa-paw',
+  'Car Wash':'fa-car','Mechanic':'fa-wrench','Tyre Services':'fa-circle-dot',
+  'Driver/Transport':'fa-steering-wheel','Roadside Assistance':'fa-road',
+  'Delivery':'fa-truck','Shopping/Errands':'fa-bag-shopping',
+  'Legal (Lawyer)':'fa-scale-balanced','Accounting (CPA)':'fa-calculator',
+  'Architecture':'fa-drafting-compass','Security Guard':'fa-shield-halved','Consulting':'fa-handshake',
+}
+
 const TRADE_CERT_CONFIG = {
-  'Transport':  {
-    mandatory: true,
-    label: "PSV Badge & Driver's Licence",
-    hint: "Upload your NTSA PSV Badge and valid Driver's Licence (Class B3 or above). Both documents are legally required to offer transport services.",
-    icon: 'fa-id-badge',
-  },
-  'Repairs':    {
-    mandatory: true,
-    label: 'NITA Trade Test Certificate',
-    hint: 'Upload your NITA Trade Test Certificate (Artisan Grade II or above) for your trade e.g. Plumbing, Electrical Wireman, Mason, Carpentry.',
-    icon: 'fa-scroll',
-  },
-  'Cleaning':   {
+  'Cleaning': {
     mandatory: false,
     label: 'Cleaning / Hospitality Certificate (Optional)',
-    hint: 'NITA Housekeeping or Hospitality certificate strengthens your profile. Not mandatory but highly recommended.',
+    hint: 'NITA Housekeeping or Hospitality certificate strengthens your profile.',
     icon: 'fa-broom',
   },
-  'Gardening':  {
+  'Plumbing': {
+    mandatory: true,
+    label: 'NITA Plumbing Trade Test Certificate',
+    hint: 'Upload your NITA Trade Test Certificate for Plumbing (Artisan Grade II or above). Mandatory for all plumbing helpers.',
+    icon: 'fa-faucet',
+  },
+  'Electrical': {
+    mandatory: true,
+    label: 'NITA Electrical Wireman Licence',
+    hint: 'Upload your EPRA Electrical Wireman Licence or NITA Electrical Installation certificate. Legally required to offer electrical services.',
+    icon: 'fa-bolt',
+  },
+  'Painting': {
+    mandatory: false,
+    label: 'NITA Painting / Decorating Certificate (Optional)',
+    hint: 'NITA Painting and Decorating trade certificate. Optional but increases client trust.',
+    icon: 'fa-paint-roller',
+  },
+  'Pest Control': {
+    mandatory: true,
+    label: 'PCPB Pest Control Operator Licence',
+    hint: 'Upload your Pest Control Products Board (PCPB) operator licence. Legally required for commercial pest control in Kenya.',
+    icon: 'fa-bug-slash',
+  },
+  'Appliance Repair': {
+    mandatory: false,
+    label: 'NITA Electronics / Appliance Repair Certificate (Optional)',
+    hint: 'NITA Electronics or Electrical Engineering certificate. Optional but builds confidence with clients.',
+    icon: 'fa-plug',
+  },
+  'Carpentry': {
+    mandatory: true,
+    label: 'NITA Carpentry & Joinery Trade Test',
+    hint: 'Upload your NITA Carpentry and Joinery Trade Test certificate (Artisan Grade II or above).',
+    icon: 'fa-screwdriver-wrench',
+  },
+  'Gardening': {
     mandatory: false,
     label: 'Horticulture / Landscaping Certificate (Optional)',
-    hint: 'NITA Landscaper or Horticulture certificate. Optional but increases trust with clients.',
+    hint: 'NITA Landscaper or Horticulture certificate. Optional but increases trust.',
     icon: 'fa-seedling',
   },
-  'Security':   {
+  'General Repairs': {
     mandatory: true,
-    label: 'PSASB Security Guard Licence',
-    hint: 'Upload your Private Security Regulatory Authority (PSRA/PSASB) guard licence or certificate of training. Mandatory for all security helpers.',
-    icon: 'fa-shield-halved',
+    label: 'NITA Trade Test Certificate',
+    hint: 'Upload your NITA Trade Test Certificate (Artisan Grade II or above) for your specific trade.',
+    icon: 'fa-scroll',
   },
-  'Tutoring':   {
+  'Masonry/Fundi': {
     mandatory: true,
-    label: 'Teaching Certificate / Academic Transcript',
-    hint: 'Upload a TSC certificate, college diploma, or official academic transcript showing your subject competency.',
-    icon: 'fa-graduation-cap',
+    label: 'NITA Masonry / Bricklaying Trade Test',
+    hint: 'Upload your NITA Masonry or Bricklaying Trade Test certificate. Required for all construction helpers.',
+    icon: 'fa-helmet-safety',
   },
-  'Pet Care':   {
+  'Welding': {
+    mandatory: true,
+    label: 'NITA Welding & Fabrication Certificate',
+    hint: 'Upload your NITA Welding and Fabrication trade test certificate. Mandatory for welding services.',
+    icon: 'fa-gear',
+  },
+  'Solar Installation': {
+    mandatory: true,
+    label: 'EPRA Solar Installer Certification',
+    hint: 'Upload your Energy and Petroleum Regulatory Authority (EPRA) solar installation certificate. Required for commercial solar work in Kenya.',
+    icon: 'fa-solar-panel',
+  },
+  'CCTV/Security Tech': {
     mandatory: false,
-    label: 'Animal Care / Vet Assistant Certificate (Optional)',
-    hint: 'NITA or TVETA animal husbandry / pet care certificate. Optional but builds client confidence.',
-    icon: 'fa-paw',
+    label: 'CCTV / Security Systems Certificate (Optional)',
+    hint: 'Any CCTV installation or security systems certificate. Optional but builds trust with clients.',
+    icon: 'fa-camera',
   },
-  'Delivery':   {
+  'Wi-Fi/Internet Setup': {
     mandatory: false,
-    label: "Driver's Licence (Optional)",
-    hint: "A valid Kenya Driver's Licence. Required only if you use a vehicle for deliveries — optional for on-foot or bicycle delivery.",
-    icon: 'fa-truck',
+    label: 'IT / Networking Certificate (Optional)',
+    hint: 'CCNA, CompTIA Network+, or any ICT networking certificate. Optional but recommended.',
+    icon: 'fa-wifi',
   },
-  'Moving':     {
+  'Generator Service': {
+    mandatory: false,
+    label: 'Electrical / Generator Service Certificate (Optional)',
+    hint: 'NITA Electrical or generator-specific training certificate. Optional.',
+    icon: 'fa-plug-circle-bolt',
+  },
+  'Water/Borehole': {
+    mandatory: true,
+    label: 'Water Services Board Licence',
+    hint: 'Upload your Water Services Regulatory Board (WASREB) or county water authority licence for borehole and plumbing works.',
+    icon: 'fa-droplet',
+  },
+  'Bookkeeping': {
+    mandatory: true,
+    label: 'Bookkeeping / Accounting Qualification',
+    hint: 'Upload your CPA (K), AAT, or KASNEB certificate. Required for all bookkeeping helpers.',
+    icon: 'fa-book',
+  },
+  'Tax Filing': {
+    mandatory: true,
+    label: 'KRA PIN + CPA or Tax Agent Licence',
+    hint: 'Upload your KRA PIN certificate and CPA (K) or Tax Agent registration. Required to offer tax services.',
+    icon: 'fa-file-invoice',
+  },
+  'Graphic Design': {
+    mandatory: false,
+    label: 'Design Portfolio or Certificate (Optional)',
+    hint: 'Any graphic design certificate or portfolio link. Optional but greatly increases bookings.',
+    icon: 'fa-palette',
+  },
+  'IT Support': {
+    mandatory: false,
+    label: 'IT Certification (Optional)',
+    hint: 'CompTIA A+, CCNA, Microsoft, or any IT certification. Optional but builds confidence.',
+    icon: 'fa-laptop',
+  },
+  'Printing': {
+    mandatory: false,
+    label: 'Business Certificate (Optional)',
+    hint: 'Business permit or any printing trade certificate. Optional.',
+    icon: 'fa-print',
+  },
+  'Company Registration': {
+    mandatory: true,
+    label: 'Certified Agent / Paralegal Certificate',
+    hint: 'Upload your Law Society of Kenya (LSK) paralegal certificate or company secretarial qualification.',
+    icon: 'fa-building',
+  },
+  'Moving/Relocation': {
     mandatory: false,
     label: "Driver's Licence or Moving Experience Certificate (Optional)",
-    hint: "A valid driver's licence or any relevant certification for furniture / goods handling.",
+        hint: "A valid Kenya driver's licence or any certification for furniture/goods handling. Optional.",
     icon: 'fa-truck-moving',
   },
-  'Laundry':    {
+  'Laundry': {
     mandatory: false,
     label: 'Laundry / Textile Care Certificate (Optional)',
     hint: 'NITA Sewing/Textile or hospitality-laundry certificate. Not mandatory.',
     icon: 'fa-shirt',
   },
-  'Events':     {
+  'Beauty/Barber': {
+    mandatory: true,
+    label: 'NITA Beauty Therapy / Barbering Certificate',
+    hint: 'Upload your NITA Beauty Therapy or Barbering certificate. Required for all beauty and grooming helpers.',
+    icon: 'fa-scissors',
+  },
+  'Catering': {
+    mandatory: false,
+        label: "Food Handler's Certificate (Optional)",
+    hint: 'County public health food handler certificate. Optional but strongly recommended for food-related services.',
+    icon: 'fa-utensils',
+  },
+  'Photography': {
+    mandatory: false,
+    label: 'Photography Portfolio (Optional)',
+    hint: 'A portfolio link or any photography certificate. Optional but increases bookings significantly.',
+    icon: 'fa-camera-retro',
+  },
+  'Tutoring': {
+    mandatory: true,
+    label: 'Teaching Certificate / Academic Transcript',
+    hint: 'Upload a TSC certificate, college diploma, or official academic transcript showing your subject competency.',
+    icon: 'fa-graduation-cap',
+  },
+  'Events': {
     mandatory: false,
     label: 'Events / Catering Certificate (Optional)',
     hint: 'Any catering, event management, or hospitality certificate from a recognised institution.',
     icon: 'fa-champagne-glasses',
   },
-  'Shopping':   {
+  'Pet Care': {
+    mandatory: false,
+    label: 'Animal Care / Vet Assistant Certificate (Optional)',
+    hint: 'NITA or TVETA animal husbandry/pet care certificate. Optional.',
+    icon: 'fa-paw',
+  },
+  'Car Wash': {
+    mandatory: false,
+    label: 'Business Permit (Optional)',
+    hint: 'County business permit or any car wash training certificate. Optional.',
+    icon: 'fa-car',
+  },
+  'Mechanic': {
+    mandatory: true,
+    label: 'NITA Motor Vehicle Mechanics Certificate',
+    hint: 'Upload your NITA Motor Vehicle Mechanics trade test certificate (Artisan Grade II or above).',
+    icon: 'fa-wrench',
+  },
+  'Tyre Services': {
+    mandatory: false,
+    label: 'Tyre Fitting Certificate (Optional)',
+    hint: 'Any tyre fitting or automotive certificate. Optional.',
+    icon: 'fa-circle-dot',
+  },
+  'Driver/Transport': {
+    mandatory: true,
+        label: "PSV Badge & Driver's Licence",
+    hint: "Upload your NTSA PSV Badge and valid Driver's Licence (Class B3 or above). Legally required for transport services.",
+    icon: 'fa-id-badge',
+  },
+  'Roadside Assistance': {
+    mandatory: false,
+    label: "Driver's Licence (Optional)",
+        hint: "A valid Kenya driver's licence. Optional but recommended.",
+    icon: 'fa-road',
+  },
+  'Delivery': {
+    mandatory: false,
+        label: "Driver's Licence (Optional)",
+    hint: "A valid Kenya driver's licence. Required only for vehicle deliveries.",
+    icon: 'fa-truck',
+  },
+  'Shopping/Errands': {
     mandatory: false,
     label: 'Trade Certificate (Optional)',
     hint: 'Any relevant certificate e.g. retail, procurement, or customer service. Optional.',
     icon: 'fa-bag-shopping',
+  },
+  'Legal (Lawyer)': {
+    mandatory: true,
+    label: 'LSK Advocate Certificate',
+    hint: 'Upload your Law Society of Kenya (LSK) advocate certificate and current practising certificate.',
+    icon: 'fa-scale-balanced',
+  },
+  'Accounting (CPA)': {
+    mandatory: true,
+    label: 'ICPAK / CPA (K) Certificate',
+    hint: 'Upload your ICPAK membership certificate and current practising licence.',
+    icon: 'fa-calculator',
+  },
+  'Architecture': {
+    mandatory: true,
+    label: 'Board of Registration of Architects Certificate',
+    hint: 'Upload your BoRAQ (Board of Registration of Architects and Quantity Surveyors) practising certificate.',
+    icon: 'fa-drafting-compass',
+  },
+  'Security Guard': {
+    mandatory: true,
+    label: 'PSASB Security Guard Licence',
+    hint: 'Upload your Private Security Regulatory Authority (PSRA/PSASB) guard licence or certificate of training.',
+    icon: 'fa-shield-halved',
+  },
+  'Consulting': {
+    mandatory: false,
+    label: 'Professional Qualification Certificate (Optional)',
+    hint: 'Any relevant professional certificate, degree, or qualification document.',
+    icon: 'fa-handshake',
   },
 };
 
@@ -1395,7 +1594,7 @@ function stepWelcome() {
 }
 
 function stepProfile() {
-  const categories = ['Cleaning','Delivery','Repairs','Shopping','Transport','Pet Care','Gardening','Moving','Security','Tutoring','Laundry','Events'];
+    const categories = ['Cleaning','Plumbing','Electrical','Painting','Pest Control','Appliance Repair','Carpentry','Gardening','General Repairs','Masonry/Fundi','Welding','Solar Installation','CCTV/Security Tech','Wi-Fi/Internet Setup','Generator Service','Water/Borehole','Bookkeeping','Tax Filing','Graphic Design','IT Support','Printing','Company Registration','Moving/Relocation','Laundry','Beauty/Barber','Catering','Photography','Tutoring','Events','Pet Care','Car Wash','Mechanic','Tyre Services','Driver/Transport','Roadside Assistance','Delivery','Shopping/Errands','Legal (Lawyer)','Accounting (CPA)','Architecture','Security Guard','Consulting'];
   return `
     <div class="wiz-step-content">
       <div class="wiz-step-header">

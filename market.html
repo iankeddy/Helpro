@@ -519,7 +519,13 @@ body {
   .main-content { max-width: 860px; margin: 0 auto; padding: 20px 32px; }
   .helpers-grid { grid-template-columns: repeat(4, 1fr); }
 }
-</style>
+
+  .cat-group { font-weight: 700; background: #f0fdf4; border-color: var(--green); }
+  .cat-group.active { background: var(--green); color: white; }
+  .hidden-sub { display: none !important; }
+  .cat-sub { font-size: 12px; }
+
+  </style>
   <!-- ── SEO ─────────────────────────────────────────── -->
   <title>Casual Jobs & Gig Work in Nairobi, Kenya | Part-Time Jobs — Helpro</title>
   <meta name="description" content="Browse cleaning jobs, delivery jobs, driving jobs, repair jobs and more in Nairobi and across Kenya. Apply today. Get paid via M-Pesa. Helpro gig marketplace.">
@@ -730,9 +736,74 @@ let filterCity     = '';
 let _gigsLoaded    = false, _jobsLoaded = false; // track independent load state
 
 const avatarColors   = ['#3db83a','#3b82f6','#f07623','#8b5cf6','#ec4899','#f59e0b','#0891b2','#16a34a'];
-const categoryIcons  = { cleaning:'fa-broom',delivery:'fa-truck',repairs:'fa-tools',shopping:'fa-shopping-cart',transport:'fa-car',petcare:'fa-paw',gardening:'fa-leaf',moving:'fa-boxes',security:'fa-shield-alt',tutoring:'fa-book',laundry:'fa-tshirt',events:'fa-calendar-alt' };
-const categories     = ['all','cleaning','delivery','repairs','shopping','transport','petcare','gardening','moving','security','tutoring','laundry','events'];
-const catBgColors    = { cleaning:'#3db83a',delivery:'#3b82f6',repairs:'#f07623',shopping:'#8b5cf6',transport:'#0891b2',petcare:'#ec4899',gardening:'#16a34a',laundry:'#f59e0b',moving:'#6366f1',tutoring:'#14b8a6',events:'#ef4444',security:'#78716c' };
+const categoryIcons = {
+  'cleaning':'fa-broom',
+  'plumbing':'fa-faucet',
+  'electrical':'fa-bolt',
+  'painting':'fa-paint-roller',
+  'pest-control':'fa-bug-slash',
+  'appliance-repair':'fa-plug',
+  'carpentry':'fa-screwdriver-wrench',
+  'gardening':'fa-leaf',
+  'repairs':'fa-tools',
+  'masonry':'fa-helmet-safety',
+  'welding':'fa-gear',
+  'solar':'fa-solar-panel',
+  'cctv':'fa-camera',
+  'wifi-setup':'fa-wifi',
+  'generator':'fa-plug-circle-bolt',
+  'water-borehole':'fa-droplet',
+  'bookkeeping':'fa-book',
+  'tax-filing':'fa-file-invoice',
+  'graphic-design':'fa-palette',
+  'it-support':'fa-laptop',
+  'printing':'fa-print',
+  'company-reg':'fa-building',
+  'moving':'fa-truck-moving',
+  'laundry':'fa-shirt',
+  'beauty':'fa-scissors',
+  'catering':'fa-utensils',
+  'photography':'fa-camera-retro',
+  'tutoring':'fa-graduation-cap',
+  'events':'fa-champagne-glasses',
+  'petcare':'fa-paw',
+  'car-wash':'fa-car',
+  'mechanic':'fa-wrench',
+  'tyre-service':'fa-circle-dot',
+  'driver':'fa-steering-wheel',
+  'roadside':'fa-road',
+  'delivery':'fa-truck',
+  'shopping':'fa-bag-shopping',
+  'legal':'fa-scale-balanced',
+  'accounting':'fa-calculator',
+  'architecture':'fa-drafting-compass',
+  'security':'fa-shield-halved',
+  'consulting':'fa-handshake',
+};
+const categories = ['all','cleaning','plumbing','electrical','painting','pest-control','appliance-repair','carpentry','gardening','repairs','masonry','welding','solar','cctv','wifi-setup','generator','water-borehole','bookkeeping','tax-filing','graphic-design','it-support','printing','company-reg','moving','laundry','beauty','catering','photography','tutoring','events','petcare','car-wash','mechanic','tyre-service','driver','roadside','delivery','shopping','legal','accounting','architecture','security','consulting'];
+const catBgColors = {
+  // Home Services
+  'cleaning':'#4ade80','plumbing':'#38bdf8','electrical':'#fbbf24','painting':'#f472b6',
+  'pest-control':'#a78bfa','appliance-repair':'#fb923c','carpentry':'#92400e','gardening':'#22c55e',
+  'repairs':'#6b7280',
+  // Technical
+  'masonry':'#b45309','welding':'#dc2626','solar':'#f59e0b','cctv':'#8b5cf6',
+  'wifi-setup':'#3b82f6','generator':'#f97316','water-borehole':'#06b6d4',
+  // Business
+  'bookkeeping':'#10b981','tax-filing':'#6366f1','graphic-design':'#ec4899',
+  'it-support':'#0ea5e9','printing':'#64748b','company-reg':'#7c3aed',
+  // Personal
+  'moving':'#f59e0b','laundry':'#06b6d4','beauty':'#f43f5e','catering':'#84cc16',
+  'photography':'#a855f7','tutoring':'#3b82f6','events':'#f97316','petcare':'#10b981',
+  // Auto
+  'car-wash':'#0ea5e9','mechanic':'#78716c','tyre-service':'#1c1917',
+  'driver':'#2563eb','roadside':'#dc2626',
+  // Delivery
+  'delivery':'#16a34a','shopping':'#d97706',
+  // Verified Pros
+  'legal':'#1e40af','accounting':'#065f46','architecture':'#7c2d12',
+  'security':'#1f2937','consulting':'#6d28d9',
+};
 
 function colorFor(str) { let h=0; for(let c of (str||'?')) h=(h<<5)-h+c.charCodeAt(0); return avatarColors[Math.abs(h)%avatarColors.length]; }
 function initials(name) { return (name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(); }

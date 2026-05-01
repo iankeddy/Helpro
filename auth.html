@@ -1255,6 +1255,134 @@ window.resend2FA        = resend2FA;
 window.skip2FA          = skip2FA;
 window.showTwofaChannels = showTwofaChannels;
 
+
+// ════════════════════════════════════════════
+// GOOGLE OAUTH
+// ════════════════════════════════════════════
+async function signInWithGoogle() {
+  const btns = document.querySelectorAll('.btn-google');
+  btns.forEach(b => {
+    b.disabled = true;
+    b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting to Google…';
+  });
+  try {
+    const db = getDB();
+    const { error } = await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/auth.html?google_callback=1',
+        queryParams: { access_type: 'offline', prompt: 'consent' },
+      },
+    });
+    if (error) {
+      showToast(error.message, 'error');
+      btns.forEach(b => {
+        b.disabled = false;
+        b.innerHTML = GOOGLE_BTN_HTML + ' Continue with Google';
+      });
+    }
+    // Supabase redirects browser to Google — no further action needed here
+  } catch(e) {
+    showToast('Google sign in failed. Please try again.', 'error');
+  }
+}
+
+const GOOGLE_BTN_HTML = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>`;
+
+// Handle Google OAuth callback — runs when browser returns from Google
+async function handleGoogleCallback() {
+  if (typeof toggleLoader === 'function') toggleLoader(true);
+  const db = getDB();
+
+  // Wait briefly for Supabase to parse the URL hash and set the session
+  await new Promise(r => setTimeout(r, 800));
+
+  const { data: { session }, error } = await db.auth.getSession();
+  if (typeof toggleLoader === 'function') toggleLoader(false);
+
+  if (error || !session) {
+    showToast('Google sign in failed. Please try again.', 'error');
+    // Clean URL
+    history.replaceState({}, '', window.location.pathname);
+    return;
+  }
+
+  const user = session.user;
+
+  // Check if profile already exists (returning user)
+  const { data: profile } = await db.from('profiles')
+    .select('id, role, full_name')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (profile) {
+    // Returning Google user
+    const firstName = (profile.full_name || '').split(' ')[0];
+    showToast('✅ Welcome back' + (firstName ? ', ' + firstName : '') + '!', 'green');
+    setTimeout(() => {
+      window.location.href = profile.role === 'admin' ? './admin.html' : './dashboard.html';
+    }, 1000);
+    return;
+  }
+
+  // New Google user — DB trigger already created profile via handle_new_user
+  // Show role picker so they can choose client or helper
+  showToast('✅ Google account connected! Choose your role below.', 'green');
+  history.replaceState({}, '', window.location.pathname);
+  showGoogleRolePicker(user);
+}
+
+// Role picker for new Google sign-ups
+function showGoogleRolePicker(user) {
+  const db = getDB();
+  document.querySelector('.auth-card').innerHTML = `
+    <div style="padding:32px 24px;max-width:380px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:24px">
+        <img src="${user.user_metadata?.avatar_url || ''}" onerror="this.style.display='none'"
+          style="width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid var(--green)">
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;margin-bottom:4px">
+          Hi, ${(user.user_metadata?.full_name || user.email.split('@')[0]).split(' ')[0]}! 👋
+        </div>
+        <div style="font-size:13px;color:#6b7280">How will you use Helpro?</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <button onclick="setGoogleRole('client')"
+          style="background:#f0fdf4;border:2px solid var(--green);border-radius:16px;padding:18px;cursor:pointer;text-align:left;font-family:var(--font-body)">
+          <div style="font-weight:800;font-size:16px;color:#1a4a1a;margin-bottom:3px">🧑‍💼 I need help</div>
+          <div style="font-size:13px;color:#6b7280">Post jobs, hire verified helpers, pay via M-Pesa</div>
+        </button>
+        <button onclick="setGoogleRole('helper')"
+          style="background:#eff6ff;border:2px solid #3b82f6;border-radius:16px;padding:18px;cursor:pointer;text-align:left;font-family:var(--font-body)">
+          <div style="font-weight:800;font-size:16px;color:#1e3a8a;margin-bottom:3px">🤝 I want to work</div>
+          <div style="font-size:13px;color:#6b7280">Find jobs near you, get paid via M-Pesa</div>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function setGoogleRole(role) {
+  const db = getDB();
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+
+  await db.from('profiles').update({ role }).eq('id', user.id);
+
+  showToast('✅ All set! Taking you to your dashboard…', 'green');
+  setTimeout(() => window.location.href = './dashboard.html', 1200);
+}
+
+// Check for Google callback on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('google_callback') === '1') {
+    handleGoogleCallback();
+  }
+});
+
+window.signInWithGoogle   = signInWithGoogle;
+window.setGoogleRole      = setGoogleRole;
+
 </script>
 </body>
 </html>
