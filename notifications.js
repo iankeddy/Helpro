@@ -20,15 +20,30 @@
 
   // ── NOTIFICATION ICONS / COLOURS ──────────────────────────
   const NOTIF_META = {
-    new_application: { icon: 'fa-file-lines',     color: '#3b82f6', bg: '#eff6ff' },
-    hired:           { icon: 'fa-handshake',       color: '#3db83a', bg: '#e8f7e8' },
-    job_completed:   { icon: 'fa-circle-check',    color: '#3db83a', bg: '#e8f7e8' },
-    new_review:      { icon: 'fa-star',            color: '#f59e0b', bg: '#fffbeb' },
-    account_approved:{ icon: 'fa-shield-check',    color: '#3db83a', bg: '#e8f7e8' },
-    account_rejected:{ icon: 'fa-circle-xmark',    color: '#ef4444', bg: '#fef2f2' },
-    new_message:     { icon: 'fa-comment',         color: '#8b5cf6', bg: '#f5f3ff' },
-    new_helper:      { icon: 'fa-user-plus',       color: '#f07623', bg: '#fff3ec' },
-    new_job:         { icon: 'fa-briefcase',       color: '#0891b2', bg: '#ecfeff' },
+    // Applications & hiring
+    new_application:  { icon: 'fa-file-lines',       color: '#3b82f6', bg: '#eff6ff',  action: 'View Application',  route: 'dashboard' },
+    hired:            { icon: 'fa-handshake',         color: '#3db83a', bg: '#e8f7e8',  action: 'Open Chat',         route: 'chat'      },
+    job_completed:    { icon: 'fa-circle-check',      color: '#3db83a', bg: '#e8f7e8',  action: 'View Job',          route: 'dashboard' },
+    new_review:       { icon: 'fa-star',              color: '#f59e0b', bg: '#fffbeb',  action: 'See Review',        route: 'dashboard' },
+    // Vetting
+    vetting_approved: { icon: 'fa-shield-check',      color: '#3db83a', bg: '#e8f7e8',  action: 'Go to Dashboard',   route: 'dashboard' },
+    vetting_rejected: { icon: 'fa-circle-xmark',      color: '#ef4444', bg: '#fef2f2',  action: 'Resubmit Docs',     route: 'dashboard' },
+    account_approved: { icon: 'fa-shield-check',      color: '#3db83a', bg: '#e8f7e8',  action: 'Go to Dashboard',   route: 'dashboard' },
+    account_rejected: { icon: 'fa-circle-xmark',      color: '#ef4444', bg: '#fef2f2',  action: 'Resubmit Docs',     route: 'dashboard' },
+    // Messaging
+    new_message:      { icon: 'fa-comment',           color: '#8b5cf6', bg: '#f5f3ff',  action: 'Reply',             route: 'chat'      },
+    // Jobs
+    new_helper:       { icon: 'fa-user-plus',         color: '#f07623', bg: '#fff3ec',  action: 'Review Helper',     route: 'admin'     },
+    new_job:          { icon: 'fa-briefcase',         color: '#0891b2', bg: '#ecfeff',  action: 'View Job',          route: 'market'    },
+    // Payments
+    payment_received: { icon: 'fa-circle-dollar-sign',color: '#10b981', bg: '#ecfdf5',  action: 'View Payment',      route: 'dashboard' },
+    escrow_released:  { icon: 'fa-sack-dollar',       color: '#10b981', bg: '#ecfdf5',  action: 'View Wallet',       route: 'dashboard' },
+    payment_failed:   { icon: 'fa-triangle-exclamation',color:'#ef4444', bg: '#fef2f2', action: 'Retry Payment',     route: 'dashboard' },
+    withdrawal:       { icon: 'fa-money-bill-transfer',color: '#10b981', bg: '#ecfdf5', action: 'View Wallet',       route: 'dashboard' },
+    // Auth
+    '2fa':            { icon: 'fa-shield-halved',     color: '#6366f1', bg: '#eef2ff',  action: null,                route: null        },
+    // General
+    general:          { icon: 'fa-circle-info',       color: '#8a9a8a', bg: '#f5f5f5',  action: null,                route: null        },
   };
 
   // ── INJECT CSS ────────────────────────────────────────────
@@ -198,6 +213,16 @@
         margin-bottom: 2px; line-height: 1.35;
       }
       .notif-item.unread .notif-title { color: #1a3a1a; }
+      .notif-action-btn {
+        display: inline-flex; align-items: center; gap: 5px;
+        margin-top: 7px; padding: 5px 12px;
+        background: var(--green, #3db83a); color: white;
+        border: none; border-radius: 20px;
+        font-size: 11px; font-weight: 700; cursor: pointer;
+        font-family: var(--font-body, sans-serif);
+        transition: opacity .15s;
+      }
+      .notif-action-btn:hover { opacity: 0.85; }
       .notif-body {
         font-size: 12px; color: #5a6a5a; line-height: 1.5;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -390,11 +415,16 @@
     }
 
     list.innerHTML = _notifAll.map((n, i) => {
-      const meta = NOTIF_META[n.type] || { icon: 'fa-circle-info', color: '#8a9a8a', bg: '#f5f5f5' };
+      const meta = NOTIF_META[n.type] || NOTIF_META['general'];
+      const dataStr = JSON.stringify(n.data || {}).replace(/"/g, '&quot;');
+      const actionBtn = meta.action ? `
+        <button class="notif-action-btn" onclick="event.stopPropagation();window._notifItemClick('${n.id}','${n.type}',${dataStr})">
+          ${meta.action} <i class="fas fa-arrow-right" style="font-size:10px"></i>
+        </button>` : '';
       return `
         <div class="notif-item ${n.is_read ? '' : 'unread'}"
              style="animation-delay:${i * 0.04}s"
-             onclick="window._notifItemClick('${n.id}', ${JSON.stringify(n.data || {}).replace(/"/g, '&quot;')})">
+             onclick="window._notifItemClick('${n.id}','${n.type}',${dataStr})">
           <div class="notif-icon" style="background:${meta.bg};color:${meta.color}">
             <i class="fas ${meta.icon}"></i>
           </div>
@@ -402,6 +432,7 @@
             <div class="notif-title">${escapeHtml(n.title)}</div>
             <div class="notif-body">${escapeHtml(n.body || '')}</div>
             <div class="notif-time">${timeAgo(n.created_at)}</div>
+            ${actionBtn}
           </div>
           ${n.is_read ? '' : '<div class="notif-unread-dot"></div>'}
         </div>`;
@@ -511,16 +542,76 @@
 
 
   // ── NOTIFICATION ITEM CLICK ──────────────────────────────
-  window._notifItemClick = function(id, data) {
-    // Navigate based on notification data
-    if (data.job_id && (data.booking_id || data.helper_id)) {
-      // Application or hire — open dashboard
-      closePanel();
-      if (typeof goToPage === 'function') goToPage('dashboard.html');
-    } else if (data.helper_id && !data.job_id) {
-      // New helper for admin — go to admin
-      closePanel();
-      if (typeof goToPage === 'function') goToPage('admin.html');
+  window._notifItemClick = async function(id, type, data) {
+    // Mark as read
+    const supaClient = window.client || window.db;
+    if (supaClient && id) {
+      supaClient.from('notifications').update({ is_read: true }).eq('id', id)
+        .then(() => {
+          const notif = _notifAll.find(n => n.id === id);
+          if (notif) { notif.is_read = true; _notifUnread = Math.max(0, _notifUnread - 1); updateBadge(); }
+          const el = document.querySelector(`[onclick*="${id}"]`);
+          if (el) { el.classList.remove('unread'); el.querySelector('.notif-unread-dot')?.remove(); }
+        });
+    }
+
+    const meta = NOTIF_META[type] || NOTIF_META['general'];
+    closePanel();
+
+    // Small delay so panel closes before navigation
+    await new Promise(r => setTimeout(r, 250));
+
+    // ── Route based on type ──
+    switch (meta.route) {
+      case 'chat':
+        // Open the specific conversation
+        if (data.sender_id || data.helper_id || data.client_id) {
+          const recipientId   = data.sender_id || data.helper_id || data.client_id;
+          const recipientName = data.sender_name || data.helper_name || data.client_name || 'User';
+          const jobId         = data.job_id || null;
+          if (window.location.pathname.includes('dashboard.html')) {
+            // Already on dashboard — open chat directly
+            if (typeof startChatWith === 'function') {
+              startChatWith(recipientId, recipientName, jobId);
+            } else if (typeof openThread === 'function') {
+              openThread(recipientId, recipientName, jobId);
+            }
+          } else {
+            // Navigate to dashboard and open chat
+            safeStorage.set('openChat', 'true');
+            safeStorage.set('chatRecipientId', recipientId);
+            safeStorage.set('chatRecipientName', recipientName);
+            if (jobId) safeStorage.set('chatJobId', jobId);
+            window.location.href = './dashboard.html';
+          }
+        } else {
+          // No specific recipient — just open chat list
+          if (window.location.pathname.includes('dashboard.html')) {
+            if (typeof openChatPage === 'function') openChatPage();
+          } else {
+            safeStorage.set('openChat', 'true');
+            window.location.href = './dashboard.html';
+          }
+        }
+        break;
+
+      case 'admin':
+        window.location.href = './admin.html';
+        break;
+
+      case 'market':
+        window.location.href = './market.html';
+        break;
+
+      case 'dashboard':
+      default:
+        if (window.location.pathname.includes('dashboard.html')) {
+          // Already here — scroll to top or refresh section
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          window.location.href = './dashboard.html';
+        }
+        break;
     }
   };
 
@@ -586,12 +677,22 @@
   async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return null;
     try {
-      const reg = await navigator.serviceWorker.register('sw.js', { scope: './' });
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       _swRegistration = reg;
       // Send VAPID key to SW for re-subscribe handling
-      if (reg.active) {
-        reg.active.postMessage({ type: 'SET_VAPID_KEY', key: VAPID_PUBLIC_KEY });
-      }
+      const sw = reg.active || reg.installing || reg.waiting;
+      if (sw) sw.postMessage({ type: 'SET_VAPID_KEY', key: VAPID_PUBLIC_KEY });
+      // Also send once SW becomes active (handles first install)
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'activated') {
+              newSW.postMessage({ type: 'SET_VAPID_KEY', key: VAPID_PUBLIC_KEY });
+            }
+          });
+        }
+      });
       return reg;
     } catch (e) {
       return null;

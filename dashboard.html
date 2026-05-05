@@ -542,6 +542,33 @@
 <script>
 // ── REFERRAL DASHBOARD WIDGET ──
 (async function initReferralWidget() {
+  // Handle push notification deep-link URL params
+  // e.g. dashboard.html?openChat=1&recipientId=xxx&recipientName=yyy
+  (function handlePushDeepLink() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('openChat') === '1') {
+      const recipientId   = params.get('recipientId');
+      const recipientName = decodeURIComponent(params.get('recipientName') || 'User');
+      const jobId         = params.get('jobId') || null;
+      if (recipientId) {
+        // Store in safeStorage — app.js DOMContentLoaded will pick it up
+        safeStorage.set('openChat', 'true');
+        safeStorage.set('chatRecipientId', recipientId);
+        safeStorage.set('chatRecipientName', recipientName);
+        if (jobId) safeStorage.set('chatJobId', jobId);
+      }
+      // Clean the URL
+      history.replaceState({}, '', window.location.pathname);
+    }
+    if (params.get('section') === 'wallet') {
+      // Scroll to wallet section once loaded
+      setTimeout(() => {
+        document.getElementById('wallet-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 1500);
+      history.replaceState({}, '', window.location.pathname);
+    }
+  })();
+
   // Wait for Supabase client to be ready (app.js sets window.client)
   let attempts = 0;
   while (!window.client && attempts++ < 30) {
