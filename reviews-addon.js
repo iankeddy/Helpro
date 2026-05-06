@@ -465,11 +465,11 @@ function chatWithApplicant(helperId, helperName, jobId) {
   if (typeof startChatWith === 'function') {
     startChatWith(helperId, helperName, jobId || null);
   } else {
-    // Fallback: set localStorage and navigate to dashboard
-    localStorage.setItem('openChat', 'true');
-    localStorage.setItem('chatRecipientId', helperId);
-    localStorage.setItem('chatRecipientName', helperName);
-    if (jobId) localStorage.setItem('chatJobId', jobId);
+    // Fallback: store and navigate
+    safeStorage.set('openChat', 'true');
+    safeStorage.set('chatRecipientId', helperId);
+    safeStorage.set('chatRecipientName', helperName);
+    if (jobId) safeStorage.set('chatJobId', jobId);
     window.location.href = 'dashboard.html';
   }
 }

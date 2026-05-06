@@ -670,7 +670,32 @@ async function openThread(recipientId, recipientName, jobId = '') {
   // Show hire button only if current user is a client
   const hireActions = document.getElementById('hire-actions');
   if (hireActions) {
-    hireActions.style.display = chatCurrentProfile?.role === 'client' ? 'flex' : 'none';
+    // Show hire button only to clients — hide once booking already accepted
+    const showHire = chatCurrentProfile?.role === 'client';
+    hireActions.style.display = showHire ? 'flex' : 'none';
+
+    if (showHire && (jobId || chatActiveThread.jobId)) {
+      // Check if already hired — grey out button if so
+      const jid = jobId || chatActiveThread.jobId;
+      client.from('bookings')
+        .select('status')
+        .eq('job_id', jid)
+        .eq('helper_id', recipientId)
+        .maybeSingle()
+        .then(({ data: bk }) => {
+          const btn = hireActions.querySelector('button');
+          if (!btn) return;
+          if (bk?.status === 'accepted' || bk?.status === 'completed') {
+            btn.disabled = true;
+            btn.innerHTML = '✅ Already Hired';
+            btn.style.opacity = '0.6';
+          } else {
+            btn.disabled = false;
+            btn.innerHTML = '✅ Confirm Hire';
+            btn.style.opacity = '1';
+          }
+        });
+    }
   }
 
   // Switch views
@@ -959,7 +984,10 @@ async function startChatWith(recipientId, recipientName, jobId = null) {
     chatPage.classList.remove('hidden');
     document.getElementById('chat-with-name').innerText = recipientName;
     const hireActions = document.getElementById('hire-actions');
-    if (hireActions) hireActions.style.display = chatCurrentProfile?.role === 'client' ? 'flex' : 'none';
+    if (hireActions) {
+      const showBtn = chatCurrentProfile?.role === 'client';
+      hireActions.style.display = showBtn ? 'flex' : 'none';
+    }
     document.getElementById('inbox-view').style.display = 'none';
     document.getElementById('chat-thread-view')?.classList.remove('hidden');
     await loadMessages();
@@ -977,29 +1005,106 @@ async function startChatWith(recipientId, recipientName, jobId = null) {
 async function confirmHire() {
   if (!chatActiveThread || !chatCurrentUser) return;
 
-  const confirmMsg = `Hi! I'd like to officially hire you for this job. Please confirm your availability.`;
+  const helperName = chatActiveThread.recipientName || 'Helper';
+  const helperId   = chatActiveThread.recipientId;
+  const jobId      = chatActiveThread.jobId;
 
-  try {
-    await client.from('messages').insert([{
-      sender_id: chatCurrentUser.id,
-      recipient_id: chatActiveThread.recipientId,
-      job_id: chatActiveThread.jobId || null,
-      content: confirmMsg,
-      is_read: false
-    }]);
+  // ── Step 1: Get or create booking ──
+  let booking = null;
 
-    // Also update booking status if job_id exists
-    if (chatActiveThread.jobId) {
-      await client.from('bookings')
-        .update({ status: 'accepted' })
-        .eq('job_id', chatActiveThread.jobId)
-        .eq('helper_id', chatActiveThread.recipientId);
+  if (jobId) {
+    // Look for an existing pending booking
+    const { data: existing } = await client.from('bookings')
+      .select('id, status, job_id')
+      .eq('job_id', jobId)
+      .eq('helper_id', helperId)
+      .maybeSingle();
+
+    if (existing) {
+      booking = existing;
+    } else {
+      // No booking exists (client initiated chat, helper didn't apply) — create one
+      const { data: newBooking, error: bookErr } = await client.from('bookings').insert([{
+        job_id:    jobId,
+        helper_id: helperId,
+        client_id: chatCurrentUser.id,
+        status:    'pending',
+      }]).select('id, status, job_id').maybeSingle();
+      if (bookErr) throw new Error('Could not create booking: ' + bookErr.message);
+      booking = newBooking;
     }
-
-    showModal("Hire Request Sent! ✅", `Your hire request has been sent to ${chatActiveThread.recipientName}. They'll be notified right away.`);
-  } catch (e) {
-    showModal("Hire Failed", e.message, "error");
+  } else {
+    // No job context — create a booking-less hire (direct service request)
+    const { data: newBooking, error: bookErr } = await client.from('bookings').insert([{
+      job_id:    null,
+      helper_id: helperId,
+      client_id: chatCurrentUser.id,
+      status:    'pending',
+    }]).select('id, status').maybeSingle();
+    if (bookErr) throw new Error('Could not create booking: ' + bookErr.message);
+    booking = newBooking;
   }
+
+  if (!booking) throw new Error('Booking could not be established');
+
+  // ── Step 2: Accept the booking ──
+  const { error: updateErr } = await client.from('bookings')
+    .update({ status: 'accepted' })
+    .eq('id', booking.id);
+  if (updateErr) throw new Error('Could not accept booking: ' + updateErr.message);
+
+  // ── Step 3: Send hire confirmation message in chat ──
+  await client.from('messages').insert([{
+    sender_id:    chatCurrentUser.id,
+    recipient_id: helperId,
+    job_id:       jobId || null,
+    content:      `✅ I'd like to officially hire you! Your booking has been confirmed. Please proceed with the agreed work.`,
+    is_read:      false,
+  }]);
+
+  // ── Step 4: Notify the helper ──
+  await client.from('notifications').insert([{
+    user_id: helperId,
+    title:   '🎉 You have been hired!',
+    body:    `${chatCurrentProfile?.full_name || 'A client'} has confirmed your hire. Check your bookings and get ready to work!`,
+    type:    'hired',
+    is_read: false,
+    data: {
+      client_id:   chatCurrentUser.id,
+      client_name: chatCurrentProfile?.full_name || '',
+      job_id:      jobId || null,
+      booking_id:  booking.id,
+    },
+  }]);
+
+  // ── Step 5: Show payment prompt ──
+  // Fetch job budget so we can pre-fill the pay modal
+  let jobBudget = 0;
+  let jobTitle  = 'Service';
+  if (jobId) {
+    const { data: job } = await client.from('jobs').select('title, budget').eq('id', jobId).maybeSingle();
+    if (job) {
+      jobTitle  = job.title  || 'Service';
+      jobBudget = parseInt((job.budget || '0').replace(/[^0-9]/g, '')) || 0;
+    }
+  }
+
+  // Reload messages to show hire confirmation message
+  loadMessages();
+
+  // Prompt payment via escrow
+  showModal(
+    '✅ Hire Confirmed!',
+    `${helperName} has been hired. To secure the booking, pay via M-Pesa escrow. The helper gets paid after you confirm the job is done.`,
+    'success',
+    [{
+      label: '💳 Pay via M-Pesa',
+      onclick: `closeModal();openPayModal('${booking.id}','${helperId}','${helperName}','${jobTitle}',${jobBudget})`,
+    }, {
+      label: 'Pay Later',
+      onclick: 'closeModal()',
+    }]
+  );
 }
 
 // ── SHOW/HIDE INBOX ──
