@@ -260,16 +260,17 @@ body {
 
 <!-- HEADER -->
 <header class="app-header" id="app-header">
-  <!-- Left: hamburger + logo -->
+  <!-- Left: hamburger -->
   <div class="header-left">
     <button class="icon-btn menu-btn" onclick="toggleAppMenu()" aria-label="Menu">
       <i class="fas fa-bars"></i>
     </button>
-    <div class="app-logo" onclick="goToPage('index.html')" role="link" aria-label="Helpro Home">
-      <img src="images/helpro-logo.png" alt="Helpro"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <span class="app-logo-text" style="display:none">Helpro</span>
-    </div>
+  </div>
+  <!-- Centre: logo — absolutely positioned so it stays perfectly centred -->
+  <div class="app-logo" onclick="goToPage('index.html')" role="link" aria-label="Helpro Home">
+    <img src="images/helpro-logo.png" alt="Helpro"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="app-logo-text" style="display:none">Helpro</span>
   </div>
   <!-- Right: notifications (injected by notifications.js) + profile -->
   <div class="header-right">

@@ -70,57 +70,55 @@ a { color: inherit; text-decoration: none; }
 
 /* ── APP HEADER ── */
 /* ══════════════════════════════════════════════════════════
-   APP HEADER — Premium layout (logo left, icons right)
+   APP HEADER — Logo perfectly centered, icons on sides
    ══════════════════════════════════════════════════════════ */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 200;
   height: 62px;
-  background: #ffffff;
-  border-bottom: 0.5px solid #EAEAEA;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  gap: 0;
-  /* Shadow on scroll — toggled by JS */
+  padding: 0 14px;
+  gap: 8px;
   transition: box-shadow 0.25s ease;
 }
 .app-header.scrolled {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-/* Left section: hamburger + logo together */
-.header-left {
+/* Left / Right icon groups — equal width so logo stays centred */
+.header-left,
+.header-right {
   display: flex;
   align-items: center;
   gap: 2px;
   flex: 1;
 }
-
-/* Right section: bell + profile */
 .header-right {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
+  justify-content: flex-end;
 }
 
-/* Logo — left-aligned, next to hamburger */
+/* Logo — absolutely centred in the header regardless of icon count */
 .app-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 4px 6px 4px 4px;
-  border-radius: 10px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
   -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s ease;
 }
 .app-logo:hover  { opacity: 0.75; }
-.app-logo:active { transform: scale(0.95); opacity: 0.6; }
+.app-logo:active { opacity: 0.5;  }
 .app-logo img {
-  height: 24px;
+  height: 26px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -129,38 +127,32 @@ a { color: inherit; text-decoration: none; }
 .app-logo-text {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 19px;
+  font-size: 20px;
   color: var(--green);
   letter-spacing: -0.5px;
 }
 
-/* Icon buttons — uniform across all pages */
+/* Icon buttons — unchanged from original */
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: none;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  color: #1a1a1a;
-  cursor: pointer;
-  position: relative;
+  font-size: 18px;
+  color: var(--text);
+  transition: background var(--t), color var(--t), transform var(--t);
   flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  position: relative;
+  cursor: pointer;
 }
-.icon-btn:hover  { background: #f5f5f5; color: var(--green-dark); }
-.icon-btn:active { transform: scale(0.92); opacity: 0.7; }
-
-/* Hamburger — slightly left-edge push for visual balance */
-.icon-btn.menu-btn { margin-left: -6px; color: #1a1a1a; }
-
-/* Profile icon */
-.icon-btn.profile-btn { color: #1a1a1a; }
-.icon-btn.profile-btn:hover { color: var(--green); }
+.icon-btn:hover  { background: var(--surface-2); color: var(--green-dark); }
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn.menu-btn    { margin-left: -4px; }
+.icon-btn.profile-btn { }
 
 /* ── APP DRAWER ── */
 .app-menu {
