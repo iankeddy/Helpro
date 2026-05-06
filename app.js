@@ -2650,3 +2650,23 @@ window.showDeleteConfirm     = showDeleteConfirm;
 window.closeModals           = closeModals;
 window.confirmDeactivate     = confirmDeactivate;
 window.confirmDelete         = confirmDelete;
+
+// ── HEADER SCROLL SHADOW ──
+// Adds .scrolled class to header when user scrolls down (subtle elevation effect)
+(function initHeaderScroll() {
+  const header = document.getElementById('app-header');
+  if (!header) return;
+  let lastY = 0;
+  const onScroll = () => {
+    const y = window.scrollY || document.documentElement.scrollTop;
+    if (y > 8) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+    lastY = y;
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // run once on load
+})();
+

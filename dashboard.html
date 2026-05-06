@@ -31,18 +31,24 @@
 <div id="app-menu" class="app-menu hidden"></div>
 
 <!-- APP HEADER -->
-<header class="app-header">
-  <button class="icon-btn" onclick="toggleAppMenu()" aria-label="Menu">
-    <i class="fas fa-bars"></i>
-  </button>
-  <div class="app-logo" onclick="goToPage('index.html')" role="img" aria-label="Helpro Home">
-    <img src="images/helpro-logo.png" alt="Helpro"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <span class="app-logo-text" style="display:none">Helpro</span>
+<header class="app-header" id="app-header">
+  <!-- Left: hamburger + logo -->
+  <div class="header-left">
+    <button class="icon-btn menu-btn" onclick="toggleAppMenu()" aria-label="Menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="app-logo" onclick="goToPage('index.html')" role="link" aria-label="Helpro Home">
+      <img src="images/helpro-logo.png" alt="Helpro"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="app-logo-text" style="display:none">Helpro</span>
+    </div>
   </div>
-  <button class="icon-btn" onclick="handleProfileClick()" aria-label="Profile">
-    <i class="fas fa-user-circle"></i>
-  </button>
+  <!-- Right: notifications (injected by notifications.js) + profile -->
+  <div class="header-right">
+    <button class="icon-btn profile-btn" onclick="handleProfileClick()" aria-label="Profile">
+      <i class="fas fa-user-circle"></i>
+    </button>
+  </div>
 </header>
 
 

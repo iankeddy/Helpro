@@ -69,65 +69,98 @@ input, select, textarea { font-family: var(--font-body); }
 a { color: inherit; text-decoration: none; }
 
 /* ── APP HEADER ── */
+/* ══════════════════════════════════════════════════════════
+   APP HEADER — Premium layout (logo left, icons right)
+   ══════════════════════════════════════════════════════════ */
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 100;
-  height: var(--header-h);
-  background: rgba(255,255,255,0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+  z-index: 200;
+  height: 62px;
+  background: #ffffff;
+  border-bottom: 0.5px solid #EAEAEA;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
-  gap: 8px;
+  padding: 0 16px;
+  gap: 0;
+  /* Shadow on scroll — toggled by JS */
+  transition: box-shadow 0.25s ease;
+}
+.app-header.scrolled {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* Logo — always centered */
-.app-logo {
-  flex: 1;
+/* Left section: hamburger + logo together */
+.header-left {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  gap: 2px;
+  flex: 1;
 }
+
+/* Right section: bell + profile */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* Logo — left-aligned, next to hamburger */
+.app-logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 6px 4px 4px;
+  border-radius: 10px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-logo:hover  { opacity: 0.75; }
+.app-logo:active { transform: scale(0.95); opacity: 0.6; }
 .app-logo img {
-  height: 26px;
+  height: 24px;
   width: auto;
   object-fit: contain;
+  display: block;
 }
-/* Fallback text logo if image fails */
+/* Fallback text logo */
 .app-logo-text {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 20px;
+  font-size: 19px;
   color: var(--green);
   letter-spacing: -0.5px;
 }
 
-/* Icon buttons — consistent on all pages */
+/* Icon buttons — uniform across all pages */
 .icon-btn {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: none;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: var(--text);
-  transition: background var(--t), color var(--t), transform var(--t);
-  flex-shrink: 0;
+  font-size: 20px;
+  color: #1a1a1a;
+  cursor: pointer;
   position: relative;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
-.icon-btn:hover {
-  background: var(--surface-2);
-  color: var(--green-dark);
-}
-.icon-btn:active { transform: scale(0.92); }
+.icon-btn:hover  { background: #f5f5f5; color: var(--green-dark); }
+.icon-btn:active { transform: scale(0.92); opacity: 0.7; }
+
+/* Hamburger — slightly left-edge push for visual balance */
+.icon-btn.menu-btn { margin-left: -6px; color: #1a1a1a; }
+
+/* Profile icon */
+.icon-btn.profile-btn { color: #1a1a1a; }
+.icon-btn.profile-btn:hover { color: var(--green); }
 
 /* ── APP DRAWER ── */
 .app-menu {

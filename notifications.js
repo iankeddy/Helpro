@@ -340,9 +340,10 @@
     const header = document.querySelector('.app-header');
     if (!header) return;
 
-    // The header is: [hamburger] [logo] [profile-btn]
-    // We replace the profile btn with [bell] [profile-btn] side by side
-    const profileBtn = header.querySelector('.icon-btn:last-child');
+    // New header: [header-left: menu+logo] [header-right: bell+profile]
+    // Inject bell as first child of .header-right (before profile btn)
+    const headerRight  = header.querySelector('.header-right');
+    const profileBtn   = header.querySelector('.profile-btn') || header.querySelector('.icon-btn:last-child');
 
     const bell = document.createElement('button');
     bell.id = 'notif-bell-btn';
@@ -353,7 +354,9 @@
       <span id="notif-badge" class="hidden">0</span>`;
     bell.addEventListener('click', togglePanel);
 
-    if (profileBtn) {
+    if (headerRight && profileBtn) {
+      headerRight.insertBefore(bell, profileBtn);
+    } else if (profileBtn) {
       header.insertBefore(bell, profileBtn);
     } else {
       header.appendChild(bell);
@@ -451,9 +454,19 @@
     if (!badge) return;
 
     if (_notifUnread > 0) {
-      badge.textContent  = _notifUnread > 99 ? '99+' : _notifUnread;
+      if (_notifUnread === 1) {
+        // Single notif: just a red dot (no number)
+        badge.textContent = '';
+        badge.classList.remove('has-count');
+      } else {
+        // Multiple: show count
+        badge.textContent = _notifUnread > 99 ? '99+' : String(_notifUnread);
+        badge.classList.add('has-count');
+      }
       badge.classList.remove('hidden');
     } else {
+      badge.textContent = '';
+      badge.classList.remove('has-count');
       badge.classList.add('hidden');
     }
 
