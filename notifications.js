@@ -63,8 +63,7 @@
         cursor: pointer; flex-shrink: 0;
         transition: background 0.2s, color 0.2s, transform 0.2s;
       }
-      #notif-bell-btn:hover  { background: var(--surface-2, #eee); color: var(--green-dark, #2a8a28); }
-      #notif-bell-btn:active { transform: scale(0.92); }
+      /* #notif-bell-btn hover/active handled by .icon-btn in style.css */
       #notif-bell-btn.ringing i {
         animation: bellRing 0.5s ease;
       }
@@ -347,11 +346,12 @@
 
     const bell = document.createElement('button');
     bell.id = 'notif-bell-btn';
+    bell.className = 'icon-btn';   // inherit header icon styles from style.css
     bell.setAttribute('aria-label', 'Notifications');
     bell.setAttribute('title', 'Notifications');
     bell.innerHTML = `
       <i class="fas fa-bell"></i>
-      <span id="notif-badge" class="hidden">0</span>`;
+      <span id="notif-badge" class="hidden"></span>`;
     bell.addEventListener('click', togglePanel);
 
     if (headerRight && profileBtn) {
