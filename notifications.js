@@ -885,9 +885,8 @@
 
   // ── INIT ─────────────────────────────────────────────────
   async function initNotifications() {
-    injectStyles();
-    injectBell();
-    injectPanel();
+    // NOTE: bell, panel, and styles are injected immediately on DOM ready
+    // (see bottom of file) — this function only handles auth-dependent work
 
     // Register service worker (non-blocking)
     registerServiceWorker();
@@ -924,11 +923,24 @@
     } catch (e) {}
   }
 
-  // Run after DOM + scripts are ready
+  // ── PHASE 1: Inject UI immediately — no auth needed ──
+  function injectUI() {
+    injectStyles();
+    injectBell();
+    injectPanel();
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(initNotifications, 400));
+    document.addEventListener('DOMContentLoaded', injectUI);
   } else {
-    setTimeout(initNotifications, 400);
+    injectUI(); // DOM already ready — inject right now
+  }
+
+  // ── PHASE 2: Load notifications after auth — slight delay so page settles ──
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initNotifications, 200));
+  } else {
+    setTimeout(initNotifications, 200);
   }
 
   // Expose for manual refresh and cross-module use

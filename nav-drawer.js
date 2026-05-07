@@ -156,7 +156,7 @@
           display: block !important;
           z-index: 200;
         }
-        .app-menu.hidden { display: block !important; }
+        .app-menu.hidden { display: none !important; }
 
         .menu-content {
           width: 240px !important;
@@ -231,7 +231,7 @@
         .app-menu { width: 260px !important; }
         .menu-content { width: 260px !important; }
         body { padding-left: 260px !important; }
-        .app-header { left: 260px !important; width: calc(100% - 260px) !important; }
+        .app-header { left: 260px !important; width: calc(100% - 1px) !important; }
 
         .dashboard-content,
         .main-content {
@@ -325,7 +325,15 @@
   // Unify all existing toggle function names
   window.toggleAppMenu = window.openMenu = function() {
     const overlay = document.getElementById('app-menu');
-    if (overlay) overlay.classList.toggle('hidden');
+    if (!overlay) return;
+    const isHidden = overlay.classList.contains('hidden');
+    if (isHidden) {
+      overlay.classList.remove('hidden');
+      // Trap focus inside drawer for accessibility
+      setTimeout(() => overlay.querySelector('a, button')?.focus(), 50);
+    } else {
+      overlay.classList.add('hidden');
+    }
   };
   window.closeMenu = function(e) {
     if (e && e.target !== document.getElementById('app-menu')) return;
